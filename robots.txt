@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /mercado-pago/
+
+Sitemap: https://ibetp.com.br/sitemap.xml

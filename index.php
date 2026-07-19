@@ -374,6 +374,39 @@ function official_drive_technical_profile_override(string $slugKey, string $titl
     };
     $has = fn(string $needle): bool => str_contains($matchText, $needle);
 
+    if ($has('administracao')) {
+        return $profile('12 meses', '1.200h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '460h', [
+                ['Introdução ao EAD','20h'],
+                ['Gestão de Recursos Humanos','40h'],
+                ['Fundamentos da Administração','20h'],
+                ['Organização, Sistemas e Métodos','20h'],
+                ['Empreendedorismo','20h'],
+                ['Princípios de Marketing','20h'],
+                ['Marketing Digital','40h'],
+                ['Atendimento ao Cliente','20h'],
+                ['Gestão Estratégica de Pessoas','60h'],
+                ['Departamento Pessoal','40h'],
+                ['Matemática Financeira','40h'],
+                ['Gestão Financeira e Orçamentária','80h'],
+                ['Gestão de Custos','40h'],
+            ]],
+            ['Módulo II', '740h', [
+                ['Logística Empresarial','80h'],
+                ['Supply Chain Management - SCM','60h'],
+                ['Administração de Sistemas de Informação','40h'],
+                ['Gestão de Projetos','40h'],
+                ['Técnicas de Vendas','20h'],
+                ['Processo Decisório','40h'],
+                ['Liderança e Desenvolvimento de Equipes','60h'],
+                ['Contabilidade Básica','40h'],
+                ['Gestão de Estoques e Suprimentos','40h'],
+                ['Gestão de transporte e Distribuição','80h'],
+                ['Gestão de Inovação Tecnológica','40h'],
+                ['Estágio Supervisionado','200h'],
+            ]],
+        ]);
+    }
     if ($has('mecanica')) {
         return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
             ['Módulo I', '800h', [['Introdução ao EAD','40h'], ['Gestão de Recursos Humanos','40h'], ['Introdução à Libras','40h'], ['Comportamento Organizacional','40h'], ['Segurança do Trabalho','80h'], ['Gestão de Projetos','40h'], ['Metrologia','40h'], ['Empreendedorismo','60h'], ['Lógica de Programação','40h'], ['Matemática aplicada','60h'], ['Desenho Técnico','60h'], ['Projetos mecânicos','80h'], ['Desenho Mecânico','60h'], ['Resistência de Materiais','40h'], ['Gestão Empresarial','80h']]],
@@ -1468,7 +1501,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <section class="premium-section academic-official">
             <div class="section-kicker">Grade curricular oficial</div>
             <h2>Grade curricular</h2>
-            <p><?= e($academic['source']) ?> <?= empty($academic['modules']) ? 'A página informa apenas dados oficiais já presentes no cadastro do curso; grade curricular sugerida não é publicada como se fosse matriz oficial.' : 'A página abaixo apresenta as disciplinas e cargas horárias informadas no documento acadêmico disponível ao IBETP.' ?></p>
+            <p><?= e($academic['source']) ?> <?= empty($academic['modules']) ? 'Quando a matriz individual ainda não estiver vinculada, não publicamos grade sugerida como se fosse oficial.' : 'A página abaixo apresenta as disciplinas e cargas horárias informadas no documento acadêmico disponível ao IBETP.' ?></p>
             <div class="premium-grid academic-summary">
               <div class="premium-card"><strong>Duração</strong><span><?= e($academic['duration']) ?></span></div>
               <div class="premium-card"><strong>Carga horária</strong><span><?= e($academic['workload']) ?></span></div>
@@ -1478,7 +1511,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <div class="info-card official-presence"><strong>Presencialidade</strong><p><?= e($academic['presence']) ?></p></div>
             <?php endif; ?>
             <?php if (empty($academic['modules'])): ?>
-              <div class="info-card academic-pending"><strong>Grade individual em conferência</strong><p>A matriz com disciplinas e cargas horárias será publicada somente após conferência documental do curso específico. Até lá, o atendimento do IBETP confirma os detalhes acadêmicos antes da matrícula.</p></div>
+              <div class="info-card academic-pending"><strong>Grade curricular indisponível nesta página</strong><p>Este curso ainda não tem matriz individual vinculada ao catálogo público. O IBETP informa os dados acadêmicos oficiais antes da matrícula.</p></div>
             <?php endif; ?>
             <?php foreach ($academic['modules'] as $module): ?>
               <div class="curriculum-module">

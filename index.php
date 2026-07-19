@@ -191,6 +191,8 @@ function technical_ead_drive_slug_allowed(array $product): bool {
         return true;
     }
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
+    $matchText = $slugKey . ' ' . $titleKey;
     $allowed = [
         'administracao',
         'automacao-industrial',
@@ -226,7 +228,7 @@ function technical_ead_drive_slug_allowed(array $product): bool {
         'eletronica',
     ];
     foreach ($allowed as $needle) {
-        if (str_contains($slugKey, $needle)) {
+        if (str_contains($matchText, $needle)) {
             return true;
         }
     }
@@ -316,7 +318,7 @@ function premium_product_image(array $product): string {
 
 function product_investment_text(array $product): string {
     if (product_is_technical_ead($product)) {
-        return 'Curso Técnico EAD em 10 parcelas de R$ 99,90. Você paga a 1ª mensalidade via Pix no site do IBETP; o início ocorre em até 24 horas úteis após a confirmação do pagamento. Da 2ª à 10ª parcela, o pagamento acontece diretamente na plataforma AVA, com opções de Pix, cartão ou boleto, sempre dentro do vencimento.';
+        return 'Curso Técnico EAD em 12 mensalidades de R$ 99,90. A 1ª mensalidade é paga via Pix no site do IBETP, no ato da matrícula; o início ocorre em até 24 horas úteis após a confirmação do pagamento. As demais mensalidades são enviadas mensalmente por e-mail, WhatsApp ou SMS com link de pagamento e opções de boleto, cartão de crédito e Pix, em até 5 dias antes do vencimento.';
     }
     if (product_is_technologist($product)) {
         return 'Curso Tecnólogo com matrícula de R$ 99,90 paga via Pix no site do IBETP. O início ocorre em até 24 horas úteis após a confirmação do pagamento. As mensalidades de R$ 149,90 são pagas diretamente no AVA, conforme o vencimento e as opções disponíveis na plataforma.';
@@ -326,7 +328,7 @@ function product_investment_text(array $product): string {
 
 function product_investment_label(array $product): string {
     if (product_is_technical_ead($product)) {
-        return '10x de R$ 99,90';
+        return '12x de R$ 99,90';
     }
     if (product_is_technologist($product)) {
         return 'Matrícula R$ 99,90';
@@ -343,12 +345,159 @@ function ibetp_slug_key(string $text): string {
     return trim($text, '-');
 }
 
+function product_is_official_drive_technical_ead(array $product): bool {
+    return product_is_technical_ead($product) && technical_ead_drive_slug_allowed($product);
+}
+
+function normalize_official_drive_technical_profile(array $profile): array {
+    $profile['presence'] = '';
+    $profile['modality_note'] = 'Curso Técnico EAD em 12 mensalidades de R$ 99,90. A 1ª mensalidade é paga via Pix no site do IBETP, no ato da matrícula; o início ocorre em até 24 horas úteis após a confirmação do pagamento. As demais mensalidades são enviadas mensalmente por e-mail, WhatsApp ou SMS com link de pagamento e opções de boleto, cartão de crédito e Pix, em até 5 dias antes do vencimento.';
+    $profile['source'] = 'Grade oficial extraída do informativo do curso disponível ao IBETP.';
+    if (empty($profile['internship']) || str_contains(ibetp_slug_key((string)$profile['internship']), 'nao-possui')) {
+        $profile['internship'] = 'Estágio supervisionado obrigatório conforme a carga horária indicada na matriz curricular oficial deste curso.';
+    }
+    return $profile;
+}
+
+function official_drive_technical_profile_override(string $slugKey, string $titleKey): ?array {
+    $matchText = $slugKey . ' ' . $titleKey;
+    $profile = function (string $duration, string $workload, string $internship, array $modules): array {
+        return normalize_official_drive_technical_profile([
+            'duration' => $duration,
+            'workload' => $workload,
+            'modality_note' => '',
+            'presence' => '',
+            'internship' => $internship,
+            'source' => 'Grade oficial extraída do informativo do curso disponível ao IBETP.',
+            'modules' => $modules,
+        ]);
+    };
+    $has = fn(string $needle): bool => str_contains($matchText, $needle);
+
+    if ($has('mecanica')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '800h', [['Introdução ao EAD','40h'], ['Gestão de Recursos Humanos','40h'], ['Introdução à Libras','40h'], ['Comportamento Organizacional','40h'], ['Segurança do Trabalho','80h'], ['Gestão de Projetos','40h'], ['Metrologia','40h'], ['Empreendedorismo','60h'], ['Lógica de Programação','40h'], ['Matemática aplicada','60h'], ['Desenho Técnico','60h'], ['Projetos mecânicos','80h'], ['Desenho Mecânico','60h'], ['Resistência de Materiais','40h'], ['Gestão Empresarial','80h']]],
+            ['Módulo II', '640h', [['Controle e acionamento de máquinas','20h'], ['Máquinas mecânicas','20h'], ['Equipamentos e instalações industriais','20h'], ['Ferramental de mecânica','20h'], ['Eletricidade básica','20h'], ['Hidropneumática','80h'], ['Metodologia da manutenção','60h'], ['Ensaios de máquinas elétricas','60h'], ['Proteção de máquinas e equipamentos','40h'], ['Tecnologia da soldagem mecânica','20h'], ['Mecânica técnica','20h'], ['Usinagem e conformação mecânica','20h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('eletroeletronica')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '880h', [['Introdução ao EAD','40h'], ['Gestão de Recursos Humanos','60h'], ['Critérios e Modalidades EAD','40h'], ['Introdução à Libras','40h'], ['Eletricidade I','60h'], ['Lógica de Programação','40h'], ['Matemática Aplicada','60h'], ['Física Aplicada','60h'], ['Proteção de Sistemas Elétricos','40h'], ['Projetos de Automação Industrial','80h'], ['Medidas Elétricas','60h'], ['Eletrônica Digital','80h'], ['NR 10 - Segurança em Instalações Elétricas','80h'], ['Análise de Circuitos Eletroeletrônicos','80h']]],
+            ['Módulo II', '560h', [['Ensaios de Máquinas Elétricas','60h'], ['Metodologia da Manutenção','40h'], ['Controle e Acionamento de Máquinas','60h'], ['Técnicas em Programação','40h'], ['Programação CLP','60h'], ['Sistemas Microcontrolados','40h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('eletronica')) {
+        return $profile('12 meses', '1.450h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '530h', [['Introdução ao EAD','60h'], ['Gestão de Recursos Humanos','80h'], ['Introdução a Libras','30h'], ['Comportamento Organizacional','40h'], ['Noções de Segurança do Trabalho','40h'], ['Interpretação de Desenho Técnico','30h'], ['Empreendedorismo','30h'], ['Eletricidade I','40h'], ['Lógica de Programação','60h'], ['Ética nas Organizações','30h'], ['Matemática aplicada','30h'], ['Física Aplicada','30h'], ['Comandos Eletroeletrônicos','30h'], ['Eletrônica Industrial','30h'], ['Eletrônica Digital','40h'], ['Projetos de automação industrial','40h']]],
+            ['Módulo II', '920h', [['Segurança em Instalações Elétricas','40h'], ['Princípios da Eletrônica Analógica','60h'], ['Análise de Circuitos Eletroeletrônicos','40h'], ['Medidas Elétricas','40h'], ['Eletrônica Analógica','40h'], ['Lógica Matemática','60h'], ['Controle e Acionamento de Máquinas','60h'], ['APH – Atendimento pré-hospitalar','30h'], ['Sistemas Digitais','60h'], ['Gestão integrada da qualidade, segurança e meio ambiente','60h'], ['Elementos de Máquinas','40h'], ['Ensaios de Máquinas Elétricas','40h'], ['Metodologia da Manutenção','30h'], ['Instalações elétricas de baixa tensão','40h'], ['Instalações elétricas de média e alta tensão','40h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('computacao-grafica')) {
+        return $profile('12 meses', '1.200h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '260h', [['Introdução ao EAD','60h'], ['Português Instrumental','40h'], ['Organização Empresarial','40h'], ['Human Centred Design','60h'], ['Análise de Mercado: Tendência, comportamento e movimento','60h']]],
+            ['Módulo II', '380h', [['Empreendedorismo','80h'], ['Ilustração e Criação de Imagens Vetoriais - Adobe Illustrator','60h'], ['Ilustração e Tratamento de Imagens 2D - Adobe Photoshop','80h'], ['Modelagem Matemática','80h'], ['Segurança, Meio Ambiente, Saúde e Responsabilidade Social','80h']]],
+            ['Módulo III', '560h', [['Ferramentas CAD','80h'], ['Tecnologias de Impressão','80h'], ['Diagramação e Documentos - Adobe InDesign','80h'], ['Construção e Animação de Cenários e Objetos 2D e 3D','80h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('transacoes-imobiliarias')) {
+        return $profile('12 meses', '1.200h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '200h', [['Introdução ao EAD','40h'], ['Práticas em Negócios Imobiliários','40h'], ['Organização, Sistemas e Métodos','20h'], ['Empreendedorismo','60h'], ['Marketing Digital','40h']]],
+            ['Módulo II', '200h', [['Atendimento ao Cliente','40h'], ['Desinibição, Dicção e Oratória','60h'], ['Avaliação Imobiliária','20h'], ['Incorporações Imobiliárias e Loteamentos','20h'], ['Gestão de Projetos','60h']]],
+            ['Módulo III', '180h', [['Publicidade e propaganda','60h'], ['Contratos e Documentação Imobiliária','20h'], ['Noções de Direito Imobiliário','20h'], ['Gestão Comercial','40h'], ['Marketing de Relacionamento','40h']]],
+            ['Módulo IV', '220h', [['Fundamentos da Arquitetura e Urbanismo','40h'], ['Modelagem 3D','80h'], ['Financiamento Imobiliário','60h'], ['Mercado Imobiliário','40h']]],
+            ['Módulo V', '400h', [['Estratégias de Vendas e Negociação','20h'], ['Operações Imobiliárias','60h'], ['Estratégias de gestão e organização empresarial','40h'], ['Legislação Imobiliária Urbana e Territorial','80h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('vendas')) {
+        return $profile('12 meses', '1.000h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '200h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','20h'], ['Fundamentos da Administração','20h'], ['Organização, Sistemas e Métodos','20h'], ['Empreendedorismo','20h'], ['Marketing Digital','20h'], ['Atendimento ao Cliente','40h'], ['Gestão Estratégica de Pessoas','40h']]],
+            ['Módulo II', '260h', [['Comunicação Empresarial','60h'], ['Oratória','60h'], ['Logística empresarial','40h'], ['Gestão de Custos','40h'], ['Técnicas de Negociação','20h'], ['Gestão de Projetos','20h'], ['Administração de Sistemas de Informação','20h']]],
+            ['Módulo III', '200h', [['Negociação Comercial e Comércio Eletrônico','20h'], ['Marketing de serviços e do varejo','20h'], ['Gestão de Compras','20h'], ['Técnicas de vendas','80h'], ['Técnicas de atendimento em help desk','60h']]],
+            ['Módulo IV', '340h', [['Telemarketing','20h'], ['Análise de Mercado','20h'], ['Métricas do marketing','60h'], ['Gestão de Inovação Tecnológica','40h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('marketing') || $has('mktcom')) {
+        return $profile('12 meses', '1.000h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '180h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','20h'], ['Marketing Digital','40h'], ['Empreendedorismo','20h'], ['Comunicação Empresarial','40h'], ['Gestão de Projetos','40h']]],
+            ['Módulo II', '80h', [['Inbound Marketing','20h'], ['Marketing Eletrônico e Internacional','20h'], ['Organização Empresarial','20h'], ['Marketing de Relacionamento / Métricas de Marketing','20h']]],
+            ['Módulo III', '120h', [['Marketing de eventos','40h'], ['Segurança, meio ambiente, saúde e responsabilidade social','40h'], ['Análise e pesquisa de mercado','40h']]],
+            ['Módulo IV', '180h', [['Estratégias de marketing','20h'], ['Fundamentos de marketing','60h'], ['Marketing pessoal e gestão de carreira','60h'], ['Marketing de serviços e do varejo','40h']]],
+            ['Módulo V', '120h', [['Publicidade e propaganda','20h'], ['Business intelligence','40h'], ['Marketing e propaganda digital','40h'], ['Estudos avançados de marketing sustentável','20h']]],
+            ['Módulo VI', '320h', [['Negociação Comercial e Comércio Eletrônico','20h'], ['Técnicas de atendimento em help desk','40h'], ['Visual Merchandising','60h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('redes-de-computadores')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '400h', [['Introdução ao EAD','80h'], ['Introdução à Banco de Dados','80h'], ['Lógica de Programação','80h'], ['Português Instrumental','80h'], ['Segurança da Informação','80h']]],
+            ['Módulo II', '480h', [['Ambiente de Desenvolvimento para WEB','80h'], ['Empreendedorismo','80h'], ['Modelagem Matemática','80h'], ['Programação – Coding WEB (PHP)','80h'], ['Tecnologia e Linguagens de Banco de Dados','80h']]],
+            ['Módulo III', '560h', [['Análise de Mercado: Tendência, Comportamento e Movimento','80h'], ['Análise e Projeto de Software Orientado a Objetos','80h'], ['Gestão de Times – Métodos Ágeis','80h'], ['Organização Empresarial','80h'], ['Programação Coding Mobile (Java)','80h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('recursos-humanos')) {
+        return $profile('12 meses', '1.000h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '320h', [['Introdução ao EAD','60h'], ['Gestão Estratégica de Recursos Humanos','20h'], ['Introdução à Libras','20h'], ['Psicologia Organizacional','40h'], ['Organização e Técnicas Administrativas','60h'], ['Fundamentos da administração','60h'], ['Noções de Direito do Trabalho','20h'], ['Sistema de Informações Gerenciais','20h'], ['Sistemas de informações Gerenciais em RH','20h']]],
+            ['Módulo II', '200h', [['Gestão de departamento pessoal','40h'], ['Ética nas Organizações','20h'], ['Matemática Aplicada','20h'], ['Planejamento estratégico','20h'], ['Estratégias de gestão e organização empresarial','60h'], ['Recrutamento, seleção e socialização','40h']]],
+            ['Módulo III', '480h', [['Segurança do trabalho e saúde ocupacional','20h'], ['Divisão e modelagem de cargos e salários','80h'], ['Sociologia e ética profissional','60h'], ['Gestão de times - métodos ágeis','40h'], ['Marketing pessoal e gestão de carreira','20h'], ['Gestão de equipes','40h'], ['Liderança e desenvolvimento de equipes','20h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('manutencao-e-suporte-para-informatica')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '480h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','40h'], ['Inglês Instrumental','40h'], ['Empreendedorismo','60h'], ['Eletricidade','60h']]],
+            ['Módulo II', '400h', [['Lógica de Programação','60h'], ['Ética e Cidadania Organizacional','40h'], ['Gestão de Sistemas Operacionais I','80h'], ['Técnicas e Linguagens de Banco de Dados','80h'], ['Testes de Software','80h']]],
+            ['Módulo III', '560h', [['Administração de Sistemas Operacionais Proprietário - Windows Server','80h'], ['Hardware Básico e Manutenção de Computadores','80h'], ['Programação Coding Mobile (Java)','80h'], ['Eletrônica Digital','80h'], ['Segurança da Informação','80h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','80h'], ['Metodologia da Manutenção','80h'], ['Introdução a Banco de Dados','80h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('informatica-para-internet')) {
+        return $profile('12 meses', '1.240h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '440h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','20h'], ['Português Instrumental','20h'], ['Empreendedorismo','20h'], ['Lógica de Programação','40h'], ['Banco de Dados','60h'], ['Segurança do Trabalho','40h'], ['Matemática aplicada','40h'], ['Inglês instrumental I','20h'], ['Inglês instrumental II','20h'], ['Redes de computadores','60h'], ['Ética, cidadania e sustentabilidade','60h'], ['Qualidade de Software','20h']]],
+            ['Módulo II', '180h', [['Análise e projeto de software orientado a objetos','60h'], ['Desenvolvimento Web I','40h'], ['Desenvolvimento Web II','40h'], ['Aplicação de tecnologias emergentes','40h']]],
+            ['Módulo III', '620h', [['Interface humano-computador e user experience','60h'], ['Técnicas em Programação','60h'], ['Gestão da tecnologia da informação e comunicação','80h'], ['Gestão de projetos','60h'], ['Teste de software','60h'], ['Segurança da informação','60h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('guia-de-turismo')) {
+        return $profile('12 meses', '1.000h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I', '280h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','40h'], ['Atendimento ao cliente','80h'], ['Primeiros Socorros no Turismo','40h'], ['Inglês Instrumental','40h'], ['Espanhol Instrumental','20h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','40h']]],
+            ['Módulo II', '120h', [['Marketing de Eventos','20h'], ['Comunicação Oficial','40h'], ['Marketing Pessoal e Gestão de Carreira','60h']]],
+            ['Módulo III', '120h', [['História da Arte Aplicada ao Turismo','40h'], ['Legislação Aplicada ao Turismo','60h'], ['Gestão de Serviços Turísticos','20h']]],
+            ['Módulo IV', '140h', [['Manifestação da Cultura Popular Regional e Nacional','40h'], ['Técnicas de Comunicação','20h'], ['Relações Interpessoais','80h']]],
+            ['Módulo V', '340h', [['Elaboração de Roteiros e Hospedagem','40h'], ['Geografia Aplicada ao Turismo Regional e Nacional','40h'], ['Fundamentos do Turismo e da Hospitalidade','60h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('estetica') || $has('cosmetologia')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '580h', [['Introdução ao EAD','60h'], ['Gestão de Recursos Humanos','40h'], ['Biossegurança','20h'], ['Ética profissional, bioética e legislação','40h'], ['Empreendedorismo e gestão','20h'], ['Nutrição e dietética','80h'], ['Microbiologia e imunologia','60h'], ['Química geral','80h'], ['Cosmetologia aplicada a maquiagem','20h'], ['Anatomia e fisiologia','40h'], ['Citopatologia','40h'], ['Psicologia da personalidade','20h'], ['Suporte emergencial à vida e atendimento pré-hospitalar','20h'], ['Gestão comercial','20h'], ['Atendimento ao cliente','20h']]],
+            ['Módulo II', '300h', [['Fundamentos e técnicas aplicadas à estética capilar','20h'], ['Biologia Celular','20h'], ['Cosmetologia','40h'], ['Fundamentos e técnicas aplicadas de estética corporal','40h'], ['Técnicas de depilação','80h'], ['Técnicas aplicadas de estética facial','40h'], ['Cosmetologia aplicada a maquiagem','60h']]],
+            ['Módulo III', '560h', [['Fundamentos da estética humana','40h'], ['Fundamentos da dermatologia','80h'], ['Princípios da avaliação estética','80h'], ['Massoterapia','20h'], ['Terapias alternativas aplicadas à estética','40h'], ['Fundamentos e técnicas de drenagem linfática facial','20h'], ['Psicologia aplicada à estética','40h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    if ($has('contabilidade')) {
+        return $profile('12 meses', '1.200h', 'Estágio supervisionado obrigatório de 200h.', [
+            ['Módulo I — Ambientação Organizacional e Empreendedorismo', '280h', [['Introdução ao EAD','60h'], ['Gestão de Recursos Humanos','60h'], ['Fundamentos da Administração','40h'], ['Organização, Sistemas e Métodos','40h'], ['Empreendedorismo','40h'], ['Legislação Social e Trabalhista','40h']]],
+            ['Módulo II — Contabilidade Básica', '260h', [['Relações Humanas no Trabalho','40h'], ['Departamento Pessoal','60h'], ['Análise das Demonstrações Contábeis','40h'], ['Gestão Financeira e Orçamentária','60h'], ['Gestão de Custos','60h']]],
+            ['Módulo III — Auxiliar em Recursos Humanos', '300h', [['Fundamentos Contábeis','40h'], ['Matemática Financeira','60h'], ['Controladoria','40h'], ['Práticas Bancárias','80h'], ['Contabilidade Intermediária','80h']]],
+            ['Módulo IV — Auxiliar em Finanças', '360h', [['Teorias Contábeis','20h'], ['Contabilidade Pública','80h'], ['Escrita Fiscal e Legislação Tributária','60h'], ['Estágio Supervisionado','200h']]],
+        ]);
+    }
+    if ($has('automacao-industrial')) {
+        return $profile('12 meses', '1.440h', 'Estágio supervisionado obrigatório de 240h.', [
+            ['Módulo I', '200h', [['Introdução ao EAD','20h'], ['Gestão de Recursos Humanos','40h'], ['Introdução à Libras','20h'], ['Comportamento Organizacional','40h'], ['Segurança do Trabalho','60h'], ['Empreendedorismo','20h']]],
+            ['Módulo II', '580h', [['Lógica de Programação','40h'], ['Ética nas Organizações','20h'], ['Meio ambiente, desenvolvimento e sustentabilidade','80h'], ['Mecânica Técnica','40h'], ['Interpretação do desenho técnico','60h'], ['Eletricidade I','40h'], ['Eletrônica digital','60h'], ['Resistência de materiais','40h'], ['Metodologia da manutenção','60h'], ['Comandos eletroeletrônicos','80h'], ['Projetos elétricos','20h'], ['Metrologia e Normatização','40h']]],
+            ['Módulo III', '660h', [['Projetos de automação industrial','80h'], ['Sistemas Digitais','20h'], ['Eletrônica analógica','60h'], ['Instalações Elétricas','40h'], ['Ensaios de máquinas elétricas','20h'], ['Hidropneumática','40h'], ['Controle e acionamento de máquinas','60h'], ['Controle de qualidade industrial','40h'], ['Eletrônica industrial','20h'], ['NR 10 - Segurança em instalações elétricas','40h'], ['Estágio Supervisionado','240h']]],
+        ]);
+    }
+    return null;
+}
+
 function product_academic_profile(array $product): ?array {
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? ''));
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
     if ($slugKey === 'tecnico-ead-seguranca-trabalho') {
         $slugKey = 'tecnico-em-seguranca-do-trabalho';
+    }
+    $officialOverride = official_drive_technical_profile_override($slugKey, $titleKey);
+    if ($officialOverride !== null && product_is_official_drive_technical_ead($product)) {
+        return $officialOverride;
     }
     $profiles = [
         'tecnico-em-administracao' => [
@@ -366,8 +515,8 @@ function product_academic_profile(array $product): ?array {
         'tecnico-em-seguranca-do-trabalho' => [
             'duration' => '12 meses',
             'workload' => '1.440h',
-            'modality_note' => 'Curso Técnico EAD com matriz curricular oficial voltada à prevenção, legislação, gestão de riscos e saúde ocupacional.',
-            'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
+            'modality_note' => 'Curso Técnico EAD com matriz curricular oficial voltada à prevenção, legislação, gestão de riscos e saúde ocupacional. Início em até 24 horas úteis após a confirmação do pagamento.',
+            'presence' => '',
             'internship' => 'Estágio supervisionado obrigatório de 240h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
@@ -835,6 +984,9 @@ function product_academic_profile(array $product): ?array {
     ];
     foreach ($profiles as $profileKey => $profile) {
         if ($titleKey === $profileKey || $slugKey === $profileKey || str_ends_with($slugKey, '-' . $profileKey)) {
+            if (product_is_official_drive_technical_ead($product)) {
+                return normalize_official_drive_technical_profile($profile);
+            }
             return $profile;
         }
     }
@@ -871,7 +1023,7 @@ function product_academic_profile(array $product): ?array {
         $catalogInternship = trim((string)($product['internship'] ?? ''));
         $catalogDuration = trim((string)($product['duration'] ?? ''));
         $catalogWorkload = trim((string)($product['workload'] ?? ''));
-        $presence = 'Presencialidade acadêmica conforme metodologia oficial do cadastro: 80% online e 20% de presencialidade quando prevista, cumprida por ATAs, registros acadêmicos e orientações documentais no AVA.';
+        $presence = '';
         if ($isAtaNoInternship || $isAtaWithInternship) {
             $presence = 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à instituição; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.';
         } elseif ($isPbTechnical) {
@@ -888,8 +1040,8 @@ function product_academic_profile(array $product): ?array {
         return [
             'duration' => $catalogDuration !== '' ? $catalogDuration : '8 a 14 meses',
             'workload' => $catalogWorkload !== '' ? $catalogWorkload : 'Carga horária conforme informativo oficial do curso',
-            'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento. A 1ª mensalidade é paga via Pix no site; as demais mensalidades são pagas no AVA, conforme vencimento.',
-            'presence' => $presence,
+            'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento. A 1ª mensalidade é paga via Pix no site no ato da matrícula; as demais mensalidades são enviadas mensalmente por link de pagamento, com opções de boleto, cartão de crédito e Pix.',
+            'presence' => product_is_official_drive_technical_ead($product) ? '' : $presence,
             'internship' => $internshipText,
             'source' => 'Informações acadêmicas extraídas da planilha oficial de cursos e dos informativos acadêmicos disponíveis ao IBETP. As disciplinas detalhadas são exibidas quando a grade individual do curso já está vinculada.',
             'modules' => [],
@@ -1259,6 +1411,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $academic = product_academic_profile($product);
+    $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio');
     ob_start(); ?><main class="product">
       <section class="product-hero">
         <div class="product-copy">
@@ -1284,16 +1437,28 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         <div><strong>02</strong><span>Receba orientação sobre matrícula e próximos passos.</span></div>
         <div><strong>03</strong><span>Escolha com apoio humano e foco profissional.</span></div>
       </section>
+      <section class="product-conversion wrap">
+        <div class="conversion-copy">
+          <p class="section-kicker">Decisão com clareza</p>
+          <h2>Uma página feita para você entender o curso antes de pagar.</h2>
+          <p>O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.</p>
+        </div>
+        <div class="conversion-points">
+          <div><strong>O que você confirma aqui</strong><span>Valor, formato de pagamento, carga horária, duração e caminho de atendimento.</span></div>
+          <div><strong>O que você confere antes da matrícula</strong><span>Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.</span></div>
+          <div><strong>Como seguir com segurança</strong><span>Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.</span></div>
+        </div>
+      </section>
       <article class="article-body product-detail">
         <div class="premium-product-layout">
           <section class="premium-section">
-            <div class="section-kicker">Detalhes da formação</div>
-            <h2><?= e($product['title']) ?></h2>
+            <div class="section-kicker">Por que essa formação importa</div>
+            <h2>Formação para quem busca atuar com segurança profissional.</h2>
             <p><?= e($product['short_description'] ?: excerpt(strip_tags($product['description']), 260)) ?></p>
             <div class="premium-grid">
-              <div class="premium-card"><strong>Orientação humana</strong><span>Atendimento consultivo para entender sua necessidade antes da matrícula.</span></div>
-              <div class="premium-card"><strong>Segurança documental</strong><span>Informações claras sobre requisitos, etapas e condições da formação.</span></div>
-              <div class="premium-card"><strong>Foco profissional</strong><span>Formação apresentada com linguagem objetiva para apoiar sua decisão.</span></div>
+              <div class="premium-card"><strong>Antes da matrícula</strong><span>Você entende valores, requisitos e próximos passos antes de avançar.</span></div>
+              <div class="premium-card"><strong>Durante o processo</strong><span>O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.</span></div>
+              <div class="premium-card"><strong>Depois da confirmação</strong><span>O início ocorre em até 24 horas úteis após a confirmação do pagamento.</span></div>
             </div>
           </section>
           <section class="premium-price">
@@ -1302,14 +1467,16 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <?php if ($academic): ?>
           <section class="premium-section academic-official">
             <div class="section-kicker">Grade curricular oficial</div>
-            <h2>Matriz curricular, estágio e presencialidade</h2>
+            <h2>Grade curricular</h2>
             <p><?= e($academic['source']) ?> <?= empty($academic['modules']) ? 'A página informa apenas dados oficiais já presentes no cadastro do curso; grade curricular sugerida não é publicada como se fosse matriz oficial.' : 'A página abaixo apresenta as disciplinas e cargas horárias informadas no documento acadêmico disponível ao IBETP.' ?></p>
             <div class="premium-grid academic-summary">
               <div class="premium-card"><strong>Duração</strong><span><?= e($academic['duration']) ?></span></div>
               <div class="premium-card"><strong>Carga horária</strong><span><?= e($academic['workload']) ?></span></div>
               <div class="premium-card"><strong>Estágio</strong><span><?= e($academic['internship']) ?></span></div>
             </div>
-            <div class="info-card official-presence"><strong>Presencialidade e registros</strong><p><?= e($academic['presence']) ?></p></div>
+            <?php if (!$hasMandatoryInternship && trim((string)($academic['presence'] ?? '')) !== ''): ?>
+            <div class="info-card official-presence"><strong>Presencialidade</strong><p><?= e($academic['presence']) ?></p></div>
+            <?php endif; ?>
             <?php if (empty($academic['modules'])): ?>
               <div class="info-card academic-pending"><strong>Grade individual em conferência</strong><p>A matriz com disciplinas e cargas horárias será publicada somente após conferência documental do curso específico. Até lá, o atendimento do IBETP confirma os detalhes acadêmicos antes da matrícula.</p></div>
             <?php endif; ?>
@@ -1335,7 +1502,6 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           </section>
           <?php endif; ?>
           <?php if (product_is_technical_ead($product)): ?>
-          <?php $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio'); ?>
           <?php if ($hasMandatoryInternship): ?>
           <section class="premium-section internship-official">
             <div class="section-kicker">Estágio supervisionado obrigatório</div>
@@ -1351,12 +1517,12 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <?php endif; ?>
           <section class="premium-section">
             <div class="section-kicker">Pagamento do Curso Técnico EAD</div>
-            <h2>Primeira mensalidade no site, continuidade pelo AVA</h2>
-            <p>Para iniciar sua matrícula, você paga a 1ª mensalidade de R$ 99,90 via Pix diretamente no site do IBETP. O acesso/orientação inicial acontece em até 24 horas úteis após a confirmação do pagamento. As demais 9 mensalidades de R$ 99,90 serão pagas na plataforma AVA, onde o aluno acompanha os vencimentos e escolhe entre Pix, cartão ou boleto.</p>
+            <h2>1ª mensalidade no site, demais por link de pagamento</h2>
+            <p>Para iniciar sua matrícula, você paga a 1ª mensalidade de R$ 99,90 via Pix diretamente no site do IBETP, no ato da matrícula. O acesso/orientação inicial acontece em até 24 horas úteis após a confirmação do pagamento. As demais mensalidades são enviadas mensalmente por e-mail, WhatsApp ou SMS com link de pagamento e opções de boleto, cartão de crédito e Pix, em até 5 dias antes do vencimento.</p>
             <div class="premium-steps">
               <div><span>1ª mensalidade: pagamento via Pix no site do IBETP.</span></div>
-              <div><span>Da 2ª à 10ª mensalidade: pagamento diretamente no AVA.</span></div>
-              <div><span>Opções no AVA: Pix, cartão ou boleto, sempre dentro do vencimento correspondente.</span></div>
+              <div><span>12 mensalidades de R$ 99,90, com a primeira paga no ato da matrícula.</span></div>
+              <div><span>Demais mensalidades: link enviado mensalmente por e-mail, WhatsApp ou SMS, com boleto, cartão de crédito e Pix.</span></div>
             </div>
           </section>
           <?php endif; ?>

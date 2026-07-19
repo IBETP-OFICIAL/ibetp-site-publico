@@ -1116,7 +1116,7 @@ function layout(string $title, string $description, string $body, ?string $image
   <link rel="alternate" type="application/rss+xml" title="Blog IBETP" href="<?= e(site_url('/feed.xml')) ?>">
   <link rel="icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
   <link rel="apple-touch-icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
-  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260719-categorias')) ?>" as="style">
+  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260719-produto-hero-final')) ?>" as="style">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($description) ?>">
   <meta property="og:image" content="<?= e($og) ?>">
@@ -1137,7 +1137,7 @@ function layout(string $title, string $description, string $body, ?string $image
     gtag('config', <?= json_encode($gaId, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
   </script>
   <?php endif; ?>
-  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260719-categorias')) ?>">
+  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260719-produto-hero-final')) ?>">
 </head>
 <body>
 <header class="topbar">

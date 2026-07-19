@@ -56,8 +56,8 @@
 .product-panel{display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.25);border-radius:28px;background:rgba(255,255,255,.96);color:var(--blue);box-shadow:0 26px 70px rgba(0,0,0,.18)}
 .product-panel img{width:100%;height:330px;object-fit:cover;margin:0;border-radius:0}
 .price-box{padding:28px}.price-box small{display:block;color:var(--green);font-size:13px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.price-box strong{display:block;margin:6px 0 8px;font-size:42px;line-height:1;color:var(--blue)}.price-box span{color:#5b6780;font-size:16px;line-height:1.45}
-.product-visual-only{background:transparent!important;color:inherit!important}
-.product-visual-only img{height:100%!important;min-height:430px!important;border-radius:28px!important}
+.product-visual-only{display:block!important;background:transparent!important;color:inherit!important;min-height:100%!important}
+.product-visual-only img{display:block!important;width:100%!important;height:100%!important;min-height:100%!important;border-radius:28px!important;object-fit:cover!important}
 .product-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px auto 28px}
 .product-trust>div{display:flex;gap:16px;align-items:flex-start;padding:22px;border:1px solid #dce6f2;border-radius:22px;background:#fff;box-shadow:0 18px 45px rgba(6,27,69,.07)}
 .product-trust strong{color:#ffcf2e;font-size:28px;line-height:1}.product-trust span{color:#263a59;font-size:17px;line-height:1.45;font-weight:760}
@@ -111,3 +111,9 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .course-list-card[hidden]{display:none!important}
 .course-empty-state{max-width:1180px;margin:-40px auto 80px;padding:26px 30px;border:1px solid #d9e4f2;border-radius:24px;background:#fff;color:#061b45;font-size:20px;font-weight:800;text-align:center;box-shadow:0 18px 45px rgba(6,27,69,.07)}
 @media(max-width:760px){.course-search-panel{grid-template-columns:1fr;margin:10px 14px 20px;padding:22px;border-radius:24px}.course-search-panel p,.course-search-panel input,.course-empty-state{font-size:18px!important}.course-search-input-wrap{display:grid;gap:8px}.course-search-panel input{min-height:58px}.course-search-panel button#course-search-submit,.course-search-panel button#course-search-clear{width:100%;min-height:46px}.course-search-panel small{grid-column:auto;font-size:16px}.course-category-panel{margin:0 14px 24px;gap:10px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px;scroll-snap-type:x proximity}.course-category-button{flex:0 0 auto;scroll-snap-align:start}.course-empty-state{margin:0 14px 60px}}
+
+/* Produto: painel lateral somente com imagem, preenchido de ponta a ponta */
+.product .product-panel.product-visual-only{display:block!important;min-height:430px!important;background:transparent!important;border:0!important;box-shadow:none!important}
+.product .product-panel.product-visual-only img{display:block!important;width:100%!important;height:100%!important;min-height:430px!important;max-height:none!important;border-radius:28px!important;object-fit:cover!important}
+@media(max-width:980px){.product .product-panel.product-visual-only,.product .product-panel.product-visual-only img{height:320px!important;min-height:320px!important}}
+@media(max-width:760px){.product .product-panel.product-visual-only,.product .product-panel.product-visual-only img{height:260px!important;min-height:260px!important}}

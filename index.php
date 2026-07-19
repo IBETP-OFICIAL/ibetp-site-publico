@@ -1445,6 +1445,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $academic = product_academic_profile($product);
     $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio');
+    $internshipLabel = $academic ? (string)($academic['internship'] ?? 'Estágio supervisionado obrigatório conforme matriz oficial.') : 'Estágio supervisionado obrigatório conforme matriz oficial.';
     ob_start(); ?><main class="product">
       <section class="product-hero">
         <div class="product-copy">
@@ -1501,7 +1502,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <section class="premium-section academic-official">
             <div class="section-kicker">Grade curricular oficial</div>
             <h2>Grade curricular</h2>
-            <p><?= e($academic['source']) ?> <?= empty($academic['modules']) ? 'Quando a matriz individual ainda não estiver vinculada, não publicamos grade sugerida como se fosse oficial.' : 'A página abaixo apresenta as disciplinas e cargas horárias informadas no documento acadêmico disponível ao IBETP.' ?></p>
+            <p><?= e($academic['source']) ?></p>
             <div class="premium-grid academic-summary">
               <div class="premium-card"><strong>Duração</strong><span><?= e($academic['duration']) ?></span></div>
               <div class="premium-card"><strong>Carga horária</strong><span><?= e($academic['workload']) ?></span></div>
@@ -1539,7 +1540,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <section class="premium-section internship-official">
             <div class="section-kicker">Estágio supervisionado obrigatório</div>
             <h2>Como funciona o estágio deste Curso Técnico EAD</h2>
-            <p>Este curso possui estágio curricular obrigatório de 240 horas, conforme a matriz oficial. O estágio deve ser realizado em local relacionado à área de formação, com supervisão de profissional formado na mesma área do curso. A documentação fica disponível na disciplina de estágio dentro da plataforma acadêmica.</p>
+            <p>Este curso possui <?= e(mb_strtolower($internshipLabel, 'UTF-8')) ?>, conforme a matriz oficial. O estágio deve ser realizado em local relacionado à área de formação, com supervisão de profissional formado na mesma área do curso. A documentação fica disponível na disciplina de estágio dentro da plataforma acadêmica.</p>
             <div class="premium-grid">
               <div class="premium-card"><strong>Responsabilidade do aluno</strong><span>O aluno busca o local de estágio compatível com sua formação e segue a orientação documental recebida no ambiente acadêmico.</span></div>
               <div class="premium-card"><strong>Documentação</strong><span>Termo de convênio, termo de compromisso, plano de atividade e relatório final devem ser preenchidos, assinados e carimbados quando aplicável.</span></div>

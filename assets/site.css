@@ -117,3 +117,9 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .product .product-panel.product-visual-only img{display:block!important;width:100%!important;height:420px!important;min-height:0!important;max-height:none!important;border-radius:28px!important;object-fit:cover!important}
 @media(max-width:980px){.product .product-panel.product-visual-only,.product .product-panel.product-visual-only img{height:320px!important;min-height:320px!important}}
 @media(max-width:760px){.product .product-panel.product-visual-only,.product .product-panel.product-visual-only img{height:260px!important;min-height:260px!important}}
+
+/* Produto: imagem premium sem painel branco */
+.product-visual-card{align-self:start;display:block;overflow:hidden;border-radius:28px;background:transparent;box-shadow:0 26px 70px rgba(0,0,0,.16)}
+.product-visual-card img{display:block;width:100%;height:420px;object-fit:cover;border-radius:28px}
+@media(max-width:980px){.product-visual-card img{height:320px}}
+@media(max-width:760px){.product-visual-card img{height:260px}}

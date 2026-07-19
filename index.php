@@ -1458,7 +1458,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <a class="btn outline" href="<?= e(site_url('/cursos')) ?>">Ver catálogo</a>
           </div>
         </div>
-        <aside class="product-panel product-visual-only">
+        <aside class="product-visual-card">
           <?php if (premium_product_image($product)): ?><img src="<?= e(absolute_asset(premium_product_image($product))) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
         </aside>
       </section>

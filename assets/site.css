@@ -56,6 +56,8 @@
 .product-panel{display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.25);border-radius:28px;background:rgba(255,255,255,.96);color:var(--blue);box-shadow:0 26px 70px rgba(0,0,0,.18)}
 .product-panel img{width:100%;height:330px;object-fit:cover;margin:0;border-radius:0}
 .price-box{padding:28px}.price-box small{display:block;color:var(--green);font-size:13px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.price-box strong{display:block;margin:6px 0 8px;font-size:42px;line-height:1;color:var(--blue)}.price-box span{color:#5b6780;font-size:16px;line-height:1.45}
+.product-visual-only{background:transparent!important;color:inherit!important}
+.product-visual-only img{height:100%!important;min-height:430px!important;border-radius:28px!important}
 .product-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px auto 28px}
 .product-trust>div{display:flex;gap:16px;align-items:flex-start;padding:22px;border:1px solid #dce6f2;border-radius:22px;background:#fff;box-shadow:0 18px 45px rgba(6,27,69,.07)}
 .product-trust strong{color:#ffcf2e;font-size:28px;line-height:1}.product-trust span{color:#263a59;font-size:17px;line-height:1.45;font-weight:760}

@@ -116,7 +116,16 @@ function product_is_technical_ead(array $product): bool {
     $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
     $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
     $text = $title . ' ' . $category;
-    if (str_contains($text, 'competência') || str_contains($text, 'competencia') || str_contains($text, 'pós técnico') || str_contains($text, 'pos tecnico')) {
+    $normalized = ibetp_slug_key($text);
+    if (
+        str_contains($text, 'competência') ||
+        str_contains($text, 'competencia') ||
+        str_contains($normalized, 'competencia') ||
+        str_contains($normalized, 'pos-tecnico') ||
+        str_contains($normalized, 'pos-graduacao') ||
+        str_contains($normalized, 'mba') ||
+        str_contains($normalized, 'especializacao')
+    ) {
         return false;
     }
     return str_contains($text, 'técnico') || str_contains($text, 'tecnico');
@@ -134,10 +143,10 @@ function product_category_label(array $product): string {
     $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
     $text = $title . ' ' . $category;
     if (product_is_technologist($product)) return 'Tecnólogo EAD';
-    if (product_is_technical_ead($product)) return 'Cursos Técnicos EAD';
     if (str_contains($text, 'competência') || str_contains($text, 'competencia')) return 'Certificação Técnica por Competência';
     if (str_contains($text, 'pós-graduação') || str_contains($text, 'pos-graduacao') || str_contains($text, 'mba')) return 'Pós-graduação e MBA';
     if (str_contains($text, 'pós-técnico') || str_contains($text, 'pos-tecnico')) return 'Pós-técnico';
+    if (product_is_technical_ead($product)) return 'Cursos Técnicos EAD';
     if (str_contains($text, 'sequencial')) return 'Superior Sequencial';
     if (str_contains($text, 'profissionalizante')) return 'Profissionalizante';
     $label = trim((string)($product['category'] ?? 'Formação IBETP'));
@@ -175,6 +184,53 @@ function product_publicly_visible(array $product): bool {
         }
     }
     return true;
+}
+
+function technical_ead_drive_slug_allowed(array $product): bool {
+    if (!product_is_technical_ead($product)) {
+        return true;
+    }
+    $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    $allowed = [
+        'administracao',
+        'automacao-industrial',
+        'computacao-grafica',
+        'transacoes-imobiliarias',
+        'servicos-juridicos',
+        'informatica',
+        'vendas',
+        'marketing',
+        'mktcom',
+        'seguranca-trabalho',
+        'seguranca-do-trabalho',
+        'secretaria-escolar',
+        'redes-de-computadores',
+        'recursos-humanos',
+        'programacao-de-jogos',
+        'programacao-de-jogos-digitais',
+        'nutricao',
+        'nutricao-e-dietetica',
+        'manutencao-e-suporte-para-informatica',
+        'logistica',
+        'informatica-para-internet',
+        'guia-de-turismo',
+        'estetica',
+        'estetica-e-cosmetologia',
+        'eletrotecnica',
+        'eletroeletronica',
+        'edificacoes',
+        'desenvolvimento-de-sistemas',
+        'contabilidade',
+        'mecanica',
+        'mecanica-industrial',
+        'eletronica',
+    ];
+    foreach ($allowed as $needle) {
+        if (str_contains($slugKey, $needle)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function product_primary_payment_label(array $product): string {
@@ -291,6 +347,9 @@ function product_academic_profile(array $product): ?array {
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? ''));
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
+    if ($slugKey === 'tecnico-ead-seguranca-trabalho') {
+        $slugKey = 'tecnico-em-seguranca-do-trabalho';
+    }
     $profiles = [
         'tecnico-em-administracao' => [
             'duration' => '12 meses',
@@ -814,7 +873,7 @@ function product_academic_profile(array $product): ?array {
         $catalogWorkload = trim((string)($product['workload'] ?? ''));
         $presence = 'Presencialidade acadêmica conforme metodologia oficial do cadastro: 80% online e 20% de presencialidade quando prevista, cumprida por ATAs, registros acadêmicos e orientações documentais no AVA.';
         if ($isAtaNoInternship || $isAtaWithInternship) {
-            $presence = 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola parceira; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.';
+            $presence = 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à instituição; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.';
         } elseif ($isPbTechnical) {
             $presence = 'Metodologia oficial dos Cursos Técnicos EAD: acompanhamento pelo AVA, orientação documental pelo IBETP, sem TCC e com procedimentos acadêmicos formais conforme matriz do curso.';
         }
@@ -1085,6 +1144,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     if ($path === 'cursos') {
         $items = Database::all("SELECT * FROM products WHERE status='active' ORDER BY title");
         $items = array_values(array_filter($items, 'product_publicly_visible'));
+        $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
         $heading = 'Cursos e produtos IBETP';
     } else {
         $items = Database::all("SELECT * FROM posts WHERE type=? AND status='published' ORDER BY published_at DESC", [$type]);
@@ -1275,6 +1335,20 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           </section>
           <?php endif; ?>
           <?php if (product_is_technical_ead($product)): ?>
+          <?php $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio'); ?>
+          <?php if ($hasMandatoryInternship): ?>
+          <section class="premium-section internship-official">
+            <div class="section-kicker">Estágio supervisionado obrigatório</div>
+            <h2>Como funciona o estágio deste Curso Técnico EAD</h2>
+            <p>Este curso possui estágio curricular obrigatório de 240 horas, conforme a matriz oficial. O estágio deve ser realizado em local relacionado à área de formação, com supervisão de profissional formado na mesma área do curso. A documentação fica disponível na disciplina de estágio dentro da plataforma acadêmica.</p>
+            <div class="premium-grid">
+              <div class="premium-card"><strong>Responsabilidade do aluno</strong><span>O aluno busca o local de estágio compatível com sua formação e segue a orientação documental recebida no ambiente acadêmico.</span></div>
+              <div class="premium-card"><strong>Documentação</strong><span>Termo de convênio, termo de compromisso, plano de atividade e relatório final devem ser preenchidos, assinados e carimbados quando aplicável.</span></div>
+              <div class="premium-card"><strong>Análise acadêmica</strong><span>Após o envio correto dos documentos pela plataforma, a análise pode levar até 5 dias úteis.</span></div>
+            </div>
+            <div class="info-card official-presence"><strong>Já trabalha na área?</strong><p>Quando o aluno já atua na área do curso, pode solicitar convalidação de estágio mediante documentação formal. A regra informada no material de estágio permite aproveitar até 6 horas por dia trabalhado; fins de semana e feriados não são contabilizados.</p></div>
+          </section>
+          <?php endif; ?>
           <section class="premium-section">
             <div class="section-kicker">Pagamento do Curso Técnico EAD</div>
             <h2>Primeira mensalidade no site, continuidade pelo AVA</h2>
@@ -1298,18 +1372,18 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             </div>
           </section>
           <?php endif; ?>
-          <section class="premium-section">
-            <h2>Como funciona o atendimento</h2>
-            <p>O IBETP organiza o processo para que você avance com clareza, evitando decisões apressadas e dúvidas sobre documentação, modalidade e próximos passos.</p>
-            <div class="premium-steps">
-              <div><span>Você informa seu objetivo profissional e a formação desejada.</span></div>
-              <div><span>A equipe orienta sobre requisitos, matrícula, certificação e condições disponíveis.</span></div>
-              <div><span>Você segue para a compra ou atendimento pelo canal mais adequado, com segurança.</span></div>
-            </div>
-          </section>
         </div>
       </article>
-      <aside class="offer-box product-final-cta"><div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p>Use os botões no topo desta página para comprar com segurança, falar no WhatsApp sobre este curso ou voltar ao catálogo.</p></div></aside>
+      <aside class="offer-box product-final-cta">
+        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p>Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.</p></div>
+        <div class="product-final-actions">
+          <?php if (product_checkout_enabled($product)): ?>
+            <form method="post" action="<?= e(site_url('/checkout')) ?>"><input type="hidden" name="product_id" value="<?= (int)$product['id'] ?>"><button class="btn primary"><?= e(product_primary_payment_label($product)) ?></button></form>
+          <?php endif; ?>
+          <a class="btn primary" href="<?= e(whatsapp_course_url($product)) ?>" target="_blank" rel="noopener">Falar no WhatsApp</a>
+          <a class="btn ghost" href="<?= e(site_url('/cursos')) ?>">Ver catálogo</a>
+        </div>
+      </aside>
     </main><?php
     $productSchema = [
         '@context' => 'https://schema.org',

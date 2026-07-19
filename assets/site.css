@@ -87,9 +87,23 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .course-search-panel h2{margin:12px 0 8px;color:#061b45;font-size:clamp(26px,3vw,38px);line-height:1.1}
 .course-search-panel p{margin:0;color:#5c6c86;font-size:18px;line-height:1.55}
 .course-search-panel label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.course-search-panel input{width:100%;min-height:62px;border:2px solid #cbd8ea;border-radius:18px;padding:0 20px;background:#fff;color:#061b45;font-size:20px;font-weight:800;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 16px 36px rgba(6,27,69,.06)}
+.course-search-controls{display:grid;gap:10px}
+.course-search-input-wrap{display:flex;gap:10px;align-items:center;padding:8px;border:2px solid #cbd8ea;border-radius:22px;background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 16px 36px rgba(6,27,69,.06)}
+.course-search-panel input{width:100%;min-height:52px;border:0;border-radius:15px;padding:0 14px;background:#fff;color:#061b45;font-size:20px;font-weight:850;outline:none}
+.course-search-panel button#course-search-submit,.course-search-panel button#course-search-clear{min-height:48px;border:0;border-radius:15px;padding:0 18px;font-size:15px;font-weight:950;cursor:pointer;transition:.18s ease;white-space:nowrap}
+.course-search-panel button#course-search-submit{background:#05864b;color:#fff;box-shadow:0 14px 28px rgba(5,134,75,.18)}
+.course-search-panel button#course-search-submit:hover{background:#046b3d;transform:translateY(-1px)}
+.course-search-panel button#course-search-clear{background:#eef5fb;color:#061b45}
+.course-search-panel button#course-search-clear:hover{background:#061b45;color:#fff}
 .course-search-panel input:focus{border-color:#05864b;box-shadow:0 0 0 5px rgba(5,134,75,.12),0 16px 36px rgba(6,27,69,.08)}
-.course-search-panel small{grid-column:2;color:#05864b;font-size:15px;font-weight:950}
+.course-search-input-wrap:focus-within{border-color:#05864b;box-shadow:0 0 0 5px rgba(5,134,75,.12),0 16px 36px rgba(6,27,69,.08)}
+.course-search-panel small{color:#05864b;font-size:15px;font-weight:950}
+.course-category-panel{max-width:1180px;margin:-12px auto 28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.course-category-button{display:inline-flex;align-items:center;gap:9px;min-height:46px;border:1px solid #d5e2f2;border-radius:999px;padding:0 16px;background:#fff;color:#061b45;font-size:15px;font-weight:950;box-shadow:0 12px 28px rgba(6,27,69,.06);cursor:pointer;transition:.18s ease}
+.course-category-button span{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:#eef6fb;color:#057c45;font-size:13px;font-weight:950}
+.course-category-button:hover{transform:translateY(-1px);border-color:#05864b;box-shadow:0 16px 34px rgba(6,27,69,.1)}
+.course-category-button.active{background:linear-gradient(135deg,#061b45,#057c45);border-color:transparent;color:#fff}
+.course-category-button.active span{background:rgba(255,255,255,.18);color:#ffcf2e}
 .course-list-card[hidden]{display:none!important}
 .course-empty-state{max-width:1180px;margin:-40px auto 80px;padding:26px 30px;border:1px solid #d9e4f2;border-radius:24px;background:#fff;color:#061b45;font-size:20px;font-weight:800;text-align:center;box-shadow:0 18px 45px rgba(6,27,69,.07)}
-@media(max-width:760px){.course-search-panel{grid-template-columns:1fr;margin:10px 14px 24px;padding:22px;border-radius:24px}.course-search-panel p,.course-search-panel input,.course-empty-state{font-size:18px!important}.course-search-panel input{min-height:62px}.course-search-panel small{grid-column:auto;font-size:16px}.course-empty-state{margin:0 14px 60px}}
+@media(max-width:760px){.course-search-panel{grid-template-columns:1fr;margin:10px 14px 20px;padding:22px;border-radius:24px}.course-search-panel p,.course-search-panel input,.course-empty-state{font-size:18px!important}.course-search-input-wrap{display:grid;gap:8px}.course-search-panel input{min-height:58px}.course-search-panel button#course-search-submit,.course-search-panel button#course-search-clear{width:100%;min-height:46px}.course-search-panel small{grid-column:auto;font-size:16px}.course-category-panel{margin:0 14px 24px;gap:10px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px;scroll-snap-type:x proximity}.course-category-button{flex:0 0 auto;scroll-snap-align:start}.course-empty-state{margin:0 14px 60px}}

@@ -45,7 +45,7 @@
 .courses-hero{background:linear-gradient(115deg,rgba(6,27,69,.96),rgba(5,124,69,.78)),url('/assets/curso-administracao-v3.webp') center/cover}
 
 .product{padding-bottom:40px;background:linear-gradient(180deg,#f5f8fc 0,#fff 38%)}
-.product-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.75fr);gap:34px;align-items:stretch;width:min(1180px,calc(100% - 40px));margin:34px auto 24px;padding:42px;border-radius:34px;background:radial-gradient(circle at 10% 0,rgba(255,207,46,.16),transparent 32%),linear-gradient(135deg,#061b45 0%,#0b255b 52%,#057c45 100%);color:#fff;box-shadow:0 30px 90px rgba(6,27,69,.2)}
+.product-hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.75fr);gap:34px;align-items:center;width:min(1180px,calc(100% - 40px));margin:34px auto 24px;padding:42px;border-radius:34px;background:radial-gradient(circle at 10% 0,rgba(255,207,46,.16),transparent 32%),linear-gradient(135deg,#061b45 0%,#0b255b 52%,#057c45 100%);color:#fff;box-shadow:0 30px 90px rgba(6,27,69,.2)}
 .product-copy{display:flex;flex-direction:column;justify-content:center;min-height:520px}
 .product-copy .eyebrow{color:#ffcf2e}
 .product-copy h1{max-width:790px;margin:16px 0 18px;color:#fff;font-family:Georgia,"Times New Roman",serif;font-size:clamp(42px,5.8vw,76px);font-weight:520;line-height:1.02;letter-spacing:-.045em}
@@ -119,7 +119,7 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 @media(max-width:760px){.product .product-panel.product-visual-only,.product .product-panel.product-visual-only img{height:260px!important;min-height:260px!important}}
 
 /* Produto: imagem premium sem painel branco */
-.product-visual-card{align-self:start;display:block;overflow:hidden;border-radius:28px;background:transparent;box-shadow:0 26px 70px rgba(0,0,0,.16)}
-.product-visual-card img{display:block;width:100%;height:420px;object-fit:cover;border-radius:28px}
-@media(max-width:980px){.product-visual-card img{height:320px}}
-@media(max-width:760px){.product-visual-card img{height:260px}}
+.product-visual-card{align-self:center;display:block;overflow:hidden;border-radius:28px;background:transparent;box-shadow:0 26px 70px rgba(0,0,0,.16)}
+.product-visual-card img{display:block;width:100%;height:auto!important;max-height:none!important;object-fit:contain!important;border-radius:28px}
+@media(max-width:980px){.product-visual-card{align-self:start}.product-visual-card img{width:100%;height:auto!important}}
+@media(max-width:760px){.product-visual-card img{width:100%;height:auto!important}}

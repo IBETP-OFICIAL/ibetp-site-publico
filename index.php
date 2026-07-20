@@ -458,6 +458,25 @@ function merge_official_post_technical_products(array $items): array {
     return array_values($merged);
 }
 
+function dedupe_post_technical_products(array $items): array {
+    $deduped = [];
+    foreach ($items as $item) {
+        $key = ibetp_slug_key((string)($item['slug'] ?? $item['title'] ?? ''));
+        if (product_is_post_technical($item)) {
+            $textKey = ibetp_slug_key((string)($item['slug'] ?? '') . ' ' . (string)($item['title'] ?? ''));
+            if (str_contains($textKey, 'agrimensura')) {
+                $item = official_post_technical_product_by_slug('pos-tecnico-em-agrimensura') ?: $item;
+                $key = 'pos-tecnico-em-agrimensura';
+            } elseif (str_contains($textKey, 'enfermagem-do-trabalho') || (str_contains($textKey, 'enfermagem') && str_contains($textKey, 'trabalho'))) {
+                $item = official_post_technical_product_by_slug('pos-tecnico-em-enfermagem-do-trabalho') ?: $item;
+                $key = 'pos-tecnico-em-enfermagem-do-trabalho';
+            }
+        }
+        $deduped[$key] = $item;
+    }
+    return array_values($deduped);
+}
+
 function official_no_internship_technical_products(): array {
     $base = [
         ['tecnico-em-designer-de-interiores', 'Técnico em Designer de Interiores — EAD', 'Serviços'],
@@ -2175,6 +2194,7 @@ if ($path === '' || $path === 'index.php') {
     $products = merge_official_technical_products($products);
     $products = merge_official_technologist_products($products);
     $products = merge_official_post_technical_products($products);
+    $products = dedupe_post_technical_products($products);
     $products = array_slice($products, 0, 8);
     $featuredCourses = [
         ['/assets/curso-seguranca-trabalho-v3.webp', 'Técnico EAD', 'Segurança do Trabalho', 'Atuação preventiva em indústrias, obras e grandes operações.'],
@@ -2345,6 +2365,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         $items = merge_official_post_technical_products($items);
         $items = array_values(array_filter($items, 'product_publicly_visible'));
         $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
+        $items = dedupe_post_technical_products($items);
         $heading = 'Cursos e produtos IBETP';
     } else {
         $items = Database::all("SELECT * FROM posts WHERE type=? AND status='published' ORDER BY published_at DESC", [$type]);

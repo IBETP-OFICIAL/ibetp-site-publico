@@ -25,6 +25,25 @@ if ($redirect) {
     exit;
 }
 
+if ($path === 'admin/checkout-config') {
+    if (!Auth::user()) {
+        header('Location: ' . site_url('/admin?action=login'));
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        foreach (['smtp_host','smtp_port','smtp_security','smtp_user','smtp_from_email','smtp_from_name','checkout_internal_email','mp_environment','mp_test_access_token','mp_test_public_key','mp_production_access_token','mp_production_public_key'] as $key) {
+            save_setting($key, trim((string)($_POST[$key] ?? '')));
+        }
+        if (trim((string)($_POST['smtp_pass'] ?? '')) !== '') {
+            save_setting('smtp_pass', trim((string)$_POST['smtp_pass']));
+        }
+        header('Location: ' . site_url('/admin/checkout-config?saved=1'));
+        exit;
+    }
+    render_checkout_admin_config();
+    exit;
+}
+
 if ($path === 'admin' || str_starts_with($path, 'admin/')) {
     require __DIR__ . '/../app/admin/panel.php';
     exit;
@@ -84,36 +103,57 @@ if ($path === 'feed.xml') {
     exit;
 }
 
-if ($path === 'checkout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = (int)($_POST['product_id'] ?? 0);
-    $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
-    if (!$product && $id < 0) $product = official_technical_product_by_id($id);
-    if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
-    if (!$product && $id < 0) $product = official_post_technical_product_by_id($id);
-    if (!$product) { http_response_code(404); echo 'Produto indisponível.'; exit; }
+if ($path === 'checkout' && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'POST'], true)) {
+    $product = checkout_product_from_request();
+    if (!$product) { http_response_code(404); layout('Produto indisponível', 'Produto indisponível.', '<main><h1>Produto indisponível</h1></main>', null, true); exit; }
     $product = product_for_checkout($product);
-    try {
-        $preference = MercadoPago::createPreference($product);
-        header('Location: ' . $preference['init_point']);
-    } catch (Throwable $e) {
-        http_response_code(500);
-        echo 'Não foi possível iniciar o pagamento. ' . e($e->getMessage());
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['pre_enrollment_submit'] ?? '') === '1') {
+        try {
+            checkout_ensure_schema();
+            $data = checkout_validate_pre_enrollment($_POST);
+            $enrollmentId = checkout_save_pre_enrollment($product, $data);
+            $preference = checkout_create_preference($product, $enrollmentId, $data);
+            header('Location: ' . $preference['init_point']);
+        } catch (Throwable $e) {
+            render_checkout_form($product, $_POST, [$e->getMessage()]);
+        }
+        exit;
     }
+
+    render_checkout_form($product);
     exit;
 }
 
 if ($path === 'mercado-pago/webhook' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkout_ensure_schema();
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true) ?: [];
-    $external = $payload['external_reference'] ?? ($_GET['external_reference'] ?? null);
-    $status = $payload['status'] ?? ($payload['action'] ?? 'received');
+    $payment = checkout_fetch_webhook_payment($payload);
+    $external = $payment['external_reference'] ?? ($payload['external_reference'] ?? ($_GET['external_reference'] ?? null));
+    $status = $payment['status'] ?? ($payload['status'] ?? ($payload['action'] ?? 'received'));
+    $paymentId = $payment['id'] ?? ($payload['data']['id'] ?? null);
+    $responsePayload = $payment ? json_encode($payment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : $raw;
+
     if ($external) {
-        Database::exec("UPDATE payment_orders SET status=?, raw_response=?, updated_at=NOW() WHERE external_reference=?", [$status, $raw, $external]);
+        Database::exec("UPDATE payment_orders SET status=?, payment_id=?, raw_response=?, updated_at=NOW() WHERE external_reference=?", [$status, (string)$paymentId, $responsePayload, $external]);
+        checkout_mark_enrollment_payment($external, $status, (string)$paymentId, $responsePayload);
     } else {
-        Database::exec("INSERT INTO payment_orders (status, raw_response) VALUES (?, ?)", [$status, $raw]);
+        Database::exec("INSERT INTO payment_orders (status, payment_id, raw_response) VALUES (?, ?, ?)", [$status, (string)$paymentId, $responsePayload]);
     }
     http_response_code(200);
     echo 'OK';
+    exit;
+}
+
+if (in_array($path, ['pagamento/sucesso', 'pagamento/pendente', 'pagamento/erro'], true)) {
+    $kind = str_ends_with($path, 'sucesso') ? 'success' : (str_ends_with($path, 'pendente') ? 'pending' : 'error');
+    $title = $kind === 'success' ? 'Pagamento recebido' : ($kind === 'pending' ? 'Pagamento em análise' : 'Pagamento não concluído');
+    $message = $kind === 'success'
+        ? 'Recebemos o retorno do Mercado Pago. A matrícula será efetivada em até 24 horas úteis após a confirmação do pagamento.'
+        : ($kind === 'pending' ? 'O pagamento ainda está em análise. Assim que houver confirmação, o IBETP dará sequência ao atendimento.' : 'O pagamento não foi concluído. Você pode tentar novamente ou falar com o IBETP pelo WhatsApp.');
+    ob_start(); ?><main class="checkout-page"><section class="checkout-result"><p class="eyebrow">IBETP</p><h1><?= e($title) ?></h1><p><?= e($message) ?></p><a class="btn primary" href="<?= e(site_url('/cursos')) ?>">Voltar aos cursos</a><a class="btn outline" href="https://wa.me/5521983177702">Falar com o IBETP</a></section></main><?php
+    layout($title . ' | IBETP', $message, ob_get_clean(), null, $kind === 'error');
     exit;
 }
 
@@ -163,6 +203,483 @@ function product_for_checkout(array $product): array {
 
 function product_checkout_enabled(array $product): bool {
     return (int)($product['checkout_enabled'] ?? 0) === 1;
+}
+
+function checkout_product_from_request(): ?array {
+    $id = (int)($_POST['product_id'] ?? ($_GET['product_id'] ?? 0));
+    $slug = trim((string)($_POST['product_slug'] ?? ($_GET['produto'] ?? '')));
+    if ($id !== 0) {
+        $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
+        if (!$product && $id < 0) $product = official_technical_product_by_id($id);
+        if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
+        if (!$product && $id < 0) $product = official_post_technical_product_by_id($id);
+        return $product && product_checkout_enabled($product) ? $product : null;
+    }
+    if ($slug !== '') {
+        $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active' AND checkout_enabled=1", [$slug]);
+        if (!$product) $product = official_technologist_product_by_slug($slug);
+        if (!$product) $product = official_post_technical_product_by_slug($slug);
+        if (!$product) $product = official_technical_product_by_slug($slug);
+        return $product && product_checkout_enabled($product) ? $product : null;
+    }
+    return null;
+}
+
+function checkout_ensure_schema(): void {
+    try {
+        $driver = config()['db']['driver'] ?? 'sqlite';
+        if ($driver === 'sqlite') {
+            Database::pdo()->exec("CREATE TABLE IF NOT EXISTS pre_enrollments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER,
+                product_slug TEXT,
+                product_title TEXT NOT NULL,
+                product_category TEXT,
+                amount REAL,
+                full_name TEXT NOT NULL,
+                birth_date TEXT NOT NULL,
+                cpf TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                email TEXT NOT NULL,
+                sex TEXT NOT NULL,
+                cep TEXT NOT NULL,
+                address TEXT NOT NULL,
+                number TEXT NOT NULL,
+                complement TEXT,
+                district TEXT NOT NULL,
+                city TEXT NOT NULL,
+                state TEXT NOT NULL,
+                lgpd_accept INTEGER DEFAULT 0,
+                payment_status TEXT DEFAULT 'created',
+                external_reference TEXT,
+                payment_id TEXT,
+                raw_payment TEXT,
+                student_email_sent_at TEXT,
+                internal_email_sent_at TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )");
+        } else {
+            Database::pdo()->exec("CREATE TABLE IF NOT EXISTS pre_enrollments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NULL,
+                product_slug VARCHAR(190),
+                product_title VARCHAR(255) NOT NULL,
+                product_category VARCHAR(190),
+                amount DECIMAL(10,2),
+                full_name VARCHAR(255) NOT NULL,
+                birth_date VARCHAR(20) NOT NULL,
+                cpf VARCHAR(30) NOT NULL,
+                phone VARCHAR(40) NOT NULL,
+                email VARCHAR(190) NOT NULL,
+                sex VARCHAR(40) NOT NULL,
+                cep VARCHAR(20) NOT NULL,
+                address VARCHAR(255) NOT NULL,
+                number VARCHAR(50) NOT NULL,
+                complement VARCHAR(255),
+                district VARCHAR(190) NOT NULL,
+                city VARCHAR(190) NOT NULL,
+                state VARCHAR(20) NOT NULL,
+                lgpd_accept TINYINT DEFAULT 0,
+                payment_status VARCHAR(80) DEFAULT 'created',
+                external_reference VARCHAR(190),
+                payment_id VARCHAR(190),
+                raw_payment MEDIUMTEXT,
+                student_email_sent_at DATETIME NULL,
+                internal_email_sent_at DATETIME NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )");
+        }
+        foreach ([
+            "ALTER TABLE payment_orders ADD COLUMN enrollment_id INTEGER",
+            "ALTER TABLE payment_orders ADD COLUMN payment_id TEXT"
+        ] as $sql) {
+            try { Database::pdo()->exec($sql); } catch (Throwable $e) {}
+        }
+    } catch (Throwable $e) {
+        throw new RuntimeException('Não foi possível preparar a estrutura de matrícula. ' . $e->getMessage());
+    }
+}
+
+function checkout_required_fields(): array {
+    return [
+        'full_name' => 'Nome completo',
+        'birth_date' => 'Data de nascimento',
+        'cpf' => 'CPF',
+        'phone' => 'Telefone celular',
+        'email' => 'E-mail',
+        'sex' => 'Sexo',
+        'cep' => 'CEP',
+        'address' => 'Endereço',
+        'number' => 'Número',
+        'district' => 'Bairro',
+        'city' => 'Cidade',
+        'state' => 'Estado',
+    ];
+}
+
+function checkout_validate_pre_enrollment(array $input): array {
+    $data = [];
+    $missing = [];
+    foreach (checkout_required_fields() as $key => $label) {
+        $value = trim((string)($input[$key] ?? ''));
+        if ($value === '') $missing[] = $label;
+        $data[$key] = $value;
+    }
+    $data['complement'] = trim((string)($input['complement'] ?? ''));
+    $data['lgpd_accept'] = !empty($input['lgpd_accept']) ? 1 : 0;
+    if ($missing) {
+        throw new RuntimeException('Preencha os campos obrigatórios: ' . implode(', ', $missing) . '.');
+    }
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        throw new RuntimeException('Informe um e-mail válido.');
+    }
+    if (!$data['lgpd_accept']) {
+        throw new RuntimeException('Para seguir, é necessário confirmar a autorização de uso dos dados para pré-matrícula e atendimento educacional.');
+    }
+    return $data;
+}
+
+function checkout_save_pre_enrollment(array $product, array $data): int {
+    Database::exec(
+        "INSERT INTO pre_enrollments (
+            product_id, product_slug, product_title, product_category, amount,
+            full_name, birth_date, cpf, phone, email, sex, cep, address, number, complement, district, city, state, lgpd_accept
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            (int)($product['id'] ?? 0),
+            (string)($product['slug'] ?? ''),
+            (string)($product['title'] ?? ''),
+            product_category_label($product),
+            product_effective_price($product),
+            $data['full_name'],
+            $data['birth_date'],
+            $data['cpf'],
+            $data['phone'],
+            $data['email'],
+            $data['sex'],
+            $data['cep'],
+            $data['address'],
+            $data['number'],
+            $data['complement'],
+            $data['district'],
+            $data['city'],
+            $data['state'],
+            $data['lgpd_accept'],
+        ]
+    );
+    return (int)Database::pdo()->lastInsertId();
+}
+
+function checkout_mp_token(): string {
+    $cfg = config();
+    $env = setting('mp_environment', $cfg['mercado_pago']['environment'] ?? 'test') === 'production' ? 'production' : 'test';
+    $tokenKey = $env === 'production' ? 'mp_production_access_token' : 'mp_test_access_token';
+    $fallbackKey = $env === 'production' ? 'production_access_token' : 'test_access_token';
+    $token = trim(setting($tokenKey, $cfg['mercado_pago'][$fallbackKey] ?? '') ?? '');
+    if ($token === '') {
+        throw new RuntimeException('Mercado Pago ainda não está configurado no painel administrativo.');
+    }
+    return $token;
+}
+
+function checkout_create_preference(array $product, int $enrollmentId, array $data): array {
+    $external = 'ibetp-matricula-' . $enrollmentId . '-' . time();
+    $payload = [
+        'items' => [[
+            'title' => product_primary_payment_label($product) . ' — ' . $product['title'],
+            'quantity' => 1,
+            'currency_id' => $product['currency'] ?: 'BRL',
+            'unit_price' => (float)product_effective_price($product),
+        ]],
+        'payer' => [
+            'name' => $data['full_name'],
+            'email' => $data['email'],
+        ],
+        'external_reference' => $external,
+        'notification_url' => site_url('/mercado-pago/webhook'),
+        'back_urls' => [
+            'success' => site_url('/pagamento/sucesso'),
+            'failure' => site_url('/pagamento/erro'),
+            'pending' => site_url('/pagamento/pendente'),
+        ],
+        'auto_return' => 'approved',
+        'statement_descriptor' => 'IBETP',
+        'metadata' => [
+            'pre_enrollment_id' => $enrollmentId,
+            'product_slug' => (string)($product['slug'] ?? ''),
+        ],
+    ];
+    $response = checkout_mp_request('POST', 'https://api.mercadopago.com/checkout/preferences', $payload);
+    if (empty($response['init_point'])) {
+        throw new RuntimeException('Mercado Pago não retornou o link de pagamento.');
+    }
+    Database::exec(
+        'INSERT INTO payment_orders (product_id, enrollment_id, preference_id, external_reference, amount, status, raw_response) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [(int)($product['id'] ?? 0), $enrollmentId, $response['id'] ?? null, $external, product_effective_price($product), 'preference_created', json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)]
+    );
+    Database::exec("UPDATE pre_enrollments SET external_reference=?, payment_status=?, updated_at=NOW() WHERE id=?", [$external, 'preference_created', $enrollmentId]);
+    return $response;
+}
+
+function checkout_mp_request(string $method, string $url, ?array $payload = null): array {
+    $ch = curl_init($url);
+    $headers = ['Authorization: Bearer ' . checkout_mp_token(), 'Content-Type: application/json'];
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 25,
+    ]);
+    if ($payload !== null) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+    }
+    $response = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    if ($response === false) {
+        $err = curl_error($ch);
+        curl_close($ch);
+        throw new RuntimeException('Falha de comunicação com Mercado Pago: ' . $err);
+    }
+    curl_close($ch);
+    $json = json_decode($response, true);
+    if ($status >= 400 || !is_array($json)) {
+        throw new RuntimeException('Mercado Pago recusou a solicitação: ' . $response);
+    }
+    return $json;
+}
+
+function checkout_fetch_webhook_payment(array $payload): ?array {
+    $type = $payload['type'] ?? $payload['topic'] ?? '';
+    $id = $payload['data']['id'] ?? ($_GET['id'] ?? null);
+    if (!$id || ($type && !str_contains((string)$type, 'payment') && ($payload['action'] ?? '') === '')) return null;
+    try {
+        return checkout_mp_request('GET', 'https://api.mercadopago.com/v1/payments/' . rawurlencode((string)$id));
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+function checkout_mark_enrollment_payment(string $external, string $status, string $paymentId, string $raw): void {
+    $row = Database::one("SELECT * FROM pre_enrollments WHERE external_reference=?", [$external]);
+    if (!$row) return;
+    Database::exec("UPDATE pre_enrollments SET payment_status=?, payment_id=?, raw_payment=?, updated_at=NOW() WHERE id=?", [$status, $paymentId, $raw, (int)$row['id']]);
+    if ($status === 'approved' && empty($row['student_email_sent_at'])) {
+        checkout_send_approved_emails((int)$row['id']);
+    }
+}
+
+function checkout_smtp_setting(string $key, string $fallback = ''): string {
+    return trim((string)setting($key, $fallback));
+}
+
+function checkout_smtp_config(): array {
+    return [
+        'host' => checkout_smtp_setting('smtp_host', 'smtp.hostinger.com'),
+        'port' => (int)checkout_smtp_setting('smtp_port', '465'),
+        'security' => strtolower(checkout_smtp_setting('smtp_security', 'ssl')),
+        'user' => checkout_smtp_setting('smtp_user', 'secretaria@ibetp.com.br'),
+        'pass' => checkout_smtp_setting('smtp_pass', ''),
+        'from_email' => checkout_smtp_setting('smtp_from_email', 'secretaria@ibetp.com.br'),
+        'from_name' => checkout_smtp_setting('smtp_from_name', 'Secretaria IBETP'),
+        'internal_to' => checkout_smtp_setting('checkout_internal_email', 'secretaria@ibetp.com.br'),
+    ];
+}
+
+function checkout_send_approved_emails(int $enrollmentId): void {
+    $row = Database::one("SELECT * FROM pre_enrollments WHERE id=?", [$enrollmentId]);
+    if (!$row) return;
+    $studentSubject = 'IBETP — pré-matrícula recebida';
+    $studentHtml = checkout_student_email_html($row);
+    $internalSubject = 'Nova pré-matrícula paga — ' . $row['product_title'];
+    $internalHtml = checkout_internal_email_html($row);
+    $sentStudent = checkout_send_email($row['email'], $row['full_name'], $studentSubject, $studentHtml);
+    $cfg = checkout_smtp_config();
+    $sentInternal = checkout_send_email($cfg['internal_to'], 'Secretaria IBETP', $internalSubject, $internalHtml);
+    if ($sentStudent) Database::exec("UPDATE pre_enrollments SET student_email_sent_at=NOW() WHERE id=?", [$enrollmentId]);
+    if ($sentInternal) Database::exec("UPDATE pre_enrollments SET internal_email_sent_at=NOW() WHERE id=?", [$enrollmentId]);
+}
+
+function checkout_student_email_html(array $row): string {
+    return '<h2>Pré-matrícula IBETP recebida</h2>'
+        . '<p>Olá, ' . e($row['full_name']) . '.</p>'
+        . '<p>Recebemos sua pré-matrícula para <strong>' . e($row['product_title']) . '</strong>.</p>'
+        . '<p>Sua matrícula será efetivada em até <strong>24 horas úteis</strong> após a confirmação do pagamento e conferência das informações.</p>'
+        . '<p>A equipe da Secretaria IBETP poderá entrar em contato para orientar documentos, acesso e próximos passos.</p>'
+        . '<p><strong>IBETP — Instituto Brasileiro de Educação Técnica e Profissional</strong><br>CNPJ: 39.534.189/0001-38</p>';
+}
+
+function checkout_internal_email_html(array $row): string {
+    $fields = [
+        'Curso' => $row['product_title'],
+        'Modalidade/Categoria' => $row['product_category'],
+        'Valor pago/gerado' => 'R$ ' . number_format((float)$row['amount'], 2, ',', '.'),
+        'Status do pagamento' => $row['payment_status'],
+        'Código Mercado Pago' => $row['payment_id'],
+        'Nome completo' => $row['full_name'],
+        'Data de nascimento' => $row['birth_date'],
+        'CPF' => $row['cpf'],
+        'Telefone celular' => $row['phone'],
+        'E-mail' => $row['email'],
+        'Sexo' => $row['sex'],
+        'CEP' => $row['cep'],
+        'Endereço' => $row['address'],
+        'Número' => $row['number'],
+        'Complemento' => $row['complement'],
+        'Bairro' => $row['district'],
+        'Cidade' => $row['city'],
+        'Estado' => $row['state'],
+        'Referência interna' => $row['external_reference'],
+    ];
+    $html = '<h2>Nova pré-matrícula paga</h2><p>Dados completos preenchidos pelo aluno/cliente:</p><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse">';
+    foreach ($fields as $label => $value) {
+        $html .= '<tr><th align="left">' . e($label) . '</th><td>' . e((string)$value) . '</td></tr>';
+    }
+    return $html . '</table>';
+}
+
+function checkout_send_email(string $toEmail, string $toName, string $subject, string $html): bool {
+    $cfg = checkout_smtp_config();
+    if ($cfg['pass'] === '') return false;
+    $plain = trim(preg_replace('/\s+/', ' ', strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html))));
+    $boundary = '=_IBETP_' . bin2hex(random_bytes(12));
+    $headers = [
+        'From: ' . checkout_mime_header($cfg['from_name']) . ' <' . $cfg['from_email'] . '>',
+        'To: ' . checkout_mime_header($toName) . ' <' . $toEmail . '>',
+        'Subject: ' . checkout_mime_header($subject),
+        'MIME-Version: 1.0',
+        'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+    ];
+    $body = "--$boundary\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n$plain\r\n"
+        . "--$boundary\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\n\r\n$html\r\n--$boundary--\r\n";
+    $message = implode("\r\n", $headers) . "\r\n\r\n" . $body;
+    return checkout_smtp_send($cfg, $toEmail, $message);
+}
+
+function checkout_mime_header(string $text): string {
+    return '=?UTF-8?B?' . base64_encode($text) . '?=';
+}
+
+function checkout_smtp_send(array $cfg, string $toEmail, string $message): bool {
+    $remote = ($cfg['security'] === 'ssl' ? 'ssl://' : '') . $cfg['host'] . ':' . $cfg['port'];
+    $socket = @stream_socket_client($remote, $errno, $errstr, 20, STREAM_CLIENT_CONNECT);
+    if (!$socket) return false;
+    stream_set_timeout($socket, 20);
+    $read = function () use ($socket): string {
+        $data = '';
+        while (($line = fgets($socket, 515)) !== false) {
+            $data .= $line;
+            if (isset($line[3]) && $line[3] === ' ') break;
+        }
+        return $data;
+    };
+    $cmd = function (string $command) use ($socket, $read): string {
+        fwrite($socket, $command . "\r\n");
+        return $read();
+    };
+    $read();
+    $cmd('EHLO ibetp.com.br');
+    if ($cfg['security'] === 'tls') {
+        $cmd('STARTTLS');
+        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        $cmd('EHLO ibetp.com.br');
+    }
+    $cmd('AUTH LOGIN');
+    $cmd(base64_encode($cfg['user']));
+    $auth = $cmd(base64_encode($cfg['pass']));
+    if (!str_starts_with($auth, '235')) { fclose($socket); return false; }
+    $cmd('MAIL FROM:<' . $cfg['from_email'] . '>');
+    $cmd('RCPT TO:<' . $toEmail . '>');
+    $cmd('DATA');
+    fwrite($socket, str_replace("\n.", "\n..", $message) . "\r\n.\r\n");
+    $result = $read();
+    $cmd('QUIT');
+    fclose($socket);
+    return str_starts_with($result, '250');
+}
+
+function render_checkout_form(array $product, array $values = [], array $errors = []): void {
+    $fields = checkout_required_fields();
+    $value = fn(string $key): string => (string)($values[$key] ?? '');
+    ob_start(); ?><main class="checkout-page">
+      <section class="checkout-hero">
+        <div>
+          <p class="eyebrow">Pré-matrícula IBETP</p>
+          <h1><?= e($product['title']) ?></h1>
+          <p>Preencha os dados abaixo para seguir ao pagamento seguro no Mercado Pago. A matrícula será efetivada em até 24 horas úteis após a confirmação do pagamento.</p>
+        </div>
+        <aside>
+          <strong><?= e(product_primary_payment_label($product)) ?></strong>
+          <span><?= e(product_investment_label($product)) ?></span>
+        </aside>
+      </section>
+      <section class="checkout-form-card">
+        <?php if ($errors): ?><div class="checkout-errors"><?php foreach ($errors as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
+        <form method="post" action="<?= e(site_url('/checkout')) ?>" class="checkout-form">
+          <input type="hidden" name="product_id" value="<?= (int)($product['id'] ?? 0) ?>">
+          <input type="hidden" name="product_slug" value="<?= e((string)($product['slug'] ?? '')) ?>">
+          <input type="hidden" name="pre_enrollment_submit" value="1">
+          <div class="checkout-section-title"><span>01</span><strong>Dados pessoais</strong></div>
+          <div class="checkout-grid">
+            <label>Nome completo<input name="full_name" value="<?= e($value('full_name')) ?>" required></label>
+            <label>Data de nascimento<input name="birth_date" type="date" value="<?= e($value('birth_date')) ?>" required></label>
+            <label>CPF<input name="cpf" value="<?= e($value('cpf')) ?>" inputmode="numeric" required></label>
+            <label>Telefone celular<input name="phone" value="<?= e($value('phone')) ?>" inputmode="tel" required></label>
+            <label>E-mail<input name="email" type="email" value="<?= e($value('email')) ?>" required></label>
+            <label>Sexo<select name="sex" required><option value="">Selecione</option><?php foreach (['Feminino','Masculino','Outro','Prefiro não informar'] as $option): ?><option <?= $value('sex') === $option ? 'selected' : '' ?>><?= e($option) ?></option><?php endforeach; ?></select></label>
+          </div>
+          <div class="checkout-section-title"><span>02</span><strong>Endereço</strong></div>
+          <div class="checkout-grid">
+            <label>CEP<input name="cep" value="<?= e($value('cep')) ?>" inputmode="numeric" required></label>
+            <label>Endereço<input name="address" value="<?= e($value('address')) ?>" required></label>
+            <label>Número<input name="number" value="<?= e($value('number')) ?>" required></label>
+            <label>Complemento<input name="complement" value="<?= e($value('complement')) ?>"></label>
+            <label>Bairro<input name="district" value="<?= e($value('district')) ?>" required></label>
+            <label>Cidade<input name="city" value="<?= e($value('city')) ?>" required></label>
+            <label>Estado<input name="state" value="<?= e($value('state')) ?>" maxlength="2" required></label>
+          </div>
+          <label class="checkout-consent"><input type="checkbox" name="lgpd_accept" value="1" <?= !empty($values['lgpd_accept']) ? 'checked' : '' ?> required> Declaro que as informações preenchidas são verdadeiras e autorizo o IBETP a utilizar meus dados para fins de pré-matrícula, atendimento educacional e comunicação institucional.</label>
+          <div class="checkout-actions">
+            <button class="btn primary">Ir para pagamento seguro</button>
+            <a class="btn outline" href="<?= e(site_url('/produto/' . $product['slug'])) ?>">Voltar ao curso</a>
+          </div>
+        </form>
+      </section>
+    </main><?php
+    layout('Pré-matrícula — ' . $product['title'], 'Formulário de pré-matrícula IBETP antes do pagamento seguro.', ob_get_clean(), premium_product_image($product), true);
+}
+
+function render_checkout_admin_config(): void {
+    $saved = ($_GET['saved'] ?? '') === '1';
+    ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Checkout IBETP</title><link rel="stylesheet" href="<?= e(site_url('/assets/admin.css')) ?>"><style>
+    .checkout-admin-extra{max-width:980px;margin:28px auto;background:#fff;border:1px solid #d9e5f5;border-radius:22px;padding:28px;box-shadow:0 18px 40px rgba(0,31,84,.08);font-family:Arial,sans-serif;color:#001f54}
+    .checkout-admin-extra h1{margin:0 0 8px;font-size:32px}.checkout-admin-extra p{font-size:16px;line-height:1.55;color:#4b5d78}.checkout-admin-extra form{display:grid;gap:20px}.checkout-admin-extra fieldset{border:1px solid #d9e5f5;border-radius:18px;padding:20px}.checkout-admin-extra legend{font-weight:800;color:#008848}.checkout-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.checkout-admin-extra label{display:grid;gap:7px;font-weight:700}.checkout-admin-extra input,.checkout-admin-extra select{border:1px solid #c7d7ec;border-radius:12px;padding:12px;font-size:15px}.checkout-admin-extra button{background:#008848;color:#fff;border:0;border-radius:14px;padding:14px 20px;font-weight:900;cursor:pointer}.checkout-admin-ok{background:#e9f8ef;border:1px solid #bce8cb;color:#08783b;border-radius:14px;padding:12px 14px;font-weight:700}@media(max-width:760px){.checkout-admin-grid{grid-template-columns:1fr}}
+    </style></head><body><main class="checkout-admin-extra">
+      <h1>Configuração do checkout IBETP</h1>
+      <p>Use esta tela para salvar Mercado Pago e SMTP no banco privado do site. As senhas não entram no GitHub.</p>
+      <?php if ($saved): ?><div class="checkout-admin-ok">Configurações salvas.</div><?php endif; ?>
+      <form method="post">
+        <fieldset><legend>Mercado Pago</legend><div class="checkout-admin-grid">
+          <label>Ambiente<select name="mp_environment"><option value="test" <?= setting('mp_environment','production') === 'test' ? 'selected' : '' ?>>Teste</option><option value="production" <?= setting('mp_environment','production') === 'production' ? 'selected' : '' ?>>Produção / Real</option></select></label>
+          <label>Public Key real<input name="mp_production_public_key" value="<?= e(setting('mp_production_public_key','')) ?>"></label>
+          <label>Access Token real<input name="mp_production_access_token" value="<?= e(setting('mp_production_access_token','')) ?>"></label>
+          <label>Public Key teste<input name="mp_test_public_key" value="<?= e(setting('mp_test_public_key','')) ?>"></label>
+          <label>Access Token teste<input name="mp_test_access_token" value="<?= e(setting('mp_test_access_token','')) ?>"></label>
+        </div></fieldset>
+        <fieldset><legend>E-mail institucional SMTP</legend><div class="checkout-admin-grid">
+          <label>Servidor SMTP<input name="smtp_host" value="<?= e(setting('smtp_host','smtp.hostinger.com')) ?>"></label>
+          <label>Porta<input name="smtp_port" value="<?= e(setting('smtp_port','465')) ?>"></label>
+          <label>Segurança<select name="smtp_security"><option value="ssl" <?= setting('smtp_security','ssl') === 'ssl' ? 'selected' : '' ?>>SSL</option><option value="tls" <?= setting('smtp_security','ssl') === 'tls' ? 'selected' : '' ?>>TLS/STARTTLS</option></select></label>
+          <label>Usuário SMTP<input name="smtp_user" value="<?= e(setting('smtp_user','secretaria@ibetp.com.br')) ?>"></label>
+          <label>Senha SMTP<input name="smtp_pass" type="password" placeholder="Deixe vazio para manter a senha salva"></label>
+          <label>Remetente<input name="smtp_from_email" value="<?= e(setting('smtp_from_email','secretaria@ibetp.com.br')) ?>"></label>
+          <label>Nome do remetente<input name="smtp_from_name" value="<?= e(setting('smtp_from_name','Secretaria IBETP')) ?>"></label>
+          <label>E-mail interno da secretaria<input name="checkout_internal_email" value="<?= e(setting('checkout_internal_email','secretaria@ibetp.com.br')) ?>"></label>
+        </div></fieldset>
+        <button>Salvar configurações de checkout</button>
+      </form>
+    </main></body></html><?php
 }
 
 function product_is_technical_ead(array $product): bool {

@@ -587,7 +587,7 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.440h',
             'modality_note' => 'Curso Técnico EAD com matriz oficial voltada a projetos, obras, instalações, orçamento e sustentabilidade na construção civil. Início em até 24 horas úteis após a confirmação do pagamento.',
-            'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
+            'presence' => '',
             'internship' => 'Estágio supervisionado obrigatório de 240h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
@@ -607,7 +607,7 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.440h',
             'modality_note' => 'Curso Técnico EAD com matriz oficial voltada a instalações, projetos, automação, máquinas e sistemas elétricos. Início em até 24 horas úteis após a confirmação do pagamento.',
-            'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
+            'presence' => '',
             'internship' => 'Estágio supervisionado obrigatório de 240h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
@@ -703,8 +703,8 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada às rotinas de secretaria escolar.',
-            'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Estágio supervisionado obrigatório de 240h. Não possui TCC.',
+            'presence' => '',
+            'internship' => 'Estágio supervisionado obrigatório de 240h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['Módulo I', '440h', [['Introdução ao EAD','80h'], ['Organização Empresarial','40h'], ['Português Instrumental','60h'], ['Empreendedorismo e Gestão','80h'], ['Introdução à Segurança da Informação','20h'], ['Atendimento ao Cliente','40h'], ['Comportamento Organizacional','60h'], ['Comunicação e Expressão','60h']]],
@@ -715,8 +715,8 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.440h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à gestão ambiental, resíduos, água, efluentes e responsabilidade socioambiental.',
-            'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Estágio supervisionado obrigatório de 240h. Não possui TCC.',
+            'presence' => '',
+            'internship' => 'Estágio supervisionado obrigatório de 240h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['Módulo I', '320h', [['Introdução ao EAD','60h'], ['Introdução a Libras','80h'], ['Química Orgânica','80h'], ['Direito Ambiental','60h'], ['Cartografia e Geoprocessamento','40h']]],
@@ -1498,7 +1498,6 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           <section class="premium-section academic-official">
             <div class="section-kicker">Grade curricular oficial</div>
             <h2>Grade curricular</h2>
-            <p><?= e($academic['source']) ?></p>
             <div class="premium-grid academic-summary">
               <div class="premium-card"><strong>Duração</strong><span><?= e($academic['duration']) ?></span></div>
               <div class="premium-card"><strong>Carga horária</strong><span><?= e($academic['workload']) ?></span></div>

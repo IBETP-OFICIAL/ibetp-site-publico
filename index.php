@@ -78,6 +78,7 @@ if ($path === 'checkout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)($_POST['product_id'] ?? 0);
     $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
     if (!$product && $id < 0) $product = official_technical_product_by_id($id);
+    if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
     if (!$product) { http_response_code(404); echo 'Produto indisponível.'; exit; }
     try {
         $preference = MercadoPago::createPreference($product);
@@ -168,6 +169,10 @@ function product_category_label(array $product): string {
 }
 
 function product_area_label(array $product): string {
+    $explicitArea = trim((string)($product['area'] ?? ''));
+    if ($explicitArea !== '') {
+        return $explicitArea;
+    }
     $key = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? '') . ' ' . (string)($product['category'] ?? ''));
     $areaMap = [
         'Administração e gestão' => ['administracao','logistica','recursos-humanos','contabilidade','financas','seguros','eventos','vendas','marketing','servicos-juridicos','transacoes-imobiliarias','secretaria-escolar','secretariado-escolar'],
@@ -214,6 +219,7 @@ function product_area_sort_weight(string $label): int {
         'construcao-e-infraestrutura' => 60,
         'tecnologia-e-informatica' => 70,
         'educacao' => 80,
+        'seguranca' => 85,
         default => 90,
     };
 }
@@ -271,6 +277,9 @@ function product_publicly_visible(array $product): bool {
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
     $text = $titleKey . ' ' . $slugKey . ' ' . $categoryKey;
     if (product_is_technical_ead($product) && !technical_ead_drive_slug_allowed($product)) {
+        return false;
+    }
+    if (product_is_technologist($product) && !official_technologist_slug_allowed($product)) {
         return false;
     }
     $isCompetence = str_contains($text, 'competencia');
@@ -375,6 +384,269 @@ function merge_official_technical_products(array $items): array {
     }
     uasort($merged, fn($a, $b) => strcasecmp((string)($a['title'] ?? ''), (string)($b['title'] ?? '')));
     return array_values($merged);
+}
+
+function official_technologist_products(): array {
+    $base = [
+        ['tecnologo-em-gestao-de-recursos-humanos', 'Tecnólogo em Gestão de Recursos Humanos', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-em-negocios-imobiliarios', 'Tecnólogo em Gestão em Negócios Imobiliários', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-do-agronegocio', 'Tecnólogo em Gestão do Agronegócio', 'Meio ambiente e agropecuária', '2.400h', '2 anos'],
+        ['tecnologo-em-gestao-ambiental', 'Tecnólogo em Gestão Ambiental', 'Meio ambiente e agropecuária', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-marketing', 'Tecnólogo em Marketing', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-logistica', 'Tecnólogo em Logística', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-design-grafico', 'Tecnólogo em Design Gráfico', 'Tecnologia e informática', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-seguranca-do-trabalho', 'Tecnólogo em Segurança do Trabalho', 'Segurança', '2.400h', '2 anos'],
+        ['tecnologo-em-gestao-hospitalar', 'Tecnólogo em Gestão Hospitalar', 'Saúde', '2.400h', '2 anos'],
+        ['tecnologo-em-analise-e-desenvolvimento-de-sistemas', 'Tecnólogo em Análise e Desenvolvimento de Sistemas', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-redes-de-computadores', 'Tecnólogo em Redes de Computadores', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-seguranca-da-informacao', 'Tecnólogo em Segurança da Informação', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-processos-escolares', 'Tecnólogo em Processos Escolares', 'Educação', '2.000h', '2 anos'],
+        ['tecnologo-em-secretariado', 'Tecnólogo em Secretariado', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-comercio-exterior', 'Tecnólogo em Comércio Exterior', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-publica', 'Tecnólogo em Gestão Pública', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-jogos-digitais', 'Tecnólogo em Jogos Digitais', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-hotelaria', 'Tecnólogo em Hotelaria', 'Serviços', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-de-eventos', 'Tecnólogo em Gestão de Eventos', 'Serviços', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-processos-gerenciais', 'Tecnólogo em Processos Gerenciais', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-comercial', 'Tecnólogo em Gestão Comercial', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-financeira', 'Tecnólogo em Gestão Financeira', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-da-producao-industrial', 'Tecnólogo em Gestão da Produção Industrial', 'Engenharia e manutenção', '2.400h', '2 anos'],
+        ['tecnologo-em-gestao-da-qualidade', 'Tecnólogo em Gestão da Qualidade', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-da-tecnologia-da-informacao', 'Tecnólogo em Gestão da Tecnologia da Informação', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-gestao-de-cooperativas', 'Tecnólogo em Gestão de Cooperativas', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-de-seguranca-privada', 'Tecnólogo em Gestão de Segurança Privada', 'Segurança', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-redes-de-telecomunicacoes', 'Tecnólogo em Redes de Telecomunicações', 'Tecnologia e informática', '2.400h', '2 anos'],
+        ['tecnologo-em-gestao-de-turismo', 'Tecnólogo em Gestão de Turismo', 'Serviços', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-desportiva-e-de-lazer', 'Tecnólogo em Gestão Desportiva e de Lazer', 'Educação', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-servicos-penais', 'Tecnólogo em Serviços Penais', 'Segurança', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-design-de-animacao', 'Tecnólogo em Design de Animação', 'Tecnologia e informática', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-design-de-interiores', 'Tecnólogo em Design de Interiores', 'Serviços', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-design-de-moda', 'Tecnólogo em Design de Moda', 'Serviços', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-design-de-produtos', 'Tecnólogo em Design de Produtos', 'Engenharia e manutenção', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-producao-audiovisual', 'Tecnólogo em Produção Audiovisual', 'Tecnologia e informática', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-producao-cultural', 'Tecnólogo em Produção Cultural', 'Educação', '2.400h', '2 anos'],
+        ['tecnologo-em-producao-multimidia', 'Tecnólogo em Produção Multimídia', 'Tecnologia e informática', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-producao-publicitaria', 'Tecnólogo em Produção Publicitária', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-petroleo-e-gas', 'Tecnólogo em Petróleo e Gás', 'Engenharia e manutenção', '2.400h', '2 anos'],
+        ['tecnologo-em-sistemas-eletricos', 'Tecnólogo em Sistemas Elétricos', 'Engenharia e manutenção', '2.400h', '2 anos'],
+        ['tecnologo-em-banco-de-dados', 'Tecnólogo em Banco de Dados', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-sistemas-para-internet', 'Tecnólogo em Sistemas para Internet', 'Tecnologia e informática', '2.000h', '2 anos'],
+        ['tecnologo-em-gestao-de-servicos-judiciais-e-notariais', 'Tecnólogo em Gestão de Serviços Judiciais e Notariais', 'Administração e gestão', '1.600h', '1 ano e meio'],
+        ['tecnologo-em-gestao-de-seguranca-publica', 'Tecnólogo em Gestão de Segurança Pública', 'Segurança', '1.600h', '1 ano e meio'],
+    ];
+    $items = [];
+    foreach ($base as $i => $row) {
+        [$slug, $title, $area, $workload, $duration] = $row;
+        $items[] = [
+            'id' => -9500 - $i,
+            'slug' => $slug,
+            'title' => $title,
+            'category' => 'Tecnólogo EAD',
+            'area' => $area,
+            'price' => 99.90,
+            'checkout_enabled' => 1,
+            'status' => 'active',
+            'duration' => $duration,
+            'workload' => $workload,
+            'image' => '/assets/produtos/' . $slug . '.webp',
+            'short_description' => $title . '. Matrícula de R$ 99,90 no site do IBETP e mensalidades de R$ 149,90 diretamente no AVA. Curso EAD com atividades presenciais em polo.',
+            'description' => $title . '. Graduação tecnológica EAD com grade curricular oficial, TCC obrigatório quando informado na matriz, atividades presenciais em polo e atendimento do IBETP para matrícula, documentação e próximos passos.',
+            'seo_title' => $title . ' | IBETP',
+            'seo_description' => 'Conheça o ' . $title . ' do IBETP: matriz curricular oficial, matrícula, mensalidades no AVA, polos presenciais e orientação de matrícula.',
+            'updated_at' => '2026-07-20 00:00:00',
+        ];
+    }
+    return $items;
+}
+
+function official_technologist_slug_allowed(array $product): bool {
+    if (!product_is_technologist($product)) return true;
+    $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    foreach (official_technologist_products() as $official) {
+        if (ibetp_slug_key((string)$official['slug']) === $slugKey) return true;
+    }
+    return false;
+}
+
+function official_technologist_product_by_slug(string $slug): ?array {
+    $slugKey = ibetp_slug_key($slug);
+    foreach (official_technologist_products() as $product) {
+        if (ibetp_slug_key((string)$product['slug']) === $slugKey) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function official_technologist_product_by_id(int $id): ?array {
+    foreach (official_technologist_products() as $product) {
+        if ((int)$product['id'] === $id) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function merge_official_technologist_products(array $items): array {
+    $merged = [];
+    foreach ($items as $item) {
+        $merged[ibetp_slug_key((string)($item['slug'] ?? $item['title'] ?? ''))] = $item;
+    }
+    foreach (official_technologist_products() as $product) {
+        $merged[ibetp_slug_key((string)$product['slug'])] = $product;
+    }
+    uasort($merged, fn($a, $b) => strcasecmp((string)($a['title'] ?? ''), (string)($b['title'] ?? '')));
+    return array_values($merged);
+}
+
+function technologist_common_profile(string $duration, string $workload, string $eixo, array $modules): array {
+    return [
+        'duration' => $duration,
+        'workload' => $workload,
+        'modality_note' => 'Graduação tecnológica EAD com atividades presenciais em polo, matrícula pelo site do IBETP e mensalidades diretamente no AVA.',
+        'presence' => 'Este curso possui atividades presenciais vinculadas aos polos informados nesta página. Antes de pagar a matrícula, confirme se você tem disponibilidade real para comparecer a um dos polos. Se você mora muito distante dos polos disponíveis, o aconselhável é não realizar a matrícula sem antes confirmar a viabilidade com o IBETP.',
+        'internship' => 'Estágio supervisionado não consta como componente obrigatório na matriz curricular deste informativo. O curso informa Trabalho de Conclusão de Curso obrigatório e atividades complementares/extensionistas conforme a grade.',
+        'source' => 'Grade oficial extraída do informativo do curso.',
+        'tcc' => 'Trabalho de Conclusão de Curso obrigatório.',
+        'eixo' => $eixo,
+        'modules' => $modules,
+    ];
+}
+
+function official_technologist_profile_override(string $slugKey): ?array {
+    $profiles = [
+        'tecnologo-em-sistemas-eletricos' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Controle e Processos Industriais', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Comunicação Corporativa','60h'], ['Cálculo','60h'], ['Segurança em Instalações Elétricas','60h'], ['Interpretação de Desenho Técnico','60h'], ['Empreendedorismo','60h'], ['Comandos Elétricos','60h'], ['Eletricidade Básica','80h']]],
+            ['2° Período', '', [['Física Aplicada','60h'], ['Circuitos Elétricos','60h'], ['Legislação e Ética Aplicada ao Setor Elétrico','80h'], ['Mercado de Energia Elétrica','80h'], ['Gestão e Manutenção de Sistemas Elétricos','80h'], ['Instalações Elétricas de Baixa Tensão','80h'], ['Instalações Elétricas de Média e Alta Tensão','80h'], ['Instalações Elétricas Industriais','80h'], ['Máquinas Elétricas','80h']]],
+            ['3° Período', '', [['Análise de Sistema de Potência','60h'], ['Programa de Gerência de Riscos','80h'], ['Geração, Transmissão e Distribuição de Energia','80h'], ['Proteção de Sistemas Elétricos','60h'], ['Eletrônica Industrial de Potência','80h'], ['Introdução à Energia Solar Fotovoltaica','60h'], ['Instalações Elétricas em Sistemas de Energia Renovável','80h'], ['Otimização de Sistemas Elétricos de Potência','60h']]],
+            ['4° Período', '', [['Despacho Econômico de Energia','60h'], ['Microcontroladores e Microprocessadores','60h'], ['Qualidade e Eficiência Energética','60h'], ['Projetos de Automação Industrial','60h'], ['Gestão de Riscos em Projetos Solares','60h'], ['Projetos Elétricos','60h'], ['Projetos de Instalações de Sistema de Energia Renovável','60h'], ['Educação e Cultura Indígenas','40h'], ['Projetos Integradores Extensionistas','80h'], ['Ética, Cidadania e Meio-Ambiente','60h'], ['Direitos Humanos e Sustentabilidade','60h']]],
+        ]),
+        'tecnologo-em-jogos-digitais' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução à EAD','60h'], ['Lógica de Programação','80h'], ['Inglês Instrumental','80h'], ['Introdução a Banco de Dados','80h'], ['Criatividade, Storytelling e Design Thinking','80h'], ['Computação Gráfica','80h']]],
+            ['2° Período', '', [['Representação e Composição Artística','80h'], ['Física para Jogos Digitais','80h'], ['Algoritmos e Programação de Computadores','80h'], ['Roteirização de Jogos Digitais','80h'], ['Análise e Projeto de Software Orientado a Objetos','80h'], ['Gestão de Times','60h'], ['Programação em Python','80h']]],
+            ['3° Período', '', [['Construção e Animação de Cenários e Objetos 2D e 3D','80h'], ['Programação de Jogos Digitais para Consoles','80h'], ['Direção e Edição em Design','80h'], ['Gestão da Qualidade','80h'], ['Modelagem 3D','80h'], ['Gestão de Projetos','60h'], ['Inteligência Artificial para Jogos','60h'], ['Programação — Coding Mobile (Java)','80h']]],
+            ['4° Período', '', [['Jogos para Dispositivos Móveis','80h'], ['Programação em Unity','80h'], ['Análise de Mercado: Tendência, Comportamento e Movimento','60h'], ['Empreendedorismo','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Educação Ambiental','40h'], ['Atividades Complementares e Extensionistas','60h']]],
+        ]),
+        'tecnologo-em-sistemas-para-internet' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Lógica de Programação','60h'], ['Inglês Instrumental','60h'], ['Informática e Ferramentas de Produtividade','60h'], ['Algoritmos e Programação de Computadores','80h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','60h']]],
+            ['2° Período', '', [['Introdução a Banco de Dados','80h'], ['Arquitetura e Programação Front-End','80h'], ['Programação Back-End','80h'], ['Programação — Coding Mobile (Java)','80h'], ['Programação e Integração de Sistemas','80h'], ['Big Data e Ciências dos Dados','80h'], ['Engenharia de Software','80h'], ['Medidores de Performance e Web Analytics','80h']]],
+            ['3° Período', '', [['Programação — Coding Web (PHP)','80h'], ['Computação em Nuvem','80h'], ['Modelagem de Sistemas','80h'], ['Gestão de Projetos','60h'], ['Dados Abertos, Segurança da Informação e Privacidade','80h'], ['Qualidade de Software','60h'], ['Lógica de Programação Orientada a Objetos','60h'], ['Empreendedorismo','60h']]],
+            ['4° Período', '', [['Teste de Software','60h'], ['Educação Ambiental','40h'], ['Laboratório de Programação Orientada a Objetos','60h'], ['Gestão de Times — Métodos Ágeis','60h'], ['Educação das Relações Étnico-Raciais','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-seguranca-do-trabalho' => technologist_common_profile('2 anos', '2.400h', 'Segurança', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Gestão de Pessoas','60h'], ['Metodologia Científica','60h'], ['Ergonomia e Segurança no Trabalho','80h'], ['Gestão da Qualidade','80h'], ['Psicologia do Trabalho','80h'], ['Combate e Prevenção de Incêndios e Pânicos','80h']]],
+            ['2° Período', '', [['Estatística Básica','80h'], ['Direito do Trabalho','80h'], ['Prevenção e Tratamento das Não Conformidades','80h'], ['Gestão Ambiental','80h'], ['Higiene Ocupacional e Prevenção de Riscos Ambientais','80h'], ['Segurança em Instalações Elétricas','60h'], ['Normas Regulamentadoras Básicas','80h'], ['Certificação da Qualidade','80h']]],
+            ['3° Período', '', [['Prevenção e Tratamento de Não-Conformidades','80h'], ['Normas Regulamentadoras Básicas','80h'], ['Proteção de Máquinas e Equipamentos','80h'], ['Segurança do Trabalho Aplicada à Radioatividade','90h'], ['Gestão de Custos, Riscos e Perdas — GCRP','80h'], ['Suporte Emergencial à Vida e Atendimento Pré-Hospitalar','90h'], ['Bioética e Biossegurança','80h'], ['Segurança do Trabalho e Saúde Ocupacional','80h']]],
+            ['4° Período', '', [['Segurança do Trabalho na Construção Civil NR18','80h'], ['Gestão de Riscos','80h'], ['Segurança, Meio Ambiente, Saúde e Responsabilidade Social','80h'], ['Liderança e Gestão de Equipes','60h'], ['Auditorias, Perícias e Laudos','60h'], ['Educação Ambiental','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Relações Étnico-Raciais e Afrodescendência','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-redes-de-computadores' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução à EAD','40h'], ['Empreendedorismo','60h'], ['Lógica Matemática','60h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','60h'], ['Inglês Instrumental','60h'], ['Algoritmos e Programação de Computadores','80h']]],
+            ['2° Período', '', [['Introdução à Ciência da Computação','80h'], ['Introdução a Banco de Dados','80h'], ['Hardware Básico e Manutenção de Computadores','60h'], ['Segurança da Informação','80h'], ['Sistemas Operacionais','80h'], ['Administração de Servidores','80h'], ['Arquitetura e Organização de Computadores','80h'], ['Redes sem Fio','80h']]],
+            ['3° Período', '', [['Projeto de Redes','80h'], ['Administração de Sistema Operacional Livre — Linux','80h'], ['Administração de Sistema Operacional Proprietário — Windows Server','80h'], ['Cabeamento Estruturado','80h'], ['Gerenciamento de Redes de Computadores','80h'], ['Programação em Python','80h'], ['Infraestrutura de Computação em Nuvem','80h']]],
+            ['4° Período', '', [['Internet das Coisas','80h'], ['Comunicação de Dados','80h'], ['Gestão do Conhecimento e Inteligência Competitiva','60h'], ['Planejamento Estratégico de Tecnologia da Informação','40h'], ['Educação Ambiental','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Relações Étnico-Raciais e Afrodescendência','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-redes-de-telecomunicacoes' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Introdução à Eletricidade Básica','80h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','80h'], ['Fundamentos do Inglês','80h'], ['Informática Aplicada','80h'], ['Empreendedorismo','80h'], ['Planejamento Estratégico de Tecnologia da Informação','80h']]],
+            ['2° Período', '', [['Gestão da Tecnologia da Informação e Comunicação','90h'], ['Redes sem Fio','90h'], ['Sistemas de Comunicação e Telecomunicações','80h'], ['Segurança da Informação','80h'], ['Internet das Coisas','80h'], ['Gerenciamento de Redes de Computadores','80h'], ['Projeto de Redes','80h'], ['Cabeamento Estruturado','80h']]],
+            ['3° Período', '', [['Eletrônica Analógica','80h'], ['Transformação Digital','80h'], ['Ergonomia e Segurança no Trabalho','80h'], ['Eletrônica Digital','80h'], ['Gestão da Inovação e Competitividade','80h'], ['Conversão Eletromecânica de Energia','80h']]],
+            ['4° Período', '', [['Infovia de Comunicação e as Redes de Alto Desempenho em Cidades Inteligentes','80h'], ['Gestão de Projetos','80h'], ['Liderança e Gestão de Equipes','80h'], ['Direitos Humanos, Multiculturalismo e Cidadania','80h'], ['Desenvolvimento e Monitoramento de Dashboards em Ciência de Dados','80h'], ['Infraestrutura de Computação em Nuvem','80h'], ['Atividades Complementares/Extensionistas','80h'], ['Educação das Relações Étnico-Raciais','80h'], ['Ética Profissional','80h']]],
+        ]),
+        'tecnologo-em-producao-cultural' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Comunicação e Liderança','60h'], ['Cultura e Sociedade','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Organização de Eventos Esportivos, Culturais e de Lazer','80h'], ['Patrimônio Histórico-Cultural Brasileiro','80h']]],
+            ['2° Período', '', [['Sociologia e Antropologia','80h'], ['Planejamento Estratégico','80h'], ['Produção Multimídia','80h'], ['Estratégias de Marketing','80h'], ['Marketing de Eventos','80h'], ['Geografia Cultural','80h'], ['Gestão de Pessoas','80h'], ['Políticas Sociais','80h'], ['Gestão de Eventos','80h']]],
+            ['3° Período', '', [['Tecnologia em Artes Cênicas','80h'], ['Produção Teatral','80h'], ['Gestão Financeira','80h'], ['Economia Criativa e Fontes de Recursos','80h'], ['Análise da Viabilidade Econômica e Financeira de Projetos','80h'], ['Dinâmicas de Grupo e Programas de Desenvolvimento Individual','80h'], ['Dramaturgia','80h']]],
+            ['4° Período', '', [['Administração e Planejamento de Projetos de Impacto Social','80h'], ['Voz e Fala na Atuação Teatral','80h'], ['Produção e Gestão em Dança','80h'], ['Criatividade, Storytelling e Design Thinking','60h'], ['Empreendedorismo','60h'], ['Estética e Linguagem Audiovisual','80h'], ['Educação Ambiental','60h'], ['Análise de Dados para Decisões Estratégicas','80h'], ['Educação das Relações Étnico-Raciais','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-petroleo-e-gas' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Produção Industrial', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Comunicação e Liderança','60h'], ['Matemática Básica','60h'], ['Química Geral e Inorgânica','60h'], ['Gestão Ambiental','60h'], ['Estatística Básica','60h'], ['Fundamentos da Geologia','60h'], ['Logística Aplicada à Cadeia Produtiva de Petróleo e Gás','80h'], ['Química dos Materiais','60h']]],
+            ['2° Período', '', [['Gestão de Pessoas','80h'], ['Geologia e Mecânica dos Sólidos','80h'], ['Física — Energia, Movimento e Temperatura','80h'], ['Resistência dos Materiais','60h'], ['Produção de Petróleo e Gás','60h'], ['Gestão da Qualidade','80h'], ['Mecânica dos Fluídos e Termodinâmica','80h'], ['Gestão de Operações','80h']]],
+            ['3° Período', '', [['Máquinas Mecânicas','80h'], ['Projetos de Automação Industrial','80h'], ['Gestão de Riscos','80h'], ['Controle de Vibrações Mecânicas','80h'], ['Operações e Projetos Portuários','80h'], ['Motores de Combustão Interna','80h'], ['Gerenciamento dos Aspectos e Impactos Ambientais','80h'], ['Organização e Gestão do Trabalho Industrial','80h'], ['Higiene Ocupacional e Prevenção de Riscos Ambientais','80h']]],
+            ['4° Período', '', [['Operações de Seguros e Liquidação de Sinistros','80h'], ['Segurança do Trabalho em Portos','80h'], ['Gestão de Projetos','80h'], ['Atividades Complementares e Extensionistas','80h'], ['Empreendedorismo','80h'], ['Direitos Humanos, Multiculturalismo e Cidadania','80h'], ['Educação das Relações Étnico-Raciais','60h']]],
+        ]),
+        'tecnologo-em-gestao-hospitalar' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Ambiente e Saúde', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Metodologia Científica','80h'], ['Gestão do Processo e da Força de Trabalho em Saúde','80h'], ['Empreendedorismo','80h'], ['Gestão da Qualidade','80h'], ['Auditoria Hospitalar','80h'], ['Gestão de Serviços de Tecnologia Hospitalar','80h']]],
+            ['2° Período', '', [['Gestão Aplicada à Saúde','80h'], ['Direito Aplicado à Gestão Hospitalar','80h'], ['Comissões Hospitalares','80h'], ['Logística Hospitalar','80h'], ['Gestão de Serviços de Documentação Hospitalar','80h'], ['Gestão Hospitalar e Qualidade no Atendimento','80h'], ['Gestão e Marketing Hospitalar','80h'], ['Farmácia Hospitalar','80h']]],
+            ['3° Período', '', [['Administração Financeira e Contábil','80h'], ['Planejamento Estratégico e Qualidade Hospitalar','80h'], ['Ouvidoria Hospitalar','80h'], ['Controle e Prevenção de Infecção Hospitalar','80h'], ['Tecnologias em Equipamentos Hospitalares','80h'], ['Elaboração e Gestão de Contratos','80h'], ['Epidemiologia','80h'], ['Bioética e Biossegurança','80h'], ['Gestão de Riscos','80h']]],
+            ['4° Período', '', [['Suporte Emergencial à Vida e Atendimento Pré-Hospitalar','80h'], ['Regulação, Controle, Avaliação e Auditoria em Saúde','80h'], ['Criando e Liderando Organizações Eficazes','80h'], ['Tópicos Contemporâneos em Gestão Hospitalar','60h'], ['Educação Ambiental','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Relações Étnico-Raciais e Afrodescendência','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-banco-de-dados' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Lógica Matemática','60h'], ['Inglês Instrumental','60h'], ['Lógica de Programação','60h'], ['Introdução a Banco de Dados','80h'], ['Ciência, Tecnologia e Sociedade','60h']]],
+            ['2° Período', '', [['Introdução a Redes de Computadores e Protocolos de Comunicação','60h'], ['Sistemas Operacionais','60h'], ['Planejamento Estratégico de Tecnologia da Informação','60h'], ['Tecnologias e Linguagens de Banco de Dados','80h'], ['Estrutura de Dados','80h'], ['Engenharia de Software','80h'], ['Segurança em Sistemas Operacionais Abertos e Proprietários','80h']]],
+            ['3° Período', '', [['Bancos de Dados Não Relacionais','80h'], ['Big Data e Ciências dos Dados','80h'], ['Gestão de Projetos','80h'], ['Dados Abertos, Segurança da Informação e Privacidade','80h'], ['Governança de Dados','80h'], ['Desenvolvimento e Monitoramento de Dashboards em Ciência de Dados','80h'], ['Mineração de Dados','80h']]],
+            ['4° Período', '', [['Gestão de Bancos de Dados Locais e em Nuvem','80h'], ['Análise Exploratória de Dados','80h'], ['Modelagem de Sistemas','80h'], ['Gestão de Times — Métodos Ágeis','60h'], ['Empreendedorismo','60h'], ['Educação das Relações Étnico-Raciais','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-analise-e-desenvolvimento-de-sistemas' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução à EAD','40h'], ['Introdução à Ciência da Computação','60h'], ['Lógica Matemática','60h'], ['Empreendedorismo','40h'], ['Inglês Instrumental','60h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','60h'], ['Algoritmos e Programação de Computadores','60h']]],
+            ['2° Período', '', [['Arquitetura e Organização de Computadores','60h'], ['Interface Humano-Computador e User Experience','60h'], ['Segurança da Informação','60h'], ['Sistemas Operacionais','60h'], ['Lógica de Programação Orientada a Objetos','80h'], ['Estrutura de Dados','60h'], ['Programação e Integração de Sistemas','60h'], ['Banco de Dados','60h']]],
+            ['3° Período', '', [['Computação em Nuvem','60h'], ['Qualidade de Software','60h'], ['Modelagem de Sistemas','60h'], ['Engenharia de Software','80h'], ['Linguagem de Programação para Web','80h'], ['Teste de Software','80h'], ['Big Data e Ciências dos Dados','60h'], ['Sistemas Distribuídos','60h'], ['Bancos de Dados Não Relacionais','60h']]],
+            ['4° Período', '', [['Programação em Python','80h'], ['Arquitetura e Programação Front-End','80h'], ['Programação — Coding Mobile (Java)','80h'], ['Governança e Auditoria de Tecnologia da Informação','40h'], ['Gestão de Times — Métodos Ágeis','40h'], ['Educação Ambiental','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Relações Étnico-Raciais e Afrodescendência','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-da-tecnologia-da-informacao' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Informação e Comunicação', [
+            ['1° Período', '', [['Introdução à EAD','60h'], ['Lógica Matemática','80h'], ['Introdução a Redes de Computadores e Protocolos de Comunicação','80h'], ['Linguagem de Programação','80h'], ['Fundamentos do Inglês','60h'], ['Empreendedorismo','80h']]],
+            ['2° Período', '', [['Gestão da Tecnologia da Informação e Comunicação','80h'], ['Direitos Humanos e Sustentabilidade','60h'], ['Estatística','80h'], ['Análise e Modelagem de Processos','80h'], ['Gerenciamento de Redes de Computadores','80h'], ['Administração de Sistemas de Informação','80h']]],
+            ['3° Período', '', [['Hardware Básico e Manutenção de Computadores','80h'], ['Engenharia de Software','80h'], ['Planejamento Estratégico de Tecnologia da Informação','80h'], ['Dados Abertos, Segurança da Informação e Privacidade','80h'], ['Programação Orientada a Objetos','80h'], ['Lógica de Programação Avançada','80h'], ['Comunicação Integrada ao Marketing','60h']]],
+            ['4° Período', '', [['Governança e Auditoria de Tecnologia da Informação','80h'], ['Big Data e Ciências dos Dados','80h'], ['Requisitos de Sistemas de Informação','80h'], ['Gestão de Bancos de Dados Locais e em Nuvem','80h'], ['Gestão de Projetos','60h'], ['Programação Coding Mobile','60h'], ['Atividades Complementares e Extensionistas','80h'], ['Educação das Relações Étnico-Raciais','40h']]],
+        ]),
+        'tecnologo-em-processos-escolares' => technologist_common_profile('2 anos (24 meses)', '2.000h', 'Desenvolvimento Educacional e Social', [
+            ['1° Período', '', [['Introdução à EAD','60h'], ['Fundamentos da Administração','60h'], ['Português Instrumental','60h'], ['Administração Escolar','80h'], ['Sociologia e Educação','60h'], ['Relações Institucionais e Humanas no Ambiente Escolar','80h'], ['Gestão de Sistemas Educacionais','80h']]],
+            ['2° Período', '', [['Regulação Educacional','80h'], ['Avaliação Diagnóstica Escolar','80h'], ['Comunicação Eficaz','60h'], ['Legislação e Políticas Educacionais','80h'], ['Avaliação Institucional Escolar','80h'], ['Políticas Educacionais e Gestão Escolar','80h'], ['Planejamento e Gestão','60h']]],
+            ['3° Período', '', [['Gestão de Equipes e Liderança com Ênfase no Ambiente Escolar','80h'], ['Gestão Administrativa e Financeira da Escola','80h'], ['Escrituração Escolar','60h'], ['Logística de Alimentação Escolar','80h'], ['A Educação Especial e a Inclusão Escolar','60h'], ['Inspeção Escolar','80h'], ['Sistema de Informações Gerenciais e Marketing Estratégico','60h']]],
+            ['4° Período', '', [['Gestão de Qualidade e Gerenciamento de Rotina','80h'], ['Direitos Humanos na Educação','60h'], ['Empreendedorismo','60h'], ['Educação e as TICs','80h'], ['Mediação de Conflitos','80h'], ['Ética, Cidadania e Meio-Ambiente','60h'], ['Atividades Complementares/Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-do-agronegocio' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Recursos Naturais', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Fundamentos da Administração','60h'], ['Empreendedorismo','60h'], ['Fundamentos da Agronomia e Agronegócio','60h'], ['Matemática Básica','60h'], ['Economia Rural','80h'], ['Topografia e Geoprocessamento','80h'], ['Libras','60h']]],
+            ['2° Período', '', [['Contabilidade Aplicada ao Agronegócio','80h'], ['Tecnologia e Inovação Aplicadas a Agronegócios','80h'], ['Projetos Agropecuários','80h'], ['Comercialização e Certificação Orgânica no Agronegócio','80h'], ['Legislação e Normas Técnicas Aplicadas ao Agronegócio','80h'], ['Direito Agroambiental','80h'], ['Gestão de Qualidade e Produtividade no Agronegócio','80h'], ['Análise de Competitividade das Cadeias Produtivas','80h']]],
+            ['3° Período', '', [['Climatologia e Meteorologia Agrícola','80h'], ['Mercado do Agronegócio','80h'], ['Assistência Técnica e Extensão Rural','80h'], ['Fertilidade do Solo e Nutrição de Plantas','80h'], ['Comercialização e Certificação Orgânica no Agronegócio','80h'], ['Gestão de Transportes','60h'], ['Qualidade do Solo e Recuperação de Áreas Degradadas','60h'], ['Agroecologia','60h'], ['Gestão Empresarial Rural','60h']]],
+            ['4° Período', '', [['Gestão da Produção','60h'], ['Ecologia e Limnologia','80h'], ['Gestão Financeira Aplicada ao Agronegócio','60h'], ['Agricultura Familiar e Desenvolvimento Sustentável','80h'], ['Georreferenciamento de Imóveis Rurais','60h'], ['Educação e Meio Ambiente','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Relações Étnico-Raciais e Afrodescendência','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-da-producao-industrial' => technologist_common_profile('2 anos (24 meses)', '2.400h', 'Produção Industrial', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Administração Aplicada à Engenharia de Segurança','60h'], ['Organização e Gestão do Trabalho Industrial','80h'], ['Comunicação e Expressão','60h'], ['Estudos em Contabilidade','80h'], ['Metodologia Científica','80h'], ['Gerenciamento de Projetos I','80h'], ['Planejamento Estratégico','80h']]],
+            ['2° Período', '', [['Tecnologia da Informação','80h'], ['Gestão da Produção','80h'], ['Estatística','80h'], ['Legislação e Normas Regulamentadoras em Segurança do Trabalho','80h'], ['Meio Ambiente e Sustentabilidade','80h'], ['Ferramentas da Qualidade e Gestão por Processos','80h'], ['Desafios da Gestão Industrial e a Engenharia de Manutenção','80h'], ['Gestão da Qualidade','80h']]],
+            ['3° Período', '', [['Gestão Estratégica das Organizações','80h'], ['Engenharia de Sistemas Produtivos','60h'], ['Liderança e Equipe Organizacional','80h'], ['Orçamento e Custos Industriais','80h'], ['Logística Avançada','80h'], ['Legislação Trabalhista e Normas Regulamentadoras','80h'], ['Controladoria e Finanças','80h'], ['Projetos de Automação Industrial','80h']]],
+            ['4° Período', '', [['Economia e Mercado','80h'], ['Empreendedorismo','60h'], ['Gerenciamento de Projetos II','80h'], ['Sustentabilidade Ambiental, Social e Governança — ESG','60h'], ['Administração de Materiais','80h'], ['Educação em Direitos Humanos','60h'], ['Educação e Cultura Indígenas','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-design-de-produtos' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Matemática Básica','40h'], ['Comunicação e Expressão','40h'], ['Interpretação de Desenho Técnico','60h'], ['Fundamentos do Design','60h'], ['Desenvolvimento da Criatividade','60h'], ['História da Arte e do Design','60h'], ['Teorias da Cor','60h'], ['Estética e Percepção Visual','40h'], ['Desenvolvimento de Produto Tecnológico até o MVP','60h']]],
+            ['2° Período', '', [['Design, Ergonomia, Antropometria e Acessibilidade','60h'], ['Design Thinking','40h'], ['Human Centred Design','40h'], ['Desenvolvimento de Produtos e Engenharia de Valor','60h'], ['Desenho Técnico Mecânico em CAD','60h'], ['Construção e Animação de Cenários e Objetos 2D e 3D','60h'], ['Experiência e Desenho de Produtos e Serviços em Saúde','60h'], ['Gestão Estratégica de Marcas','60h']]],
+            ['3° Período', '', [['Ilustração e Tratamento de Imagens 2D — Adobe Photoshop','60h'], ['Semiótica','40h'], ['Inteligência Artificial Aplicada ao Design Gráfico','60h'], ['Comunicação e Linguagem do Design Gráfico','40h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','40h'], ['Marketing','60h'], ['Modelagem 3D','60h'], ['Empreendedorismo','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Educação das Relações Étnico-Raciais','80h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-de-recursos-humanos' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Fundamentos da Administração','40h'], ['Comunicação Eficaz','40h'], ['Fundamentos da Economia I','40h'], ['Teorias das Organizações','60h'], ['Direito Empresarial','60h'], ['Lógica e Fundamentos da Matemática','60h'], ['Direito do Trabalho','60h']]],
+            ['2° Período', '', [['Recursos Humanos','60h'], ['Português Instrumental','60h'], ['Sociologia das Organizações','60h'], ['Psicologia e Comportamento Humano nas Organizações','60h'], ['Logística Organizacional','60h'], ['Contratos','60h'], ['Gerenciamento de Pessoal','60h'], ['Gestão de Conhecimentos e Avaliação de Desempenho','60h'], ['Gestão Estratégica das Organizações','60h'], ['Sistema Comunicativo nas Organizações','60h'], ['Administração Financeira I','60h']]],
+            ['3° Período', '', [['Gestão de Qualidade e Gerenciamento de Rotina','60h'], ['Técnicas de Treinamento','60h'], ['Contrato Individual do Trabalho e Cálculo Trabalhista','40h'], ['Organização, Saúde e Segurança no Trabalho','60h'], ['Empreendedorismo','60h'], ['Mediação de Conflitos','60h'], ['Direitos Humanos e Sustentabilidade','40h'], ['Educação e Cultura Indígenas','40h'], ['Ética, Cidadania e Meio-Ambiente','40h'], ['Atividades Complementares/Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-comercial' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Noções Gerais do Direito','60h'], ['Matemática Elementar','60h'], ['Fundamentos da Administração','60h'], ['Estudos em Contabilidade','60h'], ['Comunicação Eficaz','60h'], ['Fundamentos da Economia','60h'], ['Liderança e Equipe Organizacional','60h'], ['Gestão de Pessoas','60h']]],
+            ['2° Período', '', [['Aspectos Comerciais e Atendimento ao Cliente','60h'], ['Sistema de Informações Gerenciais e Marketing Estratégico','60h'], ['Estratégias de Vendas','60h'], ['Direito do Consumidor','80h'], ['Planejamento e Gestão','60h'], ['Vendas e Negociação','60h'], ['Gestão de Custos e Formação de Preços','80h'], ['Análise de Mercado','60h']]],
+            ['3° Período', '', [['O Papel da Motivação na Produtividade da Equipe','60h'], ['Programas de Qualidade Empresarial','60h'], ['Gestão e Inovação','60h'], ['Marketing Digital','60h'], ['Gestão de Conhecimentos e Avaliação de Desempenho','60h'], ['Inteligência Emocional','60h'], ['Empreendedorismo','40h'], ['Ética e Responsabilidade Social na Gestão','40h'], ['Educação e Cultura Indígenas','40h'], ['Atividades Complementares/Extensionistas','80h'], ['Direitos Humanos e Sustentabilidade','40h']]],
+        ]),
+        'tecnologo-em-gestao-financeira' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Noções Gerais do Direito','60h'], ['Matemática Elementar','80h'], ['Fundamentos da Administração','60h'], ['Estudos em Contabilidade','80h'], ['Comunicação Eficaz','60h'], ['Fundamentos da Economia','60h'], ['Gestão de Pessoas','60h']]],
+            ['2° Período', '', [['Gestão Financeira','80h'], ['Sistema Tributário Nacional — Estrutura e Princípios do Sistema Tributário Brasileiro','60h'], ['Estatística Aplicada','60h'], ['Análise de Custos','60h'], ['Avaliação de Empresas','60h'], ['Administração Financeira I','80h'], ['Liderança e Equipe Organizacional','80h'], ['Administração Financeira II','60h']]],
+            ['3° Período', '', [['Programa de Gerência de Riscos','60h'], ['Gestão de Qualidade e Gerenciamento de Rotina','60h'], ['Análise de Demonstrações Financeiras','60h'], ['Análise de Investimentos','60h'], ['Controladoria','60h'], ['Compliance Fiscal e Governança Tributária','60h'], ['Sistema de Banco de Dados','40h'], ['Educação e Cultura Indígenas','40h'], ['Empreendedorismo','40h'], ['Atividades Complementares e Extensionistas','80h'], ['Direitos Humanos e Sustentabilidade','40h']]],
+        ]),
+        'tecnologo-em-processos-gerenciais' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Noções Gerais do Direito','40h'], ['Matemática Elementar','60h'], ['Fundamentos da Administração','40h'], ['Estudos em Contabilidade','60h'], ['Comunicação Eficaz','40h'], ['Fundamentos da Economia','60h'], ['Liderança e Equipe Organizacional','60h'], ['Gerenciamento de Pessoal','60h'], ['Estatística Aplicada','60h']]],
+            ['2° Período', '', [['Direito Empresarial','60h'], ['Análise de Custos','60h'], ['Avaliação de Empresas','60h'], ['Planejamento e Gestão','60h'], ['Gerenciamento da Informação','60h'], ['Gestão de Qualidade e Gerenciamento de Rotina','60h'], ['Liderança e Equipe Organizacional','60h'], ['Recursos Humanos','60h'], ['Gestão de Negócios e Análises Financeiras','60h'], ['Programa de Gerência de Riscos','60h']]],
+            ['3° Período', '', [['Gestão e Inovação','40h'], ['Controladoria','40h'], ['Logística Avançada','40h'], ['Sistema de Informações Gerenciais e Marketing Estratégico','40h'], ['Análise de Mercado','40h'], ['Gestão de Produção','40h'], ['Aspectos Comerciais e Atendimento ao Cliente','40h'], ['Empreendedorismo','40h'], ['Educação e Cultura Indígenas','40h'], ['Ética e Responsabilidade Social na Gestão','40h'], ['Atividades Complementares e Extensionistas','80h'], ['Breves Considerações sobre Direitos Humanos','40h']]],
+        ]),
+        'tecnologo-em-logistica' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gerencial', [
+            ['1° Período', '', [['Introdução à EAD','40h'], ['Fundamentos da Administração','40h'], ['Comunicação e Liderança','40h'], ['Tópicos de Economia','60h'], ['Gestão da Cadeia de Suprimentos','60h'], ['Planejamento Estratégico','60h'], ['Administração Financeira e Contábil','60h'], ['Direito Empresarial','60h']]],
+            ['2° Período', '', [['Práticas em Logística','60h'], ['Informática e Ferramentas de Produtividade','60h'], ['Logística Empresarial','60h'], ['Gestão de Custos, Riscos e Perdas — GCRP','60h'], ['Logística Reversa','60h'], ['Gestão de Tecnologia e Informação em Logística','60h'], ['Segurança do Trabalho na Indústria e na Logística','80h'], ['Gestão de Compras e Negociação','60h'], ['Logística Internacional','60h']]],
+            ['3° Período', '', [['Logística Portuária','60h'], ['Gestão da Produção','60h'], ['Logística de Armazenagem','60h'], ['Logística de Transportes','60h'], ['Gestão de Estoque','60h'], ['Análise de Competitividade das Cadeias Produtivas','60h'], ['Educação Ambiental','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Relações Étnico-Raciais e Afrodescendência','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-marketing' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Comercial', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Fundamentos da Administração','40h'], ['Gestão de Pessoas','40h'], ['Fundamentos de Marketing','60h'], ['Empreendedorismo','40h'], ['Comunicação Integrada ao Marketing','60h'], ['Gestão de Projetos','40h'], ['Estratégias de Marketing','40h'], ['Comportamento do Consumidor','40h']]],
+            ['2° Período', '', [['Liderança e Gestão de Equipes','40h'], ['Ciência de Dados Aplicada à Gestão de Marketing','60h'], ['Publicidade e Propaganda','60h'], ['Métricas de Marketing','60h'], ['Gestão de Custos e Finanças','60h'], ['Geomarketing','60h'], ['Marketing de Eventos','60h'], ['Marketing de Produtos','60h'], ['Estratégias de Growth Marketing','60h'], ['Visual Merchandising','60h']]],
+            ['3° Período', '', [['Neuromarketing e UX','60h'], ['Marketing de Influência e o Social Media','60h'], ['Trade Marketing','60h'], ['Marketing Político','60h'], ['Marketing de Serviços e do Varejo','60h'], ['Business Intelligence','60h'], ['Inteligência Artificial Aplicada ao Marketing Digital','60h'], ['Educação Ambiental','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Relações Étnico-Raciais e Afrodescendência','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-da-qualidade' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Comunicação e Expressão','60h'], ['Ferramentas da Qualidade e Gestão por Processos','80h'], ['Metodologia Científica','60h'], ['Economia e Mercado','60h'], ['Fundamentos Contábeis','80h'], ['Fundamentos da Administração','60h'], ['Gestão de Riscos','80h']]],
+            ['2° Período', '', [['Gestão da Qualidade','80h'], ['Processos e Projetos de Melhoria Contínua','60h'], ['Auditoria da Qualidade','80h'], ['Gestão da Inovação e Competitividade','60h'], ['Análise e Modelagem de Processos','60h'], ['Certificação da Qualidade','60h'], ['Gestão de Projetos','60h'], ['Planejamento Estratégico','60h']]],
+            ['3° Período', '', [['Gestão da Produção','60h'], ['Gerenciamento dos Aspectos e Impactos Ambientais','60h'], ['Controle de Qualidade Industrial','60h'], ['Metodologia da Manutenção','60h'], ['Liderança e Gestão de Equipes','60h'], ['Empreendedorismo','60h'], ['Atividades Complementares e Extensionistas','80h'], ['Educação das Relações Étnico-Raciais','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h']]],
+        ]),
+    ];
+    return $profiles[$slugKey] ?? null;
 }
 
 function technical_ead_drive_slug_allowed(array $product): bool {
@@ -519,9 +791,6 @@ function premium_product_image(array $product): string {
     if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnico-em-secretaria-escolar.webp')) {
         return '/assets/produtos/tecnico-em-secretaria-escolar.webp';
     }
-    if ($explicit !== '' && str_starts_with($explicit, '/assets/')) {
-        return $explicit;
-    }
     if (str_contains($title, 'enfermagem') || str_contains($title, 'saúde') || str_contains($title, 'saude') || str_contains($category, 'saúde') || str_contains($category, 'saude')) {
         return '/assets/setor-saude-hospital-profissionais-premium.png';
     }
@@ -546,7 +815,7 @@ function premium_product_image(array $product): string {
     if (str_contains($category, 'indústria') || str_contains($category, 'industria')) {
         return '/assets/hero-industria-profissionais-tecnicos-premium.png';
     }
-    return (string)($product['image'] ?? '/assets/default-course.webp');
+    return '/assets/hero-industria-profissionais-tecnicos-premium.png';
 }
 
 function product_investment_text(array $product): string {
@@ -774,6 +1043,10 @@ function product_academic_profile(array $product): ?array {
     }
     if ($slugKey === 'tecnico-em-maquinas-pesadas') {
         $slugKey = 'tecnico-em-manutencao-de-maquinas-pesadas';
+    }
+    $technologistOverride = official_technologist_profile_override($slugKey);
+    if ($technologistOverride !== null && product_is_technologist($product)) {
+        return $technologistOverride;
     }
     $officialOverride = official_drive_technical_profile_override($slugKey, $titleKey);
     if ($officialOverride !== null && product_is_official_drive_technical_ead($product)) {
@@ -1478,9 +1751,9 @@ function product_academic_profile(array $product): ?array {
             'duration' => $catalogDuration !== '' ? $catalogDuration : (str_contains($slugKey, 'analise-e-desenvolvimento-de-sistemas') || str_contains($slugKey, 'seguranca-do-trabalho') || str_contains($slugKey, 'gestao-hospitalar') ? '24 meses' : '18 a 24 meses'),
             'workload' => $catalogWorkload !== '' ? $catalogWorkload : 'Carga horária conforme informativo oficial do curso',
             'modality_note' => 'Curso Tecnólogo EAD com início em até 24 horas úteis após a confirmação do pagamento da matrícula. O aluno paga a matrícula via Pix no site e as mensalidades diretamente no AVA.',
-            'presence' => 'Metodologia oficial dos Tecnólogos EAD: 80% EAD e 20% de presencialidade acadêmica, com atividades síncronas mediadas, calendário de avaliações, encontros presenciais no polo credenciado quando previstos e acompanhamento pelo AVA.',
-            'internship' => $catalogInternship !== '' ? $catalogInternship : 'Estágio e práticas acadêmicas seguem a matriz oficial do curso. Quando houver exigência específica, o IBETP orienta o aluno antes da matrícula e durante o acompanhamento acadêmico.',
-            'source' => 'Informações acadêmicas extraídas da planilha oficial de cursos e dos informativos acadêmicos disponíveis ao IBETP. As disciplinas detalhadas são exibidas quando a grade individual do curso já está vinculada.',
+            'presence' => 'Este curso possui atividades presenciais vinculadas aos polos informados nesta página. Antes de pagar a matrícula, confirme se você tem disponibilidade real para comparecer a um dos polos. Se você mora muito distante dos polos disponíveis, o aconselhável é não realizar a matrícula sem antes confirmar a viabilidade com o IBETP.',
+            'internship' => $catalogInternship !== '' ? $catalogInternship : 'Estágio supervisionado deve seguir a matriz oficial do curso e as orientações acadêmicas vigentes. Quando houver exigência específica, o IBETP orienta o aluno antes da matrícula e durante o acompanhamento acadêmico.',
+            'source' => 'Informações acadêmicas extraídas da lista oficial de cursos e dos informativos acadêmicos disponíveis ao IBETP. As disciplinas detalhadas são exibidas quando a grade individual do curso já está vinculada.',
             'modules' => [],
         ];
     }
@@ -1719,6 +1992,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     if ($path === 'cursos') {
         $items = Database::all("SELECT * FROM products WHERE status='active' ORDER BY title");
         $items = merge_official_technical_products($items);
+        $items = merge_official_technologist_products($items);
         $items = array_values(array_filter($items, 'product_publicly_visible'));
         $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
         $heading = 'Cursos e produtos IBETP';
@@ -1831,6 +2105,8 @@ if (preg_match('#^(blog|glossario)/([^/]+)$#', $path, $m)) {
 
 if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
+    $officialTechnologist = official_technologist_product_by_slug($m[1]);
+    if ($officialTechnologist) $product = $officialTechnologist;
     if (!$product) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $academic = product_academic_profile($product);
@@ -1949,6 +2225,21 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           </section>
           <?php endif; ?>
           <?php if (product_is_technologist($product)): ?>
+          <section class="premium-section technologist-poles">
+            <div class="section-kicker">Atividades presenciais</div>
+            <h2>Confirme sua disponibilidade para comparecer a um dos polos.</h2>
+            <p>Os cursos de Graduação Tecnológica EAD possuem atividades presenciais. Antes de tentar se matricular, confirme se você consegue comparecer a um dos polos abaixo. Se você mora muito distante de todos eles, o aconselhável é não realizar a matrícula sem antes falar com o IBETP e confirmar a viabilidade.</p>
+            <div class="premium-grid pole-grid">
+              <div class="premium-card"><strong>SP — Hortolândia</strong><span>R. Zacarias Costa Camargo, 310 — Centro</span></div>
+              <div class="premium-card"><strong>PB — João Pessoa</strong><span>R. Jobson de Almeida Sá, 16 — Mangabeira</span></div>
+              <div class="premium-card"><strong>MG — Itaúna</strong><span>Av. Jove Soares, 1.367 — Centro</span></div>
+              <div class="premium-card"><strong>AC — Rio Branco</strong><span>R. Alvorada, 271 — Bosque</span></div>
+              <div class="premium-card"><strong>RS — Centro Histórico</strong><span>Tv. Acilino de Carvalho, 10</span></div>
+              <div class="premium-card"><strong>RJ — Duque de Caxias</strong><span>R. José Veríssimo, 173 — Centro</span></div>
+              <div class="premium-card"><strong>DF — Taguatinga</strong><span>QNJ Área Especial 08, Lote 01 — Parte B</span></div>
+              <div class="premium-card"><strong>PA — Tucuruí</strong><span>Travessa W Um, Quadra 03, Lotes 20 e 24 — Bairro COHAB</span></div>
+            </div>
+          </section>
           <section class="premium-section">
             <div class="section-kicker">Pagamento do Tecnólogo</div>
             <h2>Matrícula no site, mensalidades pelo AVA</h2>

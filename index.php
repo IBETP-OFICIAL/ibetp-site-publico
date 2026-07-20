@@ -406,7 +406,7 @@ function official_post_technical_slug_allowed(array $product): bool {
     $textKey = ibetp_slug_key((string)($product['slug'] ?? '') . ' ' . (string)($product['title'] ?? ''));
     foreach (official_post_technical_products() as $official) {
         $officialKey = ibetp_slug_key((string)$official['slug'] . ' ' . (string)$official['title']);
-        if (str_contains($textKey, ibetp_slug_key((string)$official['slug'])) || str_contains($officialKey, $textKey) || (str_contains($textKey, 'agrimensura') && str_contains($officialKey, 'agrimensura')) || (str_contains($textKey, 'enfermagem-do-trabalho') && str_contains($officialKey, 'enfermagem-do-trabalho'))) {
+        if ((str_contains($textKey, 'agrimensura') && str_contains($officialKey, 'agrimensura')) || (str_contains($textKey, 'enfermagem-do-trabalho') && str_contains($officialKey, 'enfermagem-do-trabalho'))) {
             return true;
         }
     }
@@ -446,6 +446,9 @@ function merge_official_post_technical_products(array $items): array {
             continue;
         }
         $official = product_is_post_technical($item) ? official_post_technical_product_by_slug((string)($item['slug'] ?? $item['title'] ?? '')) : null;
+        if ($official) {
+            $key = ibetp_slug_key((string)$official['slug']);
+        }
         $merged[$key] = $official ?: $item;
     }
     foreach (official_post_technical_products() as $product) {

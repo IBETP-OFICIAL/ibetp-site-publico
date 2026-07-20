@@ -450,7 +450,7 @@ function official_technologist_products(): array {
             'workload' => $workload,
             'image' => '/assets/produtos/' . $slug . '.webp',
             'short_description' => $title . '. Matrícula de R$ 99,90 no site do IBETP e mensalidades de R$ 149,90 diretamente no AVA. Curso EAD com atividades presenciais em polo.',
-            'description' => $title . '. Graduação tecnológica EAD com grade curricular oficial, TCC obrigatório quando informado na matriz, atividades presenciais em polo e atendimento do IBETP para matrícula, documentação e próximos passos.',
+            'description' => $title . '. Graduação tecnológica EAD com grade curricular oficial, atividades presenciais em polo e atendimento do IBETP para matrícula, documentação e próximos passos.',
             'seo_title' => $title . ' | IBETP',
             'seo_description' => 'Conheça o ' . $title . ' do IBETP: matriz curricular oficial, matrícula, mensalidades no AVA, polos presenciais e orientação de matrícula.',
             'updated_at' => '2026-07-20 00:00:00',
@@ -505,7 +505,7 @@ function technologist_common_profile(string $duration, string $workload, string 
         'workload' => $workload,
         'modality_note' => 'Graduação tecnológica EAD com atividades presenciais em polo, matrícula pelo site do IBETP e mensalidades diretamente no AVA.',
         'presence' => 'Este curso possui atividades presenciais vinculadas aos polos informados nesta página. Antes de pagar a matrícula, confirme se você tem disponibilidade real para comparecer a um dos polos. Se você mora muito distante dos polos disponíveis, o aconselhável é não realizar a matrícula sem antes confirmar a viabilidade com o IBETP.',
-        'internship' => 'Estágio supervisionado não consta como componente obrigatório na matriz curricular deste informativo. O curso informa Trabalho de Conclusão de Curso obrigatório e atividades complementares/extensionistas conforme a grade.',
+        'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
         'source' => 'Grade oficial extraída do informativo do curso.',
         'tcc' => 'Trabalho de Conclusão de Curso obrigatório.',
         'eixo' => $eixo,
@@ -655,7 +655,71 @@ function official_technologist_profile_override(string $slugKey): ?array {
             ['2° Período', '', [['Físico-Química Ambiental','80h'], ['Direito Agroambiental','70h'], ['Microbiologia Aplicada ao Meio Ambiente','70h'], ['Hidrologia','80h'], ['Ecologia e Limnologia','60h'], ['Monitoramento e Controle da Poluição Ambiental','60h'], ['Sistema de Gestão, Auditoria e Perícia Ambiental','60h'], ['Climatologia e Meteorologia Agrícola','60h']]],
             ['3° Período', '', [['Gerenciamento dos Aspectos e Impactos Ambientais','80h'], ['Tratamento de Resíduos Sólidos','60h'], ['Energias Renováveis','60h'], ['Sustentabilidade Ambiental, Social e Governança — ESG','60h'], ['Educação Ambiental','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Relações Étnico-Raciais e Afrodescendência','60h'], ['Atividades Complementares e Extensionistas','80h']]],
         ]),
-    ];
+        'tecnologo-em-secretariado' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução à EAD','40h'], ['Português Instrumental','60h'], ['Empreendedorismo','60h'], ['Tópicos de Economia','60h'], ['Fundamentos da Administração','60h'], ['Práticas em Secretariado','60h'], ['Comunicação e Linguagem','60h']]],
+            ['2° Período', '', [['Inglês Instrumental','60h'], ['Sistemas de Informações Gerenciais','60h'], ['Direito Empresarial','60h'], ['Práticas Administrativas','80h'], ['Gestão do Conhecimento e Aprendizagem Organizacional','80h'], ['Mediação de Conflitos nas Organizações','60h'], ['Organização, Sistemas e Métodos','80h'], ['Lei Geral de Proteção de Dados Pessoais','80h'], ['Gerenciamento Eletrônico de Documentos (GED)','80h']]],
+            ['3° Período', '', [['Elaboração e Gestão de Contratos','60h'], ['Gestão de Custos e Finanças','60h'], ['Análise e Modelagem de Processos','60h'], ['Gestão de Eventos','60h'], ['Gestão da Qualidade','60h'], ['Técnicas de Atendimento e Teleatendimento ao Cliente','60h'], ['Educação e Meio Ambiente','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Projetos Integradores Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-comercio-exterior' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução à EAD','60h'], ['Comércio Exterior','60h'], ['Fundamentos da Administração','60h'], ['Economia e Mercado Global','60h'], ['Ciência Política','60h'], ['Empreendedorismo','60h'], ['Inglês Instrumental','60h']]],
+            ['2° Período', '', [['Logística Internacional','60h'], ['Direito Empresarial','60h'], ['Direito Internacional e Comércio Exterior','80h'], ['Fundamentos de Espanhol','60h'], ['Gestão Tributária','60h'], ['Gestão de Compras e Negociação','60h'], ['Estatística Básica','60h'], ['Gestão de Tecnologia e Informação em Logística','60h'], ['Educação e Meio Ambiente',''], ['Marketing Eletrônico e Internacional','60h']]],
+            ['3° Período', '', [['Despachos Documentalistas em Relações Exteriores','60h'], ['Formação de Preços','60h'], ['Contabilidade Internacional','60h'], ['Políticas Comerciais e Mercado Global','60h'], ['Inteligência Artificial e a Engenharia de Prompt para Negócios','60h'], ['Gestão da Cadeia de Suprimentos','60h'], ['Educação das Relações Étnico-Raciais','60h'], ['Empreendedorismo','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-hotelaria' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Turismo, Hospedagem e Lazer', [
+            ['1° Período', '', [['Introdução à EAD','40h'], ['Fundamentos da Administração','60h'], ['Pensamento Científico','60h'], ['Comunicação e Linguagem','60h'], ['Gestão de Serviços Turísticos e de Hospitalidade','60h'], ['Inglês Instrumental Aplicado ao Turismo e Hospitalidade','60h'], ['Fundamentos do Turismo e da Hospitalidade','60h'], ['Estatística Básica','60h']]],
+            ['2° Período', '', [['Estratégias de Marketing','60h'], ['Cadeia Produtiva e Logística do Turismo e Hospitalidade','60h'], ['Gestão de Eventos','60h'], ['Governança e Serviços de Lavanderia em Hotelaria','60h'], ['Orçamento Empresarial e Fluxo de Caixa','60h'], ['Organização, Sistemas e Métodos','60h'], ['Espanhol Instrumental Aplicado ao Turismo e Hospitalidade','60h'], ['Gestão de Projetos','60h'], ['Educação Ambiental','40h'], ['Gestão de Alimentos e Bebidas','60h']]],
+            ['3° Período', '', [['Legislação e Ética Aplicada ao Turismo e Hospitalidade','60h'], ['Gestão de Reservas e do Atendimento Receptivo','60h'], ['Planejamento e Controladoria Financeira','60h'], ['Gestão de Operações','60h'], ['Higiene e Segurança do Trabalho em Turismo e Hotelaria','60h'], ['Técnicas de Atendimento e Teleatendimento ao Cliente','60h'], ['Educação das Relações Étnico-Raciais','40h'], ['Empreendedorismo','40h'], ['Atividades Complementares e Extensionistas','80h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h']]],
+        ]),
+        'tecnologo-em-gestao-de-eventos' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Turismo, Hospedagem e Lazer', [
+            ['1° Período', '', [['Introdução à EAD','60h'], ['Fundamentos do Direito','60h'], ['Fundamentos da Administração','60h'], ['Gestão de Eventos','80h'], ['Marketing Digital','60h'], ['Pensamento Científico','60h'], ['Logística Empresarial','60h']]],
+            ['2° Período', '', [['Marketing de Eventos','60h'], ['Gestão Financeira','60h'], ['Fundamentos do Turismo e da Hospitalidade','60h'], ['Economia Criativa e Fontes de Recursos','60h'], ['Assessoria de Comunicação','60h'], ['Análise e Pesquisa de Mercado','60h'], ['Orçamento Empresarial e Fluxo de Caixa','80h'], ['Organização de Eventos Esportivos, Culturais e de Lazer','80h'], ['Liderança e Desenvolvimento de Equipes','60h']]],
+            ['3° Período', '', [['Gestão de Projetos','60h'], ['Formação de Preços','60h'], ['Marketing de Relacionamento, Pós-Venda e Fidelização de Clientes','60h'], ['Gestão de Riscos','60h'], ['Gestão Estratégica de Marcas','40h'], ['Elaboração e Gestão de Contratos','60h'], ['Segurança, Meio Ambiente, Saúde e Responsabilidade Social','40h'], ['Empreendedorismo','40h'], ['Educação das Relações Étnico-Raciais','40h'], ['Atividades Complementares e Extensionistas','80h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h']]],
+        ]),
+        'tecnologo-em-gestao-em-negocios-imobiliarios' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Fundamentos da Administração','40h'], ['Organização, Sistemas e Métodos','40h'], ['Fundamentos da Economia I','40h'], ['Ética Profissional e Cidadania','40h'], ['Empreendedorismo','60h'], ['Matemática Básica','40h'], ['Comportamento Consumidor','60h'], ['Marketing Digital','60h'], ['Atendimento Eficiente ao Cliente: Introdução','60h']]],
+            ['2° Período', '', [['Comunicação e Marketing Pessoal','40h'], ['Planejamento Estratégico','60h'], ['Aspectos Constitucionais do Direito Notarial e Registral Imobiliário','60h'], ['Direito das Transações Imobiliárias — Locação de Imóveis e Ações Locatícias','40h'], ['Direito Imobiliário','60h'], ['Direito Imobiliário — Relação com a Pessoa Física','60h'], ['Direito Imobiliário — Relação com a Pessoa Jurídica','60h'], ['Estratégias de Vendas','40h'], ['Processos Imobiliários','60h'], ['Economia e Mercado','60h']]],
+            ['3° Período', '', [['Administração de Condomínios','40h'], ['Processos de Compra, Venda, Permuta e Locação de Imóveis','60h'], ['Gestão de Custos e Formação de Preços','60h'], ['Aspectos Comerciais e Atendimento ao Cliente','60h'], ['Processos de Venda de Imóveis','60h'], ['Contratos','60h'], ['Empreendedorismo','40h'], ['Direitos Humanos e Sustentabilidade','40h'], ['Educação e Cultura Indígenas','40h'], ['Ética, Cidadania e Meio-Ambiente','40h'], ['Atividades Complementares/Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-desportiva-e-de-lazer' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Turismo, Hospitalidade e Lazer', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Fundamentos da Administração','60h'], ['Comunicação e Expressão','60h'], ['Fundamentos Pedagógicos dos Esportes e das Atividades Físicas','60h'], ['Matemática Básica','60h'], ['Metodologia do Trabalho Científico','60h'], ['Fundamentos Teóricos e Metodológicos dos Esportes Coletivos','80h']]],
+            ['2° Período', '', [['Gestão de Pessoas','60h'], ['Jogos e Recreação','60h'], ['Práticas Corporais Adaptadas para Grupos Especiais','80h'], ['Gestão Financeira','60h'], ['Educação Física Adaptada e Inclusiva','60h'], ['Multiculturalismo','60h'], ['Gerenciamento de Projetos II','80h'], ['Liderança e Equipe Organizacional','80h']]],
+            ['3° Período', '', [['Captação de Recursos para Entidades Esportivas, Clubes e Escolas','80h'], ['Proteção do Meio Ambiente e Sustentabilidade','60h'], ['Psicologia do Esporte e Alto Rendimento','80h'], ['Marketing','60h'], ['Saúde Coletiva','80h'], ['Ética e Cidadania','60h'], ['Primeiros Socorros','60h'], ['Direitos Humanos e Sustentabilidade','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-gestao-de-turismo' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Turismo, Hospitalidade e Lazer', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Fundamentos da Administração','60h'], ['Comunicação e Expressão','60h'], ['Metodologia do Trabalho Científico','60h'], ['Matemática Básica','60h'], ['Inglês Instrumental Aplicado ao Turismo e Hospitalidade','60h'], ['Gestão de Eventos','60h'], ['Marketing Turístico','60h']]],
+            ['2° Período', '', [['Administração Financeira e Contábil','60h'], ['Geografia Aplicada ao Turismo','60h'], ['Fundamentos do Turismo e da Hospitalidade','60h'], ['Cadeia Produtiva e Logística do Turismo e Hospitalidade','60h'], ['Organização de Eventos Esportivos, Culturais e de Lazer','60h'], ['Suporte Emergencial à Vida e Atendimento Pré-Hospitalar','60h'], ['Legislação e Ética Aplicada ao Turismo e Hospitalidade','60h'], ['Espanhol Instrumental Aplicado ao Turismo e Hospitalidade','40h'], ['História Aplicada ao Turismo','60h'], ['Rotas Turísticas Brasileiras','60h']]],
+            ['3° Período', '', [['Meio Ambiente, Desenvolvimento e Sustentabilidade','40h'], ['Agenciamento e Roteirização Turística','60h'], ['Entretenimento Turístico','60h'], ['Patrimônio Histórico-Cultural Brasileiro','60h'], ['Educação das Relações Étnico-Raciais','40h'], ['Gestão de Reservas e do Atendimento Receptivo','60h'], ['Atividades Complementares e Extensionistas','80h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Higiene e Segurança do Trabalho em Turismo e Hotelaria','60h'], ['Estudos Avançados de Marketing Sustentável','60h']]],
+        ]),
+        'tecnologo-em-gestao-de-seguranca-privada' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Segurança', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Introdução ao Direito','60h'], ['Fundamentos da Administração','60h'], ['Comunicação e Expressão','60h'], ['Metodologia Científica','60h'], ['Matemática Básica','60h'], ['Direito Empresarial','60h']]],
+            ['2° Período', '', [['Gerenciamento de Pessoal','60h'], ['Psicologia na Engenharia de Segurança, Comunicação e Treinamento','60h'], ['Segurança no Trabalho','60h'], ['Gestão de Sistemas de Informação','60h'], ['Informática','60h'], ['Agentes de Risco e EPI','60h'], ['Estratégia e Planejamento em Segurança Privada','60h'], ['Gerenciamento de Riscos e Crises','60h'], ['Tecnologia e Gestão em Segurança Privada','60h'], ['Sistema de Informações Gerenciais e Marketing Estratégico','60h']]],
+            ['3° Período', '', [['Primeiros Socorros','40h'], ['Planos de Emergência','60h'], ['Organização de Empresas Públicas e Privadas','60h'], ['Introdução à Engenharia de Segurança Contra Incêndio e Pânico','60h'], ['Segurança, Saúde e Higiene do Trabalho','40h'], ['Fundamentos de Inteligência Policial','60h'], ['Ética e Cidadania','40h'], ['Gestão de Projetos','40h'], ['Direitos Humanos e Segurança Pública','40h'], ['Educação e Cultura Indígenas','40h'], ['Atividades Complementares e Extensionistas','80h'], ['SMS — Segurança, Meio Ambiente e Saúde','40h']]],
+        ]),
+        'tecnologo-em-gestao-de-cooperativas' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Gestão e Negócios', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Gestão da Qualidade','60h'], ['Administração aplicada à Gestão Empresarial','80h'], ['Fundamentos da Economia','80h'], ['Metodologia Científica','60h'], ['Matemática Aplicada','60h'], ['Fundamentos de Marketing','60h']]],
+            ['2° Período', '', [['Gestão de Cooperativas','80h'], ['Administração de Pessoal','80h'], ['Análise de Custos','60h'], ['Empreendedorismo','60h'], ['Estatística','80h'], ['Gestão e Inovação','80h'], ['Marketing e Endomarketing','80h'], ['Gestão de Custos','60h']]],
+            ['3° Período', '', [['Gestão Financeira','80h'], ['Políticas Públicas para Sustentabilidade','80h'], ['Planejamento em Agronegócio','80h'], ['Cooperativismo, Associativismo e Extensão Rural','60h'], ['Administração e Planejamento de Projetos de Impacto Social','60h'], ['Educação em Direitos Humanos','60h'], ['Atividades Complementares e Extensionistas','80h'], ['Sustentabilidade Ambiental, Social e Governança — ESG','60h']]],
+        ]),
+        'tecnologo-em-design-grafico' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Metodologia do Design Gráfico','40h'], ['Matemática para Computação Gráfica','40h'], ['Teoria e Prática da Cor','40h'], ['Lógica de Programação','40h'], ['História da Arte e do Design','40h'], ['Marketing Digital','40h'], ['Computação Gráfica','60h'], ['Fundamentos do Inglês','40h']]],
+            ['2° Período', '', [['Criatividade, Storytelling e Design Thinking','40h'], ['Ilustração','60h'], ['Estética e Percepção Visual','60h'], ['Tipografia Digital','60h'], ['Representação e Composição Artística','60h'], ['Tecnologias de Impressão','40h'], ['Sistemas de Identidade Visual','60h'], ['Planejamento Gráfico e Editorial','40h'], ['Comunicação e Linguagem do Design Gráfico','40h'], ['Human Centred Design','40h']]],
+            ['3° Período', '', [['Ilustração e Tratamento de Imagens 2D — Adobe Photoshop','60h'], ['Direção e Edição em Design','60h'], ['Fotografia e Imagem','60h'], ['Ilustração e Criação de Imagens Vetoriais — Adobe Illustrator','60h'], ['Design, Ergonomia, Antropometria e Acessibilidade','60h'], ['Design Web e Mídias Móveis','60h'], ['Web Design em WordPress','60h'], ['Gestão de Projetos','40h'], ['Inteligência Artificial Aplicada ao Design Gráfico','60h'], ['Educação Ambiental','40h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Relações Étnico-Raciais e Afrodescendência','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-design-de-moda' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Semiótica','60h'], ['Estratégias de Marketing','40h'], ['História da Arte e do Design','40h'], ['Fundamentos de Inglês','40h'], ['Desenvolvimento da Criatividade','40h'], ['Comunicação e Expressão','40h'], ['Criação de Portfólio de Moda','60h']]],
+            ['2° Período', '', [['História da Moda e da Indumentária','60h'], ['Modelagem Criativa para Moda','40h'], ['Direção Criativa para Moda','60h'], ['Modelagem 3D','60h'], ['Produção de Moda','60h'], ['Ilustração de Moda','60h'], ['Representação Gráfica Digital para o Design de Moda','60h'], ['Teorias da Cor','40h'], ['Mercado da Moda','60h'], ['Confecção e Vestuário','60h']]],
+            ['3° Período', '', [['Planejamento e Desenvolvimento de Coleções','60h'], ['Ergonomia e Design','40h'], ['Técnicas de Acabamento e Estrutura na Produção de Moda','60h'], ['Desenho de Moda','60h'], ['Visual Merchandising','40h'], ['Modelagem Bidimensional Artesanal para Moda','60h'], ['Inteligência Artificial Aplicada ao Design Gráfico','60h'], ['Design Thinking','40h'], ['Programação Visual de Coleções de Moda','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','40h'], ['Educação Ambiental','40h'], ['Educação das Relações Étnico-Raciais','40h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-design-de-interiores' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','60h'], ['Matemática Básica','60h'], ['Comunicação Oral e Escrita','60h'], ['Metodologia do Trabalho Científico','60h'], ['Desenho Técnico','60h'], ['Fundamentos do Design','60h'], ['Arquitetura de Interiores','80h'], ['Teorias da Cor','60h']]],
+            ['2° Período', '', [['Desenho Técnico de Plantas Arquitetônicas em CAD','80h'], ['Design, Ergonomia, Antropometria e Acessibilidade','80h'], ['Ambientação e Decoração em CAD 3D','80h'], ['Arte, Estética e Sensibilidade','60h'], ['Design de Ambientes Comerciais','60h'], ['Design de Paisagismo','60h'], ['Teoria e História da Arquitetura, Urbanismo e Paisagismo Contemporâneo','60h'], ['Estética e Percepção Visual','60h'], ['Desenho de Móveis','60h']]],
+            ['3° Período', '', [['Conforto Ambiental','60h'], ['Inteligência Artificial Aplicada ao Design Gráfico','60h'], ['Criatividade, Storytelling e Design Thinking','60h'], ['Direção e Edição em Design','60h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','60h'], ['Empreendedorismo','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),
+        'tecnologo-em-design-de-animacao' => technologist_common_profile('1 ano e meio (18 meses)', '1.600h', 'Produção Cultural e Design', [
+            ['1° Período', '', [['Introdução ao EAD','40h'], ['Fundamentos do Design','40h'], ['Lógica de Programação','40h'], ['Fundamentos do Inglês','40h'], ['História da Arte e do Design','40h'], ['Teorias da Cor','60h'], ['Desenho Artístico à Mão Livre','60h'], ['Ilustração','60h']]],
+            ['2° Período', '', [['Ilustração e Tratamento de Imagens 2D — Adobe Photoshop','60h'], ['Modelagem 3D','60h'], ['Estética e Percepção Visual','60h'], ['Construção e Animação de Cenários e Objetos 2D e 3D','60h'], ['Comunicação e Linguagem do Design Gráfico','60h'], ['Empreendedorismo Digital','60h'], ['Direção e Edição em Design','60h'], ['Ilustração e Criação de Imagens Vetoriais — Adobe Illustrator','60h'], ['Storytelling','60h']]],
+            ['3° Período', '', [['Tipografia Digital','60h'], ['Human Centred Design','60h'], ['Roteiro e Produção de Áudio','60h'], ['Produção Audiovisual para o Metaverso','60h'], ['Design Web e Mídias Móveis','60h'], ['Inteligência Artificial Aplicada ao Design Gráfico','60h'], ['Criatividade e Solução de Problemas','60h'], ['Sociologia e Ética Profissional','60h'], ['Educação das Relações Étnico-Raciais','60h'], ['Direitos Humanos, Multiculturalismo e Cidadania','60h'], ['Atividades Complementares e Extensionistas','80h']]],
+        ]),    ];
     return $profiles[$slugKey] ?? null;
 }
 
@@ -1067,7 +1131,7 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial.',
-            'presence' => 'Presencialidade e registros acadêmicos seguem as orientações formais do curso, com atividades, documentos acadêmicos e procedimentos administrativos orientados ao aluno pelo IBETP. Quando houver exigência de presencialidade documental, ela é organizada por registros acadêmicos e ATAs, conforme orientação recebida no AVA.',
+            'presence' => 'Presencialidade e registros acadêmicos seguem as orientações formais do curso, com atividades, documentos acadêmicos e procedimentos administrativos orientados ao aluno pelo IBETP.',
             'internship' => 'Estágio supervisionado obrigatório de 200h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
@@ -1093,7 +1157,7 @@ function product_academic_profile(array $product): ?array {
             'duration' => '12 meses',
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial.',
-            'presence' => 'Presencialidade e registros acadêmicos seguem as orientações formais do curso, com atividades, documentos acadêmicos e procedimentos administrativos orientados ao aluno pelo IBETP. Quando houver exigência de presencialidade documental, ela é organizada por registros acadêmicos e ATAs, conforme orientação recebida no AVA.',
+            'presence' => 'Presencialidade e registros acadêmicos seguem as orientações formais do curso, com atividades, documentos acadêmicos e procedimentos administrativos orientados ao aluno pelo IBETP.',
             'internship' => 'Estágio supervisionado obrigatório de 200h.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
@@ -1263,7 +1327,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à atuação em gastronomia, gestão de alimentos, cozinha e segurança alimentar.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria. A presencialidade é cumprida por meio de ATAs, enviadas ao e-mail do responsável legal pela parceria, assinadas e devolvidas conforme orientação acadêmica.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo. A presencialidade é cumprida por meio de ATAs, enviadas por e-mail, assinadas e devolvidas conforme orientação acadêmica.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '', [['História da alimentação','60h'], ['Nutrição e Dietética','60h'], ['Gestão de alimentos e bebidas','60h'], ['Cozinha brasileira e internacional','60h'], ['Comunicação eficaz','40h']]],
@@ -1276,7 +1340,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à confeitaria, segurança alimentar, criatividade e gestão de alimentos.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria. A presencialidade é cumprida por meio de ATAs, enviadas ao e-mail do responsável legal pela parceria, assinadas e devolvidas conforme orientação acadêmica.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo. A presencialidade é cumprida por meio de ATAs, enviadas por e-mail, assinadas e devolvidas conforme orientação acadêmica.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '240h', [['Fundamentos em Administração e Empreendedorismo','60h'], ['Liderança e Equipe Organizacional','60h'], ['História da Alimentação','60h'], ['Bases Legais e Ações de Vigilância sobre Alimentos','60h']]],
@@ -1289,7 +1353,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à administração financeira, análise de mercado, investimentos e controladoria.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '325h', [['Administração Financeira I','65h'], ['Gestão de Negócios e Análises Financeiras','65h'], ['Gestão Financeira','65h'], ['Matemática Financeira e Cidadania','65h'], ['Análise Financeira','65h']]],
@@ -1302,7 +1366,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à organização, comunicação, logística e gestão de eventos.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '200h', [['Introdução à EAD','40h'], ['Empreendedorismo','40h'], ['Ética Profissional','40h'], ['Gestão de Pessoas','40h'], ['Gestão Estratégica das Organizações','40h']]],
@@ -1315,7 +1379,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à gestão de serviços de saúde, auditoria, legislação e informação em saúde.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '380h', [['Informática Aplicada à Saúde','60h'], ['Legislação e Políticas de Saúde','80h'], ['Fundamentos em Administração e Empreendedorismo','60h'], ['Sistema de Saúde','60h'], ['Gerenciamento de Pessoal','60h'], ['Gestão da Informação em Serviços de Saúde','60h']]],
@@ -1328,7 +1392,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à atenção básica, educação em saúde, políticas públicas e cuidado comunitário.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Sistema de Saúde','80h'], ['Introdução à Gerontologia','80h'], ['Ética Profissional','80h']]],
@@ -1341,7 +1405,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à operação, segurança, logística e gestão em petróleo, gás e fontes alternativas de energia.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '440h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Ética Profissional','100h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','100h'], ['Agentes de Risco e EPI','80h']]],
@@ -1354,7 +1418,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à manutenção, inspeção, prevenção de riscos e operação técnica de máquinas pesadas.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '420h', [['Física Aplicada','60h'], ['Eletricidade Básica','80h'], ['Ferramental de Mecânica','60h'], ['Máquinas Mecânicas','80h'], ['Empreendedorismo','60h'], ['Indicadores de Manutenção','80h']]],
@@ -1367,7 +1431,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a processos de soldagem, segurança, metalurgia e manutenção industrial.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '440h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Ética Profissional','100h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','100h'], ['Legislação e Normas Regulamentadoras em Segurança do Trabalho','80h']]],
@@ -1380,7 +1444,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à metalurgia, processos mecânicos, segurança e soldagem industrial.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '440h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Ética Profissional','100h'], ['Meio Ambiente, Desenvolvimento e Sustentabilidade','100h'], ['Legislação e Normas Regulamentadoras em Segurança do Trabalho','80h']]],
@@ -1393,7 +1457,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à produção aquícola, sustentabilidade, manejo ambiental e tecnologias aplicadas à água.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '300h', [['Introdução à EAD','60h'], ['Empreendedorismo','60h'], ['Gerenciamento Ambiental','60h'], ['Higiene ocupacional e gestão de riscos: agentes ambientais e ergonômicos','60h'], ['Recursos ambientais','60h']]],
@@ -1406,7 +1470,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada ao agronegócio, beneficiamento de alimentos, sustentabilidade e processos agroindustriais.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Ética profissional','80h'], ['Cadeias produtivas do agronegócio','80h'], ['Agronegócios','80h']]],
@@ -1419,7 +1483,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à integração lavoura-pecuária-floresta, gestão agropecuária, solo e sustentabilidade.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Integração Lavoura, Pecuária e Floresta','80h'], ['Gestão da Agroindústria','80h'], ['Fertilidade do Solo e Nutrição das plantas','80h']]],
@@ -1432,7 +1496,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.280h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à agricultura, cadeias produtivas, manejo do solo, mecanização e sustentabilidade.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Cadeias Produtivas do Agronegócio','80h'], ['Integração Lavoura, Pecuária e Floresta','80h'], ['Gestão da Agroindústria','80h']]],
@@ -1445,7 +1509,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a estradas, topografia, geoprocessamento, drenagem, obras e segurança.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '380h', [['Lógica e Fundamentos da Matemática','60h'], ['Interpretação de Desenho Técnico','60h'], ['Legislação e Normatização de Trânsito e Transporte','60h'], ['Topografia e Geoprocessamento Aplicados','80h'], ['Erosão e Conservação do Solo','60h'], ['Ferramental da Construção Civil','60h']]],
@@ -1458,7 +1522,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a saneamento, abastecimento de água, resíduos, drenagem e recuperação ambiental.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º período', '360h', [['Introdução à EAD','60h'], ['Poluição das Águas','60h'], ['Estatística Aplicada','60h'], ['Higiene Ocupacional','60h'], ['Instalações Hidrossanitárias','60h'], ['Topografia e Geoprocessamento Aplicados','60h']]],
@@ -1471,7 +1535,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à integração entre mecânica, eletrônica, automação, programação e instalações industriais.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Ética Profissional','80h'], ['Sistema de Gestão de Segurança e Saúde no Trabalho','80h'], ['Informática Essencial e Avançada','80h'], ['Segurança, Meio Ambiente e Responsabilidade Social','80h']]],
@@ -1484,7 +1548,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à refrigeração, climatização, eletricidade, obras, projetos e custos.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução ao EAD','80h'], ['Empreendedorismo','80h'], ['Eletricidade Básica','80h'], ['Segurança em Instalações Elétricas','80h'], ['Planejamento, Orçamento e Controle de Obras','80h']]],
@@ -1497,7 +1561,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.360h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à mecânica, eletroeletrônica, CAD, qualidade e proteção de sistemas.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '480h', [['Introdução à EAD','80h'], ['Fundamentos da Mecânica Clássica e Quântica','80h'], ['Eletricidade Básica','80h'], ['Noções de Lógica Matemática','80h'], ['Eletrônica Analógica','80h'], ['Eletrônica Digital','80h']]],
@@ -1510,7 +1574,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a ambientes, estética, projetos, paisagismo e comunicação visual.',
             'presence' => 'Metodologia oficial com atividades EAD e presencialidade acadêmica/documental conforme orientação recebida no AVA. O IBETP orienta o aluno sobre registros, ATAs e procedimentos aplicáveis antes e durante o curso.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '300h', [['Introdução à EAD','60h'], ['Empreendedorismo','60h'], ['Ética Profissional','60h'], ['Os Grandes Arquitetos e Suas Obras','60h'], ['Estética e Filosofia da Arte','60h']]],
@@ -1523,7 +1587,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a cartografia, topografia, banco de dados geográficos, sensoriamento remoto e planejamento urbano.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '420h', [['Empreendedorismo','60h'], ['Planejamento Estratégico e Tomada de Decisão','60h'], ['Categorias e Conceitos da Geografia','80h'], ['Cartografia','80h'], ['Interpretação de Desenho Técnico','80h'], ['Português Instrumental','60h']]],
@@ -1536,7 +1600,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a comunicação de dados, redes, eletrônica, nuvem e infraestrutura de telecomunicações.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '320h', [['Introdução ao EAD','20h'], ['Empreendedorismo','60h'], ['Sistemas de Comunicação e Telecomunicações','80h'], ['Comunicação de Dados','80h'], ['Gestão da Tecnologia da Informação e Comunicação','80h']]],
@@ -1549,7 +1613,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à manutenção de sistemas, equipamentos e máquinas navais.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '440h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Ética Profissional','100h'], ['Prevenção e controle de riscos em máquinas, equipamentos e instalações','100h'], ['Proteção de máquinas e equipamentos','80h']]],
@@ -1562,7 +1626,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à manutenção, confiabilidade, máquinas elétricas e mecânicas industriais.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '200h', [['Introdução à EAD','40h'], ['Empreendedorismo','40h'], ['Ética Profissional','40h'], ['Gestão de Pessoas','40h'], ['Ferramental de Mecânica','40h']]],
@@ -1575,7 +1639,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à prevenção, inspeção, emergência e combate a incêndios.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Ética Profissional','80h'], ['Informática Essencial e Avançada','80h'], ['Lógica e Fundamentos da Matemática','80h'], ['Português Instrumental I','80h'], ['Primeiros Socorros','80h']]],
@@ -1588,7 +1652,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à mobilidade, legislação, educação e segurança no trânsito.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Psicologia do Trânsito e Prevenção de Acidentes','80h'], ['Direito de Trânsito','80h'], ['Avaliação e Perícia em Psicologia de Trânsito','80h'], ['Trânsito e Mobilidade Humana','80h'], ['Direitos e Deveres do Cidadão','80h']]],
@@ -1601,7 +1665,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à defesa civil, emergência, riscos ambientais e planejamento.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '200h', [['Introdução ao EAD','40h'], ['Empreendedorismo','40h'], ['Ética profissional','40h'], ['Proteção e combate a incêndios','40h'], ['Gerenciamento ambiental','40h']]],
@@ -1614,7 +1678,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à mineração, geologia, logística, legislação e recuperação ambiental.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Fundamentos da Geologia','80h'], ['Geologia ambiental','80h'], ['Geologia e Mecânica dos Sólidos','80h'], ['Técnicas de Mineração','80h']]],
@@ -1627,7 +1691,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à agrimensura, topografia, solo, georreferenciamento e sensoriamento remoto.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Ética Profissional','80h'], ['Programa de gerência de riscos','80h'], ['Liderança e equipe organizacional','80h'], ['Empreendedorismo','80h']]],
@@ -1640,7 +1704,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à Libras, educação inclusiva, acessibilidade e atuação do intérprete.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '400h', [['Introdução à EAD','80h'], ['Empreendedorismo','80h'], ['Legislação e políticas públicas para a educação inclusiva e especial','80h'], ['Formação continuada de professores','80h'], ['Didática de a formação decente','80h']]],
@@ -1653,7 +1717,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.000h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a design gráfico, marketing, interface, editorial e projetos digitais.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '300h', [['Introdução à EAD','60h'], ['Empreendedorismo','60h'], ['Ética profissional','60h'], ['Introdução a redes de computadores e protocolos de comunicação','60h'], ['Infográfico','60h']]],
@@ -1666,7 +1730,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à biotecnologia, genética, microbiologia, bioquímica e fundamentos científicos aplicados.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '320h', [['Introdução ao EAD','20h'], ['Empreendedorismo','60h'], ['Ética profissional','80h'], ['Química orgânica','80h'], ['Fisiopatologia e farmacologia','80h']]],
@@ -1679,7 +1743,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '1.200h',
             'modality_note' => 'Curso Técnico com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada a sistemas de energia renovável, energia solar, fotovoltaica, eólica, hidráulica e manutenção.',
             'presence' => 'Metodologia oficial com atividades online e presencialidade acadêmica/documental conforme orientação recebida no AVA. O IBETP orienta o aluno sobre registros, ATAs e procedimentos aplicáveis antes e durante o curso.',
-            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.',
+            'internship' => 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º período', '480h', [['Legislação Aplicada','80h'], ['Informática','80h'], ['Matemática','80h'], ['Física','80h'], ['Eletricidade','80h'], ['Legislação Aplicada','80h']]],
@@ -1733,15 +1797,15 @@ function product_academic_profile(array $product): ?array {
         if ($isAtaNoInternship || $isAtaWithInternship) {
             $presence = 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à instituição; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.';
         } elseif ($isPbTechnical) {
-            $presence = 'Metodologia oficial dos Cursos Técnicos EAD: acompanhamento pelo AVA, orientação documental pelo IBETP, sem TCC e com procedimentos acadêmicos formais conforme matriz do curso.';
+            $presence = 'Metodologia oficial dos Cursos Técnicos EAD: acompanhamento pelo AVA, orientação documental pelo IBETP e procedimentos acadêmicos formais conforme matriz do curso.';
         }
-        $internshipText = $catalogInternship !== '' ? $catalogInternship : ($hasInternship ? 'Estágio supervisionado obrigatório de 240h conforme metodologia oficial da categoria.' : 'Não possui estágio obrigatório conforme metodologia oficial da categoria.');
+        $internshipText = $catalogInternship !== '' ? $catalogInternship : '';
         if ($isAtaNoInternship) {
-            $internshipText = 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria.';
+            $internshipText = 'Não consta estágio supervisionado obrigatório na matriz curricular deste informativo.';
         } elseif ($isAtaWithInternship) {
-            $internshipText = 'Possui estágio supervisionado obrigatório de 240h e não possui TCC, conforme metodologia oficial da categoria.';
+            $internshipText = 'Estágio supervisionado obrigatório de 240h, conforme matriz curricular oficial.';
         } elseif ($isPbTechnical) {
-            $internshipText = 'Possui estágio supervisionado obrigatório de 240h e não possui TCC, conforme metodologia oficial dos Cursos Técnicos EAD.';
+            $internshipText = 'Estágio supervisionado obrigatório de 240h, conforme matriz curricular oficial.';
         }
         return [
             'duration' => $catalogDuration !== '' ? $catalogDuration : '8 a 14 meses',
@@ -1762,7 +1826,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => $catalogWorkload !== '' ? $catalogWorkload : 'Carga horária conforme informativo oficial do curso',
             'modality_note' => 'Curso Tecnólogo EAD com início em até 24 horas úteis após a confirmação do pagamento da matrícula. O aluno paga a matrícula via Pix no site e as mensalidades diretamente no AVA.',
             'presence' => 'Este curso possui atividades presenciais vinculadas aos polos informados nesta página. Antes de pagar a matrícula, confirme se você tem disponibilidade real para comparecer a um dos polos. Se você mora muito distante dos polos disponíveis, o aconselhável é não realizar a matrícula sem antes confirmar a viabilidade com o IBETP.',
-            'internship' => $catalogInternship !== '' ? $catalogInternship : 'Estágio supervisionado deve seguir a matriz oficial do curso e as orientações acadêmicas vigentes. Quando houver exigência específica, o IBETP orienta o aluno antes da matrícula e durante o acompanhamento acadêmico.',
+            'internship' => $catalogInternship !== '' ? $catalogInternship : '',
             'source' => 'Informações acadêmicas extraídas da lista oficial de cursos e dos informativos acadêmicos disponíveis ao IBETP. As disciplinas detalhadas são exibidas quando a grade individual do curso já está vinculada.',
             'modules' => [],
         ];
@@ -1914,7 +1978,7 @@ if ($path === '' || $path === 'index.php') {
             <?php foreach ($featuredCourses as [$image, $type, $title, $description]) : ?>
               <a class="course-card" href="<?= e(site_url('/cursos')) ?>">
                 <img src="<?= e(absolute_asset($image)) ?>" alt="<?= e($title) ?>" decoding="async">
-                <div><span><?= e($type) ?></span><h3><?= e($title) ?></h3><p><?= e($description) ?></p><b>Ver curso →</b></div>
+                <div><span><?= e($type) ?></span><h3><?= e($title) ?></h3><p><?= e($description) ?></p><b>Ver curso ?</b></div>
               </a>
             <?php endforeach; ?>
           </div>
@@ -1928,7 +1992,7 @@ if ($path === '' || $path === 'index.php') {
             <p class="eyebrow">Conhecimento em movimento</p>
             <h2>Conteúdos para orientar sua carreira.</h2>
           </div>
-          <div class="cards cards-premium article-cards"><?php foreach ($recent as $p): $prefix = $p['type']==='glossary' ? 'glossario' : 'blog'; ?><a class="card compact-card" href="<?= e(site_url('/' . $prefix . '/' . $p['slug'])) ?>"><img src="<?= e(absolute_asset(premium_post_image($p))) ?>" alt="<?= e($p['featured_alt'] ?: $p['title']) ?>"><div class="card-body"><em><?= e($prefix === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($p['title']) ?></strong><span><?= e(card_summary($p, 78)) ?></span><b>Ler conteúdo →</b></div></a><?php endforeach; ?></div>
+          <div class="cards cards-premium article-cards"><?php foreach ($recent as $p): $prefix = $p['type']==='glossary' ? 'glossario' : 'blog'; ?><a class="card compact-card" href="<?= e(site_url('/' . $prefix . '/' . $p['slug'])) ?>"><img src="<?= e(absolute_asset(premium_post_image($p))) ?>" alt="<?= e($p['featured_alt'] ?: $p['title']) ?>"><div class="card-body"><em><?= e($prefix === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($p['title']) ?></strong><span><?= e(card_summary($p, 78)) ?></span><b>Ler conteúdo ?</b></div></a><?php endforeach; ?></div>
         </div>
       </section>
       <section class="home-section">
@@ -1993,7 +2057,7 @@ if ($path === 'busca') {
         $like = '%' . $q . '%';
         $items = Database::all("SELECT title, slug, type, excerpt, content, featured_image FROM posts WHERE status='published' AND noindex=0 AND (title LIKE ? OR excerpt LIKE ? OR content LIKE ?) ORDER BY published_at DESC LIMIT 30", [$like, $like, $like]);
     }
-    ob_start(); ?><main><section class="page-hero"><p class="eyebrow">Busca IBETP</p><h1>Resultados para <?= e($q ?: 'sua pesquisa') ?></h1><form action="<?= e(site_url('/busca')) ?>"><input name="q" value="<?= e($q) ?>" placeholder="Buscar no site"><button class="btn primary">Buscar</button></form></section><section class="cards archive article-cards"><?php foreach ($items as $item): $prefix = $item['type']==='glossary'?'glossario':'blog'; ?><a class="card compact-card" href="<?= e(site_url('/' . $prefix . '/' . $item['slug'])) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e($prefix === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo →</b></div></a><?php endforeach; ?></section></main><?php
+    ob_start(); ?><main><section class="page-hero"><p class="eyebrow">Busca IBETP</p><h1>Resultados para <?= e($q ?: 'sua pesquisa') ?></h1><form action="<?= e(site_url('/busca')) ?>"><input name="q" value="<?= e($q) ?>" placeholder="Buscar no site"><button class="btn primary">Buscar</button></form></section><section class="cards archive article-cards"><?php foreach ($items as $item): $prefix = $item['type']==='glossary'?'glossario':'blog'; ?><a class="card compact-card" href="<?= e(site_url('/' . $prefix . '/' . $item['slug'])) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e($prefix === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a><?php endforeach; ?></section></main><?php
     layout('Busca IBETP', 'Pesquise conteúdos, cursos e temas profissionais no site do IBETP.', ob_get_clean(), null, true); exit;
 }
 
@@ -2019,9 +2083,9 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(absolute_asset(premium_product_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes →</b></div></div></a>
+        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(absolute_asset(premium_product_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
       <?php else: ?>
-        <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo →</b></div></a>
+        <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a>
       <?php endif; ?>
     <?php endforeach; ?></section><?php if ($path === 'cursos'): ?><p id="course-empty-state" class="course-empty-state" hidden>Nenhum curso encontrado com esse termo. Tente pesquisar por área, profissão ou fale com o IBETP pelo WhatsApp.</p><script>
       (() => {
@@ -2120,8 +2184,10 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     if (!$product) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $academic = product_academic_profile($product);
-    $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio');
-    $internshipLabel = $academic ? (string)($academic['internship'] ?? 'Estágio supervisionado obrigatório conforme matriz oficial.') : 'Estágio supervisionado obrigatório conforme matriz oficial.';
+    $internshipText = $academic ? trim((string)($academic['internship'] ?? '')) : '';
+    $tccText = $academic ? trim((string)($academic['tcc'] ?? '')) : '';
+    $hasMandatoryInternship = $internshipText !== '' && str_contains(ibetp_slug_key($internshipText), 'estagio-supervisionado-obrigatorio');
+    $internshipLabel = $internshipText !== '' ? $internshipText : 'Estágio supervisionado obrigatório conforme matriz oficial.';
     ob_start(); ?><main class="product">
       <section class="product-hero">
         <div class="product-copy">
@@ -2180,7 +2246,8 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <div class="premium-grid academic-summary">
               <div class="premium-card"><strong>Duração</strong><span><?= e($academic['duration']) ?></span></div>
               <div class="premium-card"><strong>Carga horária</strong><span><?= e($academic['workload']) ?></span></div>
-              <div class="premium-card"><strong>Estágio</strong><span><?= e($academic['internship']) ?></span></div>
+              <?php if ($internshipText !== ''): ?><div class="premium-card"><strong>Estágio</strong><span><?= e($internshipText) ?></span></div><?php endif; ?>
+              <?php if ($tccText !== ''): ?><div class="premium-card"><strong>TCC</strong><span><?= e($tccText) ?></span></div><?php endif; ?>
             </div>
             <?php if (!$hasMandatoryInternship && trim((string)($academic['presence'] ?? '')) !== ''): ?>
             <div class="info-card official-presence"><strong>Presencialidade</strong><p><?= e($academic['presence']) ?></p></div>
@@ -2311,6 +2378,9 @@ if ($page) {
 
 http_response_code(404);
 layout('Página não encontrada', 'Página não encontrada.', '<main class="page-hero"><h1>404</h1><p>Esta página não foi encontrada.</p></main>', null, true);
+
+
+
 
 
 

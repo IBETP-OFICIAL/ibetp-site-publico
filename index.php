@@ -320,12 +320,25 @@ function render_course_filter_nav(array $groups, string $type, string $allLabel,
     <?php return ob_get_clean();
 }
 
+function product_temporarily_hidden_category(array $product): bool {
+    $categoryLabelKey = ibetp_slug_key(product_category_label($product));
+    $areaLabelKey = ibetp_slug_key(product_area_label($product));
+    $rawCategoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
+    $rawAreaKey = ibetp_slug_key((string)($product['area'] ?? ''));
+    return in_array($categoryLabelKey, ['pos-graduacao-e-mba', 'educacao'], true)
+        || in_array($areaLabelKey, ['educacao'], true)
+        || in_array($rawCategoryKey, ['pos-graduacao-e-mba', 'pos-graduacao', 'mba', 'educacao'], true)
+        || in_array($rawAreaKey, ['educacao'], true);
+}
 
 function product_publicly_visible(array $product): bool {
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? ''));
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
     $text = $titleKey . ' ' . $slugKey . ' ' . $categoryKey;
+    if (product_temporarily_hidden_category($product)) {
+        return false;
+    }
     if (product_is_technical_ead($product) && !technical_ead_drive_slug_allowed($product)) {
         return false;
     }

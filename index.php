@@ -110,8 +110,9 @@ if ($path === 'sitemap.xml') {
         if ($row['type'] === 'product') $seenProductSlugs[ibetp_slug_key((string)$row['slug'])] = true;
         $priority = $row['type'] === 'product' ? '0.9' : ($row['type'] === 'page' ? '0.8' : '0.7');
         echo '<url><loc>' . e(site_url($prefix . '/' . $row['slug'])) . '</loc><lastmod>' . e(substr($row['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>' . $priority . '</priority>';
-        if (!empty($row['image'])) {
-            echo '<image:image><image:loc>' . e(absolute_asset($row['image'])) . '</image:loc><image:title>' . e($row['title']) . '</image:title></image:image>';
+        $rowImage = $row['type'] === 'product' ? premium_product_image($row) : (string)($row['image'] ?? '');
+        if (!empty($rowImage)) {
+            echo '<image:image><image:loc>' . e(absolute_asset($rowImage)) . '</image:loc><image:title>' . e($row['title']) . '</image:title></image:image>';
         }
         echo '</url>';
     }
@@ -119,8 +120,9 @@ if ($path === 'sitemap.xml') {
         $slugKey = ibetp_slug_key((string)$product['slug']);
         if (isset($seenProductSlugs[$slugKey])) continue;
         echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
-        if (!empty($product['image'])) {
-            echo '<image:image><image:loc>' . e(absolute_asset($product['image'])) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
+        $productImage = premium_product_image($product);
+        if (!empty($productImage)) {
+            echo '<image:image><image:loc>' . e(absolute_asset($productImage)) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
         }
         echo '</url>';
     }
@@ -128,8 +130,9 @@ if ($path === 'sitemap.xml') {
         $slugKey = ibetp_slug_key((string)$product['slug']);
         if (isset($seenProductSlugs[$slugKey])) continue;
         echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
-        if (!empty($product['image'])) {
-            echo '<image:image><image:loc>' . e(absolute_asset($product['image'])) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
+        $productImage = premium_product_image($product);
+        if (!empty($productImage)) {
+            echo '<image:image><image:loc>' . e(absolute_asset($productImage)) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
         }
         echo '</url>';
     }
@@ -2038,10 +2041,6 @@ function premium_product_image(array $product): string {
     $category = strtolower((string)($product['category'] ?? ''));
     $title = strtolower((string)($product['title'] ?? ''));
     $slug = strtolower((string)($product['slug'] ?? ''));
-    $explicit = trim((string)($product['image_path'] ?? $product['image'] ?? ''));
-    if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
-        return $explicit;
-    }
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
     $isTechnicalEadImage = product_is_technical_ead($product)
@@ -2078,6 +2077,10 @@ function premium_product_image(array $product): string {
                 }
             }
         }
+    }
+    $explicit = trim((string)($product['image_path'] ?? $product['image'] ?? ''));
+    if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
+        return $explicit;
     }
     $slugBase = '/assets/produtos/' . ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
     $titleBase = '/assets/produtos/' . ibetp_slug_key((string)($product['title'] ?? ''));

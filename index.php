@@ -33,15 +33,26 @@ if ($path === 'admin' || str_starts_with($path, 'admin/')) {
 if ($path === 'sitemap.xml') {
     header('Content-Type: application/xml; charset=utf-8');
     $rows = Database::all("SELECT slug, type, updated_at, featured_image AS image, title FROM posts WHERE status='published' AND noindex=0 UNION SELECT slug, 'product' type, updated_at, image, title FROM products WHERE status='active'");
+    $seenProductSlugs = [];
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">';
     echo '<url><loc>' . e(site_url('/')) . '</loc><changefreq>daily</changefreq><priority>1.0</priority></url>';
     foreach ($rows as $row) {
         $prefix = $row['type'] === 'glossary' ? 'glossario' : ($row['type'] === 'product' ? 'produto' : 'blog');
         if ($row['type'] === 'page') $prefix = '';
+        if ($row['type'] === 'product') $seenProductSlugs[ibetp_slug_key((string)$row['slug'])] = true;
         $priority = $row['type'] === 'product' ? '0.9' : ($row['type'] === 'page' ? '0.8' : '0.7');
         echo '<url><loc>' . e(site_url($prefix . '/' . $row['slug'])) . '</loc><lastmod>' . e(substr($row['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>' . $priority . '</priority>';
         if (!empty($row['image'])) {
             echo '<image:image><image:loc>' . e(absolute_asset($row['image'])) . '</image:loc><image:title>' . e($row['title']) . '</image:title></image:image>';
+        }
+        echo '</url>';
+    }
+    foreach (official_no_internship_technical_products() as $product) {
+        $slugKey = ibetp_slug_key((string)$product['slug']);
+        if (isset($seenProductSlugs[$slugKey])) continue;
+        echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
+        if (!empty($product['image'])) {
+            echo '<image:image><image:loc>' . e(absolute_asset($product['image'])) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
         }
         echo '</url>';
     }
@@ -66,6 +77,7 @@ if ($path === 'feed.xml') {
 if ($path === 'checkout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = (int)($_POST['product_id'] ?? 0);
     $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
+    if (!$product && $id < 0) $product = official_technical_product_by_id($id);
     if (!$product) { http_response_code(404); echo 'Produto indisponível.'; exit; }
     try {
         $preference = MercadoPago::createPreference($product);
@@ -271,6 +283,98 @@ function product_publicly_visible(array $product): bool {
         }
     }
     return true;
+}
+
+function official_no_internship_technical_products(): array {
+    $base = [
+        ['tecnico-em-designer-de-interiores', 'Técnico em Designer de Interiores — EAD', 'Serviços'],
+        ['tecnico-em-gastronomia', 'Técnico em Gastronomia — EAD', 'Serviços'],
+        ['tecnico-em-confeitaria', 'Técnico em Confeitaria — EAD', 'Serviços'],
+        ['tecnico-em-seguros', 'Técnico em Seguros — EAD', 'Administração e gestão'],
+        ['tecnico-em-financas', 'Técnico em Finanças — EAD', 'Administração e gestão'],
+        ['tecnico-em-eventos', 'Técnico em Eventos — EAD', 'Administração e gestão'],
+        ['tecnico-em-gerencia-e-saude', 'Técnico em Gerência e Saúde — EAD', 'Saúde'],
+        ['tecnico-em-agente-comunitario-de-saude', 'Técnico em Agente Comunitário de Saúde — EAD', 'Saúde'],
+        ['tecnico-em-aquicultura', 'Técnico em Aquicultura — EAD', 'Meio ambiente e agropecuária'],
+        ['tecnico-em-agroindustria', 'Técnico em Agroindústria — EAD', 'Meio ambiente e agropecuária'],
+        ['tecnico-em-agropecuaria', 'Técnico em Agropecuária — EAD', 'Meio ambiente e agropecuária'],
+        ['tecnico-em-agricultura', 'Técnico em Agricultura — EAD', 'Meio ambiente e agropecuária'],
+        ['tecnico-em-maquinas-pesadas', 'Técnico em Máquinas Pesadas — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-estrada', 'Técnico em Estradas — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-saneamento', 'Técnico em Saneamento — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-mecatronica', 'Técnico em Mecatrônica — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-refrigeracao-e-climatizacao', 'Técnico em Refrigeração e Climatização — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-soldagem', 'Técnico em Soldagem — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-metalurgia', 'Técnico em Metalurgia — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-manutencao-de-maquinas-navais', 'Técnico em Manutenção de Máquinas Navais — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-manutencao-de-maquinas-industriais', 'Técnico em Manutenção de Máquinas Industriais — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-qualidade', 'Técnico em Qualidade — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-petroleo-e-gas', 'Técnico em Petróleo e Gás — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-eletromecanica', 'Técnico em Eletromecânica — EAD', 'Engenharia e manutenção'],
+        ['tecnico-em-prevencao-e-combate-ao-incendio', 'Técnico em Prevenção e Combate ao Incêndio — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-transito', 'Técnico em Trânsito — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-defesa-civil', 'Técnico em Defesa Civil — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-mineracao', 'Técnico em Mineração — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-agrimensura', 'Técnico em Agrimensura — EAD', 'Construção e infraestrutura'],
+        ['tecnico-em-geoprocessamento', 'Técnico em Geoprocessamento — EAD', 'Tecnologia e informática'],
+        ['tecnico-em-telecomunicacoes', 'Técnico em Telecomunicações — EAD', 'Tecnologia e informática'],
+        ['tecnico-em-traducao-e-interpretacao-de-libras', 'Técnico em Tradução e Interpretação de Libras — EAD', 'Tecnologia e informática'],
+        ['tecnico-em-design-grafico', 'Técnico em Design Gráfico — EAD', 'Tecnologia e informática'],
+        ['tecnico-em-biotecnologia', 'Técnico em Biotecnologia — EAD', 'Tecnologia e informática'],
+        ['tecnico-em-sistema-de-energia-renovavel', 'Técnico em Sistema de Energia Renovável — EAD', 'Tecnologia e informática'],
+    ];
+    $items = [];
+    foreach ($base as $i => $row) {
+        [$slug, $title, $area] = $row;
+        $items[] = [
+            'id' => -9000 - $i,
+            'slug' => $slug,
+            'title' => $title,
+            'category' => 'Cursos Técnicos EAD',
+            'area' => $area,
+            'price' => 99.90,
+            'checkout_enabled' => 1,
+            'status' => 'active',
+            'image' => '/assets/produtos/' . $slug . '.webp',
+            'short_description' => $title . '. Formação técnica EAD com matriz curricular oficial, presencialidade por ATA e início em até 24 horas úteis após a confirmação do pagamento.',
+            'description' => $title . '. Curso Técnico EAD com 12 mensalidades de R$ 99,90, grade curricular oficial e atendimento do IBETP para orientação de matrícula, documentação e próximos passos.',
+            'seo_title' => $title . ' | IBETP',
+            'seo_description' => 'Conheça o ' . $title . ' do IBETP: grade curricular oficial, investimento, presencialidade por ATA, documentos e matrícula.',
+            'updated_at' => '2026-07-20 00:00:00',
+        ];
+    }
+    return $items;
+}
+
+function official_technical_product_by_slug(string $slug): ?array {
+    $slugKey = ibetp_slug_key($slug);
+    foreach (official_no_internship_technical_products() as $product) {
+        if (ibetp_slug_key((string)$product['slug']) === $slugKey) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function official_technical_product_by_id(int $id): ?array {
+    foreach (official_no_internship_technical_products() as $product) {
+        if ((int)$product['id'] === $id) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function merge_official_technical_products(array $items): array {
+    $merged = [];
+    foreach ($items as $item) {
+        $merged[ibetp_slug_key((string)($item['slug'] ?? $item['title'] ?? ''))] = $item;
+    }
+    foreach (official_no_internship_technical_products() as $product) {
+        $merged[ibetp_slug_key((string)$product['slug'])] = $product;
+    }
+    uasort($merged, fn($a, $b) => strcasecmp((string)($a['title'] ?? ''), (string)($b['title'] ?? '')));
+    return array_values($merged);
 }
 
 function technical_ead_drive_slug_allowed(array $product): bool {
@@ -667,6 +771,9 @@ function product_academic_profile(array $product): ?array {
     }
     if (str_contains($slugKey, 'estradas')) {
         $slugKey = 'tecnico-em-estrada';
+    }
+    if ($slugKey === 'tecnico-em-maquinas-pesadas') {
+        $slugKey = 'tecnico-em-manutencao-de-maquinas-pesadas';
     }
     $officialOverride = official_drive_technical_profile_override($slugKey, $titleKey);
     if ($officialOverride !== null && product_is_official_drive_technical_ead($product)) {
@@ -1611,6 +1718,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     $type = $path === 'glossario' ? 'glossary' : 'post';
     if ($path === 'cursos') {
         $items = Database::all("SELECT * FROM products WHERE status='active' ORDER BY title");
+        $items = merge_official_technical_products($items);
         $items = array_values(array_filter($items, 'product_publicly_visible'));
         $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
         $heading = 'Cursos e produtos IBETP';
@@ -1723,6 +1831,7 @@ if (preg_match('#^(blog|glossario)/([^/]+)$#', $path, $m)) {
 
 if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
+    if (!$product) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $academic = product_academic_profile($product);
     $hasMandatoryInternship = $academic && str_contains(ibetp_slug_key((string)($academic['internship'] ?? '')), 'estagio-supervisionado-obrigatorio');

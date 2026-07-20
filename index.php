@@ -63,6 +63,30 @@ if ($path === 'admin/checkout-email-test') {
     exit;
 }
 
+if ($path === 'admin/pre-matriculas') {
+    if (!Auth::user()) {
+        header('Location: ' . site_url('/admin?action=login'));
+        exit;
+    }
+    checkout_ensure_schema();
+    $notice = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_paid_enrollment_id'])) {
+        $id = (int)$_POST['confirm_paid_enrollment_id'];
+        Database::exec("UPDATE pre_enrollments SET payment_status='approved', payment_id=COALESCE(NULLIF(payment_id,''),'confirmacao-manual'), updated_at=NOW() WHERE id=?", [$id]);
+        $result = checkout_send_approved_emails($id, true);
+        $notice = ($result['student'] ?? false) && ($result['internal'] ?? false)
+            ? 'Pagamento confirmado manualmente e e-mails enviados.'
+            : 'Pagamento confirmado manualmente, mas algum e-mail falhou. Confira o SMTP e tente reenviar.';
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resend_enrollment_id'])) {
+        $result = checkout_send_approved_emails((int)$_POST['resend_enrollment_id'], true);
+        $notice = ($result['student'] ?? false) && ($result['internal'] ?? false)
+            ? 'E-mails reenviados para o aluno e para a secretaria.'
+            : 'Tentativa realizada. Se algum e-mail falhou, confira a configuração SMTP e tente novamente.';
+    }
+    render_checkout_enrollments_admin($notice);
+    exit;
+}
+
 if ($path === 'admin' || str_starts_with($path, 'admin/')) {
     require __DIR__ . '/../app/admin/panel.php';
     exit;
@@ -144,14 +168,15 @@ if ($path === 'checkout' && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET'
     exit;
 }
 
-if ($path === 'mercado-pago/webhook' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($path === 'mercado-pago/webhook' && in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['GET', 'POST'], true)) {
     checkout_ensure_schema();
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true) ?: [];
+    if (!$payload) $payload = $_GET;
     $payment = checkout_fetch_webhook_payment($payload);
     $external = $payment['external_reference'] ?? ($payload['external_reference'] ?? ($_GET['external_reference'] ?? null));
     $status = $payment['status'] ?? ($payload['status'] ?? ($payload['action'] ?? 'received'));
-    $paymentId = $payment['id'] ?? ($payload['data']['id'] ?? null);
+    $paymentId = $payment['id'] ?? checkout_payload_payment_id($payload);
     $responsePayload = $payment ? json_encode($payment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : $raw;
 
     if ($external) {
@@ -541,10 +566,23 @@ function checkout_mp_request(string $method, string $url, ?array $payload = null
     return $json;
 }
 
+function checkout_payload_payment_id(array $payload): ?string {
+    $data = $payload['data'] ?? [];
+    $id = (is_array($data) ? ($data['id'] ?? null) : null)
+        ?? $payload['data.id']
+        ?? $payload['data_id']
+        ?? $payload['id']
+        ?? ($_GET['data.id'] ?? null)
+        ?? ($_GET['data_id'] ?? null)
+        ?? ($_GET['id'] ?? null);
+    return $id !== null && $id !== '' ? (string)$id : null;
+}
+
 function checkout_fetch_webhook_payment(array $payload): ?array {
     $type = $payload['type'] ?? $payload['topic'] ?? '';
-    $id = $payload['data']['id'] ?? ($_GET['id'] ?? null);
-    if (!$id || ($type && !str_contains((string)$type, 'payment') && ($payload['action'] ?? '') === '')) return null;
+    $id = checkout_payload_payment_id($payload);
+    $action = (string)($payload['action'] ?? '');
+    if (!$id || ($type && !str_contains((string)$type, 'payment') && !str_contains($action, 'payment'))) return null;
     try {
         return checkout_mp_request('GET', 'https://api.mercadopago.com/v1/payments/' . rawurlencode((string)$id));
     } catch (Throwable $e) {
@@ -594,27 +632,36 @@ function checkout_smtp_config(): array {
     ];
 }
 
-function checkout_send_approved_emails(int $enrollmentId): void {
+function checkout_send_approved_emails(int $enrollmentId, bool $force = false): array {
     $row = Database::one("SELECT * FROM pre_enrollments WHERE id=?", [$enrollmentId]);
-    if (!$row) return;
-    $studentSubject = 'IBETP — pré-matrícula recebida';
+    if (!$row) return ['student' => false, 'internal' => false];
+    $studentSubject = 'IBETP — matrícula recebida e pagamento confirmado';
     $studentHtml = checkout_student_email_html($row);
-    $internalSubject = 'Nova pré-matrícula paga — ' . $row['product_title'];
+    $internalSubject = 'Nova matrícula paga — ' . $row['product_title'];
     $internalHtml = checkout_internal_email_html($row);
-    $sentStudent = checkout_send_email($row['email'], $row['full_name'], $studentSubject, $studentHtml);
+    $sentStudent = !$force && !empty($row['student_email_sent_at'])
+        ? true
+        : checkout_send_email($row['email'], $row['full_name'], $studentSubject, $studentHtml);
     $cfg = checkout_smtp_config();
-    $sentInternal = checkout_send_email($cfg['internal_to'], 'Secretaria IBETP', $internalSubject, $internalHtml);
+    $sentInternal = !$force && !empty($row['internal_email_sent_at'])
+        ? true
+        : checkout_send_email($cfg['internal_to'], 'Secretaria IBETP', $internalSubject, $internalHtml);
     if ($sentStudent) Database::exec("UPDATE pre_enrollments SET student_email_sent_at=NOW() WHERE id=?", [$enrollmentId]);
     if ($sentInternal) Database::exec("UPDATE pre_enrollments SET internal_email_sent_at=NOW() WHERE id=?", [$enrollmentId]);
+    return ['student' => $sentStudent, 'internal' => $sentInternal];
 }
 
 function checkout_student_email_html(array $row): string {
-    return '<h2>Pré-matrícula IBETP recebida</h2>'
+    return '<div style="font-family:Arial,sans-serif;color:#001f54;line-height:1.6;max-width:680px">'
+        . '<h2 style="color:#008848">Parabéns, sua matrícula foi recebida pelo IBETP.</h2>'
         . '<p>Olá, ' . e($row['full_name']) . '.</p>'
-        . '<p>Recebemos sua pré-matrícula para <strong>' . e($row['product_title']) . '</strong>.</p>'
-        . '<p>Sua matrícula será efetivada em até <strong>24 horas úteis</strong> após a confirmação do pagamento e conferência das informações.</p>'
-        . '<p>A equipe da Secretaria IBETP poderá entrar em contato para orientar documentos, acesso e próximos passos.</p>'
-        . '<p><strong>IBETP — Instituto Brasileiro de Educação Técnica e Profissional</strong><br>CNPJ: 39.534.189/0001-38</p>';
+        . '<p>Recebemos a confirmação de pagamento referente ao curso <strong>' . e($row['product_title']) . '</strong>.</p>'
+        . '<p>Sua matrícula será efetivada pela Secretaria IBETP e o acesso à plataforma AVA, ou as orientações iniciais do curso, serão encaminhados em até <strong>24 horas úteis</strong> após a confirmação do pagamento.</p>'
+        . '<p>Se houver necessidade de complementar documentos ou confirmar alguma informação, nossa equipe entrará em contato pelos dados informados na ficha de pré-matrícula.</p>'
+        . '<div style="background:#f2f8f5;border-left:5px solid #008848;border-radius:12px;padding:14px 16px;margin:18px 0">'
+        . '<strong>Resumo da matrícula</strong><br>Curso: ' . e($row['product_title']) . '<br>Aluno(a): ' . e($row['full_name']) . '<br>Status do pagamento: ' . e($row['payment_status']) . '</div>'
+        . '<p><strong>IBETP — Instituto Brasileiro de Educação Técnica e Profissional</strong><br>CNPJ: 39.534.189/0001-38</p>'
+        . '</div>';
 }
 
 function checkout_internal_email_html(array $row): string {
@@ -639,11 +686,14 @@ function checkout_internal_email_html(array $row): string {
         'Estado' => $row['state'],
         'Referência interna' => $row['external_reference'],
     ];
-    $html = '<h2>Nova pré-matrícula paga</h2><p>Dados completos preenchidos pelo aluno/cliente:</p><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse">';
+    $html = '<div style="font-family:Arial,sans-serif;color:#001f54;line-height:1.55;max-width:760px">'
+        . '<h2 style="color:#008848">Nova matrícula paga no site IBETP</h2>'
+        . '<p>Pagamento confirmado/retornado pelo Mercado Pago. Abaixo estão os dados completos da ficha preenchida pelo aluno.</p>'
+        . '<table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;width:100%;border-color:#d9e5f5">';
     foreach ($fields as $label => $value) {
         $html .= '<tr><th align="left">' . e($label) . '</th><td>' . e((string)$value) . '</td></tr>';
     }
-    return $html . '</table>';
+    return $html . '</table><p><strong>Ação necessária:</strong> conferir documentação, efetivar a matrícula e enviar acesso/orientações da plataforma AVA em até 24 horas úteis após a confirmação do pagamento.</p></div>';
 }
 
 function checkout_send_email(string $toEmail, string $toName, string $subject, string $html): bool {
@@ -810,7 +860,10 @@ function render_checkout_admin_config(): void {
     </style></head><body><main class="checkout-admin-extra">
       <h1>Configuração do checkout IBETP</h1>
       <p>Use esta tela para salvar Mercado Pago e SMTP no banco privado do site. As senhas não entram no GitHub.</p>
-      <p><a href="<?= e(site_url('/admin/checkout-email-test')) ?>" style="display:inline-flex;background:#061b45;color:#fff;text-decoration:none;border-radius:12px;padding:12px 16px;font-weight:900">Testar envio de e-mail</a></p>
+      <p style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="<?= e(site_url('/admin/checkout-email-test')) ?>" style="display:inline-flex;background:#061b45;color:#fff;text-decoration:none;border-radius:12px;padding:12px 16px;font-weight:900">Testar envio de e-mail</a>
+        <a href="<?= e(site_url('/admin/pre-matriculas')) ?>" style="display:inline-flex;background:#008848;color:#fff;text-decoration:none;border-radius:12px;padding:12px 16px;font-weight:900">Ver pré-matrículas</a>
+      </p>
       <?php if ($saved): ?><div class="checkout-admin-ok">Configurações salvas.</div><?php endif; ?>
       <form method="post">
         <fieldset><legend>Mercado Pago</legend><div class="checkout-admin-grid">
@@ -849,6 +902,49 @@ function render_checkout_email_test(string $to, ?bool $result): void {
           <a href="<?= e(site_url('/admin/checkout-config')) ?>">Voltar à configuração</a>
         </div>
       </form>
+    </main></body></html><?php
+}
+
+function render_checkout_enrollments_admin(?string $notice = null): void {
+    $rows = Database::all("SELECT * FROM pre_enrollments ORDER BY id DESC LIMIT 80");
+    ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pré-matrículas IBETP</title><style>
+    body{margin:0;background:#f3f7fc;color:#061b45;font-family:Inter,Segoe UI,Arial,sans-serif}.wrap{max-width:1180px;margin:34px auto;padding:26px;background:#fff;border:1px solid #d9e4f2;border-radius:28px;box-shadow:0 22px 60px rgba(6,27,69,.08)}h1{margin:0 0 8px;font-size:34px}p{font-size:17px;color:#52617a;line-height:1.55}.actions{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:13px;padding:12px 15px;background:#061b45;color:#fff;font-weight:950;text-decoration:none;cursor:pointer}.btn.green{background:#008848}.notice{background:#e9f8ef;border:1px solid #bce8cb;color:#08783b;border-radius:14px;padding:12px 14px;font-weight:800;margin:14px 0}.table-wrap{overflow:auto;border:1px solid #d9e4f2;border-radius:18px}table{width:100%;border-collapse:collapse;min-width:1050px}th,td{padding:12px 10px;border-bottom:1px solid #e7eef8;text-align:left;vertical-align:top;font-size:14px}th{background:#f7fbff;color:#001f54;font-size:13px;text-transform:uppercase;letter-spacing:.04em}.status{display:inline-flex;border-radius:999px;padding:5px 9px;font-weight:900;background:#eef5ff}.status.approved{background:#e8f8ef;color:#08783b}.status.preference_created,.status.created{background:#fff7db;color:#8a6100}.muted{color:#6d7b91}.small{font-size:12px}.resend{background:#008848;color:#fff;border:0;border-radius:10px;padding:9px 11px;font-weight:900;cursor:pointer;white-space:nowrap}@media(max-width:760px){.wrap{margin:12px;padding:18px;border-radius:20px}h1{font-size:28px}}
+    </style></head><body><main class="wrap">
+      <h1>Pré-matrículas e e-mails do checkout</h1>
+      <p>Acompanhe pagamentos retornados pelo Mercado Pago, dados preenchidos pelo aluno e status de envio dos e-mails automáticos. Se necessário, use “Reenviar e-mails”.</p>
+      <div class="actions">
+        <a class="btn" href="<?= e(site_url('/admin/checkout-config')) ?>">Configuração do checkout</a>
+        <a class="btn green" href="<?= e(site_url('/admin/checkout-email-test')) ?>">Testar SMTP</a>
+        <a class="btn" href="<?= e(site_url('/admin')) ?>">Painel administrativo</a>
+      </div>
+      <?php if ($notice): ?><div class="notice"><?= e($notice) ?></div><?php endif; ?>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Data</th><th>Curso</th><th>Aluno</th><th>Contato</th><th>Pagamento</th><th>E-mails</th><th>Ações</th></tr></thead>
+        <tbody>
+        <?php if (!$rows): ?><tr><td colspan="8">Nenhuma pré-matrícula registrada ainda.</td></tr><?php endif; ?>
+        <?php foreach ($rows as $row): ?>
+          <tr>
+            <td>#<?= (int)$row['id'] ?></td>
+            <td><span class="small"><?= e((string)$row['created_at']) ?></span></td>
+            <td><strong><?= e((string)$row['product_title']) ?></strong><br><span class="muted small"><?= e((string)$row['product_category']) ?></span></td>
+            <td><strong><?= e((string)$row['full_name']) ?></strong><br><span class="muted small">CPF: <?= e((string)$row['cpf']) ?></span></td>
+            <td><?= e((string)$row['email']) ?><br><span class="muted small"><?= e((string)$row['phone']) ?></span></td>
+            <td><span class="status <?= e(ibetp_slug_key((string)$row['payment_status'])) ?>"><?= e((string)$row['payment_status']) ?></span><br><span class="muted small">MP: <?= e((string)$row['payment_id']) ?></span></td>
+            <td><span class="small">Aluno: <?= !empty($row['student_email_sent_at']) ? e((string)$row['student_email_sent_at']) : 'não enviado' ?></span><br><span class="small">Secretaria: <?= !empty($row['internal_email_sent_at']) ? e((string)$row['internal_email_sent_at']) : 'não enviado' ?></span></td>
+            <td>
+              <form method="post">
+                <input type="hidden" name="resend_enrollment_id" value="<?= (int)$row['id'] ?>">
+                <button class="resend">Reenviar e-mails</button>
+              </form>
+              <form method="post" style="margin-top:8px">
+                <input type="hidden" name="confirm_paid_enrollment_id" value="<?= (int)$row['id'] ?>">
+                <button class="resend" style="background:#061b45">Confirmar pagamento e reenviar</button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table></div>
     </main></body></html><?php
 }
 

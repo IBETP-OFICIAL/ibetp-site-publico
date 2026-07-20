@@ -283,6 +283,13 @@ function premium_product_image(array $product): string {
     if (file_exists(__DIR__ . $slugSpecific)) {
         return $slugSpecific;
     }
+    $titleSpecific = '/assets/produtos/' . ibetp_slug_key((string)($product['title'] ?? '')) . '.webp';
+    if (file_exists(__DIR__ . $titleSpecific)) {
+        return $titleSpecific;
+    }
+    if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnico-em-secretaria-escolar.webp')) {
+        return '/assets/produtos/tecnico-em-secretaria-escolar.webp';
+    }
     if ($explicit !== '' && str_starts_with($explicit, '/assets/')) {
         return $explicit;
     }
@@ -524,6 +531,9 @@ function product_academic_profile(array $product): ?array {
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
     if ($slugKey === 'tecnico-ead-seguranca-trabalho') {
         $slugKey = 'tecnico-em-seguranca-do-trabalho';
+    }
+    if ($slugKey === 'tecnico-ead-secretariado-escolar' || str_contains($slugKey, 'secretariado-escolar')) {
+        $slugKey = 'tecnico-em-secretaria-escolar';
     }
     $officialOverride = official_drive_technical_profile_override($slugKey, $titleKey);
     if ($officialOverride !== null && product_is_official_drive_technical_ead($product)) {
@@ -1013,7 +1023,7 @@ function product_academic_profile(array $product): ?array {
         ],
     ];
     foreach ($profiles as $profileKey => $profile) {
-        if ($titleKey === $profileKey || $slugKey === $profileKey || str_ends_with($slugKey, '-' . $profileKey)) {
+        if ($titleKey === $profileKey || $slugKey === $profileKey || str_contains($titleKey, $profileKey) || str_ends_with($slugKey, '-' . $profileKey)) {
             if (product_is_official_drive_technical_ead($product)) {
                 return normalize_official_drive_technical_profile($profile);
             }

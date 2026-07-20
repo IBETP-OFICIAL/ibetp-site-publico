@@ -44,6 +44,25 @@ if ($path === 'admin/checkout-config') {
     exit;
 }
 
+if ($path === 'admin/checkout-email-test') {
+    if (!Auth::user()) {
+        header('Location: ' . site_url('/admin?action=login'));
+        exit;
+    }
+    $result = null;
+    $to = trim((string)($_POST['test_email'] ?? setting('checkout_internal_email', 'secretaria@ibetp.com.br')));
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $subject = 'Teste de e-mail automático — IBETP';
+        $html = '<h2>Teste de e-mail automático IBETP</h2>'
+            . '<p>Este é um envio de teste do sistema de pré-matrícula e checkout.</p>'
+            . '<p>Quando um pagamento aprovado for confirmado pelo Mercado Pago, o aluno receberá a mensagem institucional e a Secretaria IBETP receberá os dados completos da pré-matrícula.</p>'
+            . '<p><strong>IBETP — Instituto Brasileiro de Educação Técnica e Profissional</strong></p>';
+        $result = checkout_send_email($to, 'Teste IBETP', $subject, $html);
+    }
+    render_checkout_email_test($to, $result);
+    exit;
+}
+
 if ($path === 'admin' || str_starts_with($path, 'admin/')) {
     require __DIR__ . '/../app/admin/panel.php';
     exit;
@@ -411,6 +430,17 @@ function checkout_create_preference(array $product, int $enrollmentId, array $da
             'product_slug' => (string)($product['slug'] ?? ''),
         ],
     ];
+    if (checkout_requires_pix_first_payment($product)) {
+        $payload['payment_methods'] = [
+            'excluded_payment_types' => [
+                ['id' => 'credit_card'],
+                ['id' => 'debit_card'],
+                ['id' => 'ticket'],
+                ['id' => 'atm'],
+            ],
+            'installments' => 1,
+        ];
+    }
     $response = checkout_mp_request('POST', 'https://api.mercadopago.com/checkout/preferences', $payload);
     if (empty($response['init_point'])) {
         throw new RuntimeException('Mercado Pago não retornou o link de pagamento.');
@@ -421,6 +451,10 @@ function checkout_create_preference(array $product, int $enrollmentId, array $da
     );
     Database::exec("UPDATE pre_enrollments SET external_reference=?, payment_status=?, updated_at=NOW() WHERE id=?", [$external, 'preference_created', $enrollmentId]);
     return $response;
+}
+
+function checkout_requires_pix_first_payment(array $product): bool {
+    return product_is_technical_ead($product) || product_is_technologist($product);
 }
 
 function checkout_mp_request(string $method, string $url, ?array $payload = null): array {
@@ -600,51 +634,96 @@ function checkout_smtp_send(array $cfg, string $toEmail, string $message): bool 
 }
 
 function render_checkout_form(array $product, array $values = [], array $errors = []): void {
-    $fields = checkout_required_fields();
     $value = fn(string $key): string => (string)($values[$key] ?? '');
-    ob_start(); ?><main class="checkout-page">
-      <section class="checkout-hero">
-        <div>
-          <p class="eyebrow">Pré-matrícula IBETP</p>
-          <h1><?= e($product['title']) ?></h1>
-          <p>Preencha os dados abaixo para seguir ao pagamento seguro no Mercado Pago. A matrícula será efetivada em até 24 horas úteis após a confirmação do pagamento.</p>
-        </div>
-        <aside>
-          <strong><?= e(product_primary_payment_label($product)) ?></strong>
-          <span><?= e(product_investment_label($product)) ?></span>
-        </aside>
+    $image = premium_product_image($product);
+    $paymentLabel = product_primary_payment_label($product);
+    $investmentLabel = product_investment_label($product);
+    $pixOnly = checkout_requires_pix_first_payment($product);
+    ob_start(); ?><main class="checkout-page checkout-page-pro">
+      <section class="checkout-topline" aria-label="Garantias da pré-matrícula">
+        <span>Ambiente seguro</span>
+        <span>Pré-matrícula IBETP</span>
+        <span>Pagamento processado pelo Mercado Pago</span>
       </section>
-      <section class="checkout-form-card">
-        <?php if ($errors): ?><div class="checkout-errors"><?php foreach ($errors as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
-        <form method="post" action="<?= e(site_url('/checkout')) ?>" class="checkout-form">
-          <input type="hidden" name="product_id" value="<?= (int)($product['id'] ?? 0) ?>">
-          <input type="hidden" name="product_slug" value="<?= e((string)($product['slug'] ?? '')) ?>">
-          <input type="hidden" name="pre_enrollment_submit" value="1">
-          <div class="checkout-section-title"><span>01</span><strong>Dados pessoais</strong></div>
-          <div class="checkout-grid">
-            <label>Nome completo<input name="full_name" value="<?= e($value('full_name')) ?>" required></label>
-            <label>Data de nascimento<input name="birth_date" type="date" value="<?= e($value('birth_date')) ?>" required></label>
-            <label>CPF<input name="cpf" value="<?= e($value('cpf')) ?>" inputmode="numeric" required></label>
-            <label>Telefone celular<input name="phone" value="<?= e($value('phone')) ?>" inputmode="tel" required></label>
-            <label>E-mail<input name="email" type="email" value="<?= e($value('email')) ?>" required></label>
-            <label>Sexo<select name="sex" required><option value="">Selecione</option><?php foreach (['Feminino','Masculino','Outro','Prefiro não informar'] as $option): ?><option <?= $value('sex') === $option ? 'selected' : '' ?>><?= e($option) ?></option><?php endforeach; ?></select></label>
+
+      <section class="checkout-shell">
+        <div class="checkout-main-card">
+          <div class="checkout-heading">
+            <p class="eyebrow">Pré-matrícula IBETP</p>
+            <h1>Finalize seus dados para seguir ao pagamento</h1>
+            <p>Preencha a pré-matrícula com atenção. Após a confirmação do pagamento, a matrícula será efetivada em até <strong>24 horas úteis</strong>, com orientação institucional do IBETP.</p>
           </div>
-          <div class="checkout-section-title"><span>02</span><strong>Endereço</strong></div>
-          <div class="checkout-grid">
-            <label>CEP<input name="cep" value="<?= e($value('cep')) ?>" inputmode="numeric" required></label>
-            <label>Endereço<input name="address" value="<?= e($value('address')) ?>" required></label>
-            <label>Número<input name="number" value="<?= e($value('number')) ?>" required></label>
-            <label>Complemento<input name="complement" value="<?= e($value('complement')) ?>"></label>
-            <label>Bairro<input name="district" value="<?= e($value('district')) ?>" required></label>
-            <label>Cidade<input name="city" value="<?= e($value('city')) ?>" required></label>
-            <label>Estado<input name="state" value="<?= e($value('state')) ?>" maxlength="2" required></label>
+
+          <?php if ($errors): ?><div class="checkout-errors"><?php foreach ($errors as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
+
+          <form method="post" action="<?= e(site_url('/checkout')) ?>" class="checkout-form checkout-form-pro" novalidate>
+            <input type="hidden" name="product_id" value="<?= (int)($product['id'] ?? 0) ?>">
+            <input type="hidden" name="product_slug" value="<?= e((string)($product['slug'] ?? '')) ?>">
+            <input type="hidden" name="pre_enrollment_submit" value="1">
+
+            <section class="checkout-step-card">
+              <div class="checkout-section-title"><span>01</span><strong>Identificação do aluno</strong></div>
+              <div class="checkout-grid checkout-grid-3">
+                <label class="checkout-field checkout-field-wide">Nome completo<input name="full_name" value="<?= e($value('full_name')) ?>" autocomplete="name" required></label>
+                <label class="checkout-field">Data de nascimento<input name="birth_date" type="date" value="<?= e($value('birth_date')) ?>" required></label>
+                <label class="checkout-field">CPF<input name="cpf" value="<?= e($value('cpf')) ?>" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" required></label>
+                <label class="checkout-field">Sexo<select name="sex" required><option value="">Selecione</option><?php foreach (['Feminino','Masculino','Outro','Prefiro não informar'] as $option): ?><option <?= $value('sex') === $option ? 'selected' : '' ?>><?= e($option) ?></option><?php endforeach; ?></select></label>
+              </div>
+            </section>
+
+            <section class="checkout-step-card">
+              <div class="checkout-section-title"><span>02</span><strong>Contato para matrícula</strong></div>
+              <div class="checkout-grid">
+                <label class="checkout-field">Telefone celular<input name="phone" value="<?= e($value('phone')) ?>" inputmode="tel" autocomplete="tel" placeholder="(21) 99999-9999" required></label>
+                <label class="checkout-field">E-mail<input name="email" type="email" value="<?= e($value('email')) ?>" autocomplete="email" placeholder="seuemail@exemplo.com" required></label>
+              </div>
+            </section>
+
+            <section class="checkout-step-card">
+              <div class="checkout-section-title"><span>03</span><strong>Endereço residencial</strong></div>
+              <div class="checkout-grid checkout-grid-address">
+                <label class="checkout-field">CEP<input name="cep" value="<?= e($value('cep')) ?>" inputmode="numeric" autocomplete="postal-code" required></label>
+                <label class="checkout-field checkout-field-wide">Endereço<input name="address" value="<?= e($value('address')) ?>" autocomplete="street-address" required></label>
+                <label class="checkout-field">Número<input name="number" value="<?= e($value('number')) ?>" required></label>
+                <label class="checkout-field">Complemento<input name="complement" value="<?= e($value('complement')) ?>"></label>
+                <label class="checkout-field">Bairro<input name="district" value="<?= e($value('district')) ?>" required></label>
+                <label class="checkout-field">Cidade<input name="city" value="<?= e($value('city')) ?>" required></label>
+                <label class="checkout-field">Estado<input name="state" value="<?= e($value('state')) ?>" maxlength="2" placeholder="RJ" required></label>
+              </div>
+            </section>
+
+            <label class="checkout-consent">
+              <input type="checkbox" name="lgpd_accept" value="1" <?= !empty($values['lgpd_accept']) ? 'checked' : '' ?> required>
+              <span>Declaro que as informações preenchidas são verdadeiras e autorizo o IBETP a utilizar meus dados para fins de pré-matrícula, atendimento educacional e comunicação institucional.</span>
+            </label>
+
+            <div class="checkout-actions checkout-actions-pro">
+              <button class="btn primary" type="submit"><?= e($paymentLabel) ?></button>
+              <a class="btn outline dark" href="<?= e(site_url('/produto/' . $product['slug'])) ?>">Voltar ao curso</a>
+            </div>
+          </form>
+        </div>
+
+        <aside class="checkout-summary-card" aria-label="Resumo do pedido">
+          <img src="<?= e($image) ?>" alt="<?= e($product['title']) ?>">
+          <div class="checkout-summary-body">
+            <span class="checkout-summary-kicker"><?= e(product_category_label($product)) ?></span>
+            <h2><?= e($product['title']) ?></h2>
+            <div class="checkout-price-line">
+              <small><?= e($paymentLabel) ?></small>
+              <strong><?= e($investmentLabel) ?></strong>
+            </div>
+            <ul class="checkout-safe-list">
+              <li>Dados enviados para a Secretaria IBETP após pagamento aprovado.</li>
+              <li>Matrícula efetivada em até 24 horas úteis após confirmação.</li>
+              <li><?= $pixOnly ? 'Pagamento inicial orientado para Pix pelo Mercado Pago.' : 'Pagamento seguro processado pelo Mercado Pago.' ?></li>
+            </ul>
+            <div class="checkout-institutional-note">
+              <strong>IBETP</strong>
+              <span>Instituto Brasileiro de Educação Técnica e Profissional<br>CNPJ: 39.534.189/0001-38</span>
+            </div>
           </div>
-          <label class="checkout-consent"><input type="checkbox" name="lgpd_accept" value="1" <?= !empty($values['lgpd_accept']) ? 'checked' : '' ?> required> Declaro que as informações preenchidas são verdadeiras e autorizo o IBETP a utilizar meus dados para fins de pré-matrícula, atendimento educacional e comunicação institucional.</label>
-          <div class="checkout-actions">
-            <button class="btn primary">Ir para pagamento seguro</button>
-            <a class="btn outline" href="<?= e(site_url('/produto/' . $product['slug'])) ?>">Voltar ao curso</a>
-          </div>
-        </form>
+        </aside>
       </section>
     </main><?php
     layout('Pré-matrícula — ' . $product['title'], 'Formulário de pré-matrícula IBETP antes do pagamento seguro.', ob_get_clean(), premium_product_image($product), true);
@@ -658,6 +737,7 @@ function render_checkout_admin_config(): void {
     </style></head><body><main class="checkout-admin-extra">
       <h1>Configuração do checkout IBETP</h1>
       <p>Use esta tela para salvar Mercado Pago e SMTP no banco privado do site. As senhas não entram no GitHub.</p>
+      <p><a href="<?= e(site_url('/admin/checkout-email-test')) ?>" style="display:inline-flex;background:#061b45;color:#fff;text-decoration:none;border-radius:12px;padding:12px 16px;font-weight:900">Testar envio de e-mail</a></p>
       <?php if ($saved): ?><div class="checkout-admin-ok">Configurações salvas.</div><?php endif; ?>
       <form method="post">
         <fieldset><legend>Mercado Pago</legend><div class="checkout-admin-grid">
@@ -678,6 +758,23 @@ function render_checkout_admin_config(): void {
           <label>E-mail interno da secretaria<input name="checkout_internal_email" value="<?= e(setting('checkout_internal_email','secretaria@ibetp.com.br')) ?>"></label>
         </div></fieldset>
         <button>Salvar configurações de checkout</button>
+      </form>
+    </main></body></html><?php
+}
+
+function render_checkout_email_test(string $to, ?bool $result): void {
+    ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Teste de e-mail do checkout IBETP</title><style>
+    body{margin:0;background:#f3f7fc;color:#061b45;font-family:Inter,Segoe UI,Arial,sans-serif}.email-test{max-width:820px;margin:48px auto;padding:34px;border:1px solid #d9e4f2;border-radius:28px;background:#fff;box-shadow:0 22px 60px rgba(6,27,69,.08)}.email-test h1{margin:0 0 10px;font-size:38px}.email-test p{font-size:18px;line-height:1.6;color:#52617a}.email-test form{display:grid;gap:14px;margin-top:22px}.email-test label{display:grid;gap:8px;font-weight:900}.email-test input{min-height:54px;border:1px solid #cbd8ea;border-radius:16px;padding:0 15px;font-size:18px}.email-test button,.email-test a{display:inline-flex;width:max-content;align-items:center;justify-content:center;border:0;border-radius:14px;padding:14px 18px;background:#05864b;color:#fff;font-weight:950;text-decoration:none;cursor:pointer}.email-test a{background:#061b45}.email-test .ok{padding:14px 16px;border-radius:16px;background:#e9f8ef;color:#08783b;font-weight:900}.email-test .bad{padding:14px 16px;border-radius:16px;background:#fff2f2;color:#9b1c1c;font-weight:900}.email-test .actions{display:flex;gap:12px;flex-wrap:wrap}
+    </style></head><body><main class="email-test">
+      <h1>Teste de e-mail do checkout</h1>
+      <p>Use esta tela para confirmar se o envio automático pelo e-mail institucional está funcionando antes de fazer um pagamento real.</p>
+      <?php if ($result === true): ?><div class="ok">E-mail de teste enviado com sucesso.</div><?php elseif ($result === false): ?><div class="bad">O envio falhou. Confira se a senha SMTP foi salva em “Configuração do checkout”.</div><?php endif; ?>
+      <form method="post">
+        <label>E-mail de destino para o teste<input name="test_email" type="email" value="<?= e($to) ?>" required></label>
+        <div class="actions">
+          <button>Enviar e-mail de teste</button>
+          <a href="<?= e(site_url('/admin/checkout-config')) ?>">Voltar à configuração</a>
+        </div>
       </form>
     </main></body></html><?php
 }
@@ -2662,7 +2759,7 @@ function layout(string $title, string $description, string $body, ?string $image
   <link rel="alternate" type="application/rss+xml" title="Blog IBETP" href="<?= e(site_url('/feed.xml')) ?>">
   <link rel="icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
   <link rel="apple-touch-icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
-  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260719-produto-hero-final')) ?>" as="style">
+  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-pro-v2')) ?>" as="style">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($description) ?>">
   <meta property="og:image" content="<?= e($og) ?>">
@@ -2683,7 +2780,7 @@ function layout(string $title, string $description, string $body, ?string $image
     gtag('config', <?= json_encode($gaId, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
   </script>
   <?php endif; ?>
-  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260719-produto-hero-final')) ?>">
+  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-pro-v2')) ?>">
 </head>
 <body>
 <header class="topbar">

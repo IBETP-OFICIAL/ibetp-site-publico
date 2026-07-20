@@ -174,6 +174,9 @@ function product_publicly_visible(array $product): bool {
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? ''));
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
     $text = $titleKey . ' ' . $slugKey . ' ' . $categoryKey;
+    if (product_is_technical_ead($product) && !technical_ead_drive_slug_allowed($product)) {
+        return false;
+    }
     $isCompetence = str_contains($text, 'competencia');
     if (!$isCompetence) {
         return true;
@@ -215,14 +218,36 @@ function technical_ead_drive_slug_allowed(array $product): bool {
         'tecnico-em-marketing-e-comunicacao',
         'tecnico-em-mecanica',
         'tecnico-em-nutricao-e-dietetica',
+        'tecnico-em-petroleo-e-gas',
         'tecnico-em-programacao-de-jogos-digitais',
+        'tecnico-em-qualidade',
         'tecnico-em-recursos-humanos',
         'tecnico-em-redes-de-computadores',
+        'tecnico-em-refrigeracao-e-climatizacao',
         'tecnico-em-secretaria-escolar',
         'tecnico-em-seguranca-do-trabalho',
+        'tecnico-em-seguros',
         'tecnico-em-servicos-juridicos',
+        'tecnico-em-soldagem',
         'tecnico-em-transacoes-imobiliarias',
         'tecnico-em-vendas',
+        'tecnico-em-eventos',
+        'tecnico-em-financas',
+        'tecnico-em-gastronomia',
+        'tecnico-em-confeitaria',
+        'tecnico-em-aquicultura',
+        'tecnico-em-agroindustria',
+        'tecnico-em-agropecuaria',
+        'tecnico-em-agricultura',
+        'tecnico-em-manutencao-de-maquinas-pesadas',
+        'tecnico-em-maquinas-pesadas',
+        'tecnico-em-estrada',
+        'tecnico-em-saneamento',
+        'tecnico-em-mecatronica',
+        'tecnico-em-metalurgia',
+        'tecnico-em-eletromecanica',
+        'tecnico-em-geoprocessamento',
+        'tecnico-em-telecomunicacoes',
     ];
     foreach ($allowed as $needle) {
         if (str_contains($matchText, $needle)) {
@@ -354,10 +379,9 @@ function product_is_official_drive_technical_ead(array $product): bool {
 }
 
 function normalize_official_drive_technical_profile(array $profile): array {
-    $profile['presence'] = '';
     $profile['modality_note'] = 'Curso Técnico EAD em 12 mensalidades de R$ 99,90. A 1ª mensalidade é paga via Pix no site do IBETP, no ato da matrícula; o início ocorre em até 24 horas úteis após a confirmação do pagamento. As demais mensalidades são enviadas mensalmente por e-mail, WhatsApp ou SMS com link de pagamento e opções de boleto, cartão de crédito e Pix, em até 5 dias antes do vencimento.';
     $profile['source'] = 'Grade oficial extraída do informativo do curso disponível ao IBETP.';
-    if (empty($profile['internship']) || str_contains(ibetp_slug_key((string)$profile['internship']), 'nao-possui')) {
+    if (empty($profile['internship'])) {
         $profile['internship'] = 'Estágio supervisionado obrigatório conforme a carga horária indicada na matriz curricular oficial deste curso.';
     }
     return $profile;

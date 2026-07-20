@@ -102,15 +102,20 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .course-search-panel input:focus{border-color:#05864b;box-shadow:0 0 0 5px rgba(5,134,75,.12),0 16px 36px rgba(6,27,69,.08)}
 .course-search-input-wrap:focus-within{border-color:#05864b;box-shadow:0 0 0 5px rgba(5,134,75,.12),0 16px 36px rgba(6,27,69,.08)}
 .course-search-panel small{color:#05864b;font-size:15px;font-weight:950}
+.course-filter-block{max-width:1180px;margin:0 auto 28px}
+.course-filter-heading{margin:0 0 10px;color:#061b45;font-size:14px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+.course-filter-heading:not(:first-child){margin-top:18px}
 .course-category-panel{max-width:1180px;margin:-12px auto 28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.course-filter-block .course-category-panel{margin:0 0 16px}
 .course-category-button{display:inline-flex;align-items:center;gap:9px;min-height:46px;border:1px solid #d5e2f2;border-radius:999px;padding:0 16px;background:#fff;color:#061b45;font-size:15px;font-weight:950;box-shadow:0 12px 28px rgba(6,27,69,.06);cursor:pointer;transition:.18s ease}
 .course-category-button span{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:#eef6fb;color:#057c45;font-size:13px;font-weight:950}
 .course-category-button:hover{transform:translateY(-1px);border-color:#05864b;box-shadow:0 16px 34px rgba(6,27,69,.1)}
 .course-category-button.active{background:linear-gradient(135deg,#061b45,#057c45);border-color:transparent;color:#fff}
 .course-category-button.active span{background:rgba(255,255,255,.18);color:#ffcf2e}
+.course-area-pill{display:inline-flex!important;align-self:flex-start!important;width:max-content!important;max-width:100%!important;margin:-4px 0 13px!important;padding:6px 11px!important;border-radius:999px!important;background:#f6f9ff!important;border:1px solid #d9e4f2!important;color:#061b45!important;font-size:12px!important;line-height:1!important;font-weight:900!important;letter-spacing:.03em!important}
 .course-list-card[hidden]{display:none!important}
 .course-empty-state{max-width:1180px;margin:-40px auto 80px;padding:26px 30px;border:1px solid #d9e4f2;border-radius:24px;background:#fff;color:#061b45;font-size:20px;font-weight:800;text-align:center;box-shadow:0 18px 45px rgba(6,27,69,.07)}
-@media(max-width:760px){.course-search-panel{grid-template-columns:1fr;margin:10px 14px 20px;padding:22px;border-radius:24px}.course-search-panel p,.course-search-panel input,.course-empty-state{font-size:18px!important}.course-search-input-wrap{display:grid;gap:8px}.course-search-panel input{min-height:58px}.course-search-panel button#course-search-submit,.course-search-panel button#course-search-clear{width:100%;min-height:46px}.course-search-panel small{grid-column:auto;font-size:16px}.course-category-panel{margin:0 14px 24px;gap:10px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px;scroll-snap-type:x proximity}.course-category-button{flex:0 0 auto;scroll-snap-align:start}.course-empty-state{margin:0 14px 60px}}
+@media(max-width:760px){.course-search-panel{grid-template-columns:1fr;margin:10px 14px 20px;padding:22px;border-radius:24px}.course-search-panel p,.course-search-panel input,.course-empty-state{font-size:18px!important}.course-search-input-wrap{display:grid;gap:8px}.course-search-panel input{min-height:58px}.course-search-panel button#course-search-submit,.course-search-panel button#course-search-clear{width:100%;min-height:46px}.course-search-panel small{grid-column:auto;font-size:16px}.course-filter-block{margin:0 14px 24px}.course-filter-heading{font-size:13px}.course-category-panel{margin:0 14px 24px;gap:10px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px;scroll-snap-type:x proximity}.course-filter-block .course-category-panel{margin:0 0 14px}.course-category-button{flex:0 0 auto;scroll-snap-align:start}.course-empty-state{margin:0 14px 60px}}
 
 /* Produto: hero premium definitivo — imagem inteira, alinhada e sem fundo branco */
 @media(min-width:981px){

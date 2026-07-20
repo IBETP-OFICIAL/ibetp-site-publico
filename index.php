@@ -155,6 +155,28 @@ function product_category_label(array $product): string {
     return $label === '' ? 'Formação IBETP' : $label;
 }
 
+function product_area_label(array $product): string {
+    $key = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? '') . ' ' . (string)($product['category'] ?? ''));
+    $areaMap = [
+        'Administração e gestão' => ['administracao','logistica','recursos-humanos','contabilidade','financas','seguros','eventos','vendas','marketing','servicos-juridicos','transacoes-imobiliarias','secretaria-escolar','secretariado-escolar'],
+        'Serviços' => ['gastronomia','confeitaria','designer-de-interiores','design-de-interiores','guia-de-turismo'],
+        'Saúde' => ['saude','gerencia-e-saude','agente-comunitario-de-saude','nutricao','estetica','cosmetologia'],
+        'Meio ambiente e agropecuária' => ['meio-ambiente','aquicultura','agroindustria','agropecuaria','agricultura'],
+        'Engenharia e manutenção' => ['maquinas-pesadas','mecanica','mecatronica','refrigeracao','climatizacao','soldagem','metalurgia','maquinas-navais','maquinas-industriais','qualidade','petroleo-e-gas','eletromecanica','eletrotecnica','eletronica','eletroeletronica','automacao-industrial'],
+        'Construção e infraestrutura' => ['edificacoes','estrada','estradas','saneamento','prevencao-e-combate-ao-incendio','transito','defesa-civil','mineracao','agrimensura'],
+        'Tecnologia e informática' => ['informatica','computacao-grafica','desenvolvimento-de-sistemas','programacao-de-jogos','redes-de-computadores','manutencao-e-suporte','geoprocessamento','telecomunicacoes','traducao-e-interpretacao-de-libras','design-grafico','biotecnologia','energia-renovavel'],
+        'Educação' => ['educacao','pedagogia','psicopedagogia'],
+    ];
+    foreach ($areaMap as $label => $needles) {
+        foreach ($needles as $needle) {
+            if (str_contains($key, $needle)) {
+                return $label;
+            }
+        }
+    }
+    return 'Área em organização';
+}
+
 function product_category_sort_weight(string $label): int {
     $key = ibetp_slug_key($label);
     return match ($key) {
@@ -168,6 +190,68 @@ function product_category_sort_weight(string $label): int {
         default => 90,
     };
 }
+
+function product_area_sort_weight(string $label): int {
+    $key = ibetp_slug_key($label);
+    return match ($key) {
+        'administracao-e-gestao' => 10,
+        'servicos' => 20,
+        'saude' => 30,
+        'meio-ambiente-e-agropecuaria' => 40,
+        'engenharia-e-manutencao' => 50,
+        'construcao-e-infraestrutura' => 60,
+        'tecnologia-e-informatica' => 70,
+        'educacao' => 80,
+        default => 90,
+    };
+}
+
+function product_catalog_search_text(array $product): string {
+    return mb_strtolower(
+        ($product['title'] ?? '') . ' ' .
+        product_category_label($product) . ' ' .
+        product_area_label($product) . ' ' .
+        ($product['category'] ?? '') . ' ' .
+        ($product['short_description'] ?? '') . ' ' .
+        ($product['description'] ?? ''),
+        'UTF-8'
+    );
+}
+
+function product_catalog_card_summary(array $product): string {
+    $summary = card_summary($product, 82);
+    $area = product_area_label($product);
+    if ($area !== 'Área em organização' && !str_contains(ibetp_slug_key($summary), ibetp_slug_key($area))) {
+        return $area . ' • ' . $summary;
+    }
+    return $summary;
+}
+
+function product_catalog_filter_groups(array $items, callable $labeler, callable $weight): array {
+    $groups = [];
+    foreach ($items as $courseItem) {
+        $label = $labeler($courseItem);
+        $key = ibetp_slug_key($label);
+        if (!isset($groups[$key])) {
+            $groups[$key] = ['label' => $label, 'count' => 0];
+        }
+        $groups[$key]['count']++;
+    }
+    uasort($groups, fn($a, $b) => $weight($a['label']) <=> $weight($b['label']) ?: strcmp($a['label'], $b['label']));
+    return $groups;
+}
+
+function render_course_filter_nav(array $groups, string $type, string $allLabel, int $total): string {
+    ob_start(); ?>
+    <nav class="course-category-panel course-category-panel-<?= e($type) ?>" aria-label="<?= e($allLabel) ?>">
+      <button class="course-category-button active" type="button" data-course-filter="<?= e($type) ?>" data-course-value="all"><?= e($allLabel) ?> <span><?= $total ?></span></button>
+      <?php foreach ($groups as $groupKey => $group): ?>
+        <button class="course-category-button" type="button" data-course-filter="<?= e($type) ?>" data-course-value="<?= e($groupKey) ?>"><?= e($group['label']) ?> <span><?= (int)$group['count'] ?></span></button>
+      <?php endforeach; ?>
+    </nav>
+    <?php return ob_get_clean();
+}
+
 
 function product_publicly_visible(array $product): bool {
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
@@ -210,6 +294,8 @@ function technical_ead_drive_slug_allowed(array $product): bool {
         'tecnico-em-eletroeletronica',
         'tecnico-em-eletrotecnica',
         'tecnico-em-estetica-e-cosmetologia',
+        'tecnico-em-gerencia-e-saude',
+        'tecnico-em-agente-comunitario-de-saude',
         'tecnico-em-guia-de-turismo',
         'tecnico-em-informatica',
         'tecnico-em-informatica-para-internet',
@@ -1366,22 +1452,16 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         $items = Database::all("SELECT * FROM posts WHERE type=? AND status='published' ORDER BY published_at DESC", [$type]);
         $heading = $path === 'glossario' ? 'Glossário profissional' : 'Blog IBETP';
     }
-    $courseCategories = [];
+    $courseModalities = [];
+    $courseAreas = [];
     if ($path === 'cursos') {
-        foreach ($items as $courseItem) {
-            $categoryLabel = product_category_label($courseItem);
-            $categoryKey = ibetp_slug_key($categoryLabel);
-            if (!isset($courseCategories[$categoryKey])) {
-                $courseCategories[$categoryKey] = ['label' => $categoryLabel, 'count' => 0];
-            }
-            $courseCategories[$categoryKey]['count']++;
-        }
-        uasort($courseCategories, fn($a, $b) => product_category_sort_weight($a['label']) <=> product_category_sort_weight($b['label']) ?: strcmp($a['label'], $b['label']));
+        $courseModalities = product_catalog_filter_groups($items, 'product_category_label', 'product_category_sort_weight');
+        $courseAreas = product_catalog_filter_groups($items, 'product_area_label', 'product_area_sort_weight');
     }
-    ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou filtre por categoria. O catálogo mostra apenas cursos ativos, com atendimento do IBETP e caminho de matrícula seguro.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Segurança, Logística, Tecnólogo..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><nav class="course-category-panel" aria-label="Filtrar cursos por categoria"><button class="course-category-button active" type="button" data-course-category="all">Todos <span><?= count($items) ?></span></button><?php foreach ($courseCategories as $categoryKey => $category): ?><button class="course-category-button" type="button" data-course-category="<?= e($categoryKey) ?>"><?= e($category['label']) ?> <span><?= (int)$category['count'] ?></span></button><?php endforeach; ?></nav><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
+    ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-category="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-search="<?= e(mb_strtolower($item['title'] . ' ' . product_category_label($item) . ' ' . ($item['category'] ?? '') . ' ' . ($item['short_description'] ?? '') . ' ' . ($item['description'] ?? ''), 'UTF-8')) ?>"><img src="<?= e(absolute_asset(premium_product_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 82)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes →</b></div></div></a>
+        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(absolute_asset(premium_product_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes →</b></div></div></a>
       <?php else: ?>
         <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo →</b></div></a>
       <?php endif; ?>
@@ -1393,16 +1473,17 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         const empty = document.getElementById('course-empty-state');
         const clear = document.getElementById('course-search-clear');
         const submit = document.getElementById('course-search-submit');
-        const categoryButtons = [...document.querySelectorAll('[data-course-category]')];
-        let activeCategory = 'all';
+        const filterButtons = [...document.querySelectorAll('[data-course-filter]')];
+        const activeFilters = { modalidade: 'all', area: 'all' };
         const normalize = value => (value || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
         const update = () => {
           const term = normalize(input.value);
           let visible = 0;
           cards.forEach(card => {
             const haystack = normalize(card.dataset.search);
-            const categoryMatch = activeCategory === 'all' || card.dataset.category === activeCategory;
-            const show = categoryMatch && (term === '' || haystack.includes(term));
+            const modalityMatch = activeFilters.modalidade === 'all' || card.dataset.modalidade === activeFilters.modalidade;
+            const areaMatch = activeFilters.area === 'all' || card.dataset.area === activeFilters.area;
+            const show = modalityMatch && areaMatch && (term === '' || haystack.includes(term));
             card.hidden = !show;
             if (show) visible++;
           });
@@ -1412,9 +1493,12 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         input.addEventListener('input', update);
         submit?.addEventListener('click', () => { input.focus(); update(); });
         clear?.addEventListener('click', () => { input.value = ''; input.focus(); update(); });
-        categoryButtons.forEach(button => button.addEventListener('click', () => {
-          activeCategory = button.dataset.courseCategory || 'all';
-          categoryButtons.forEach(item => item.classList.toggle('active', item === button));
+        filterButtons.forEach(button => button.addEventListener('click', () => {
+          const group = button.dataset.courseFilter || 'modalidade';
+          activeFilters[group] = button.dataset.courseValue || 'all';
+          filterButtons
+            .filter(item => (item.dataset.courseFilter || 'modalidade') === group)
+            .forEach(item => item.classList.toggle('active', item === button));
           update();
         }));
         update();

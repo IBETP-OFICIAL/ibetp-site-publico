@@ -63,6 +63,11 @@ if ($path === 'admin/checkout-email-test') {
     exit;
 }
 
+if ($path === 'admin/criar-acesso-seguro') {
+    render_admin_access_reset();
+    exit;
+}
+
 if ($path === 'admin/pre-matriculas') {
     if (!Auth::user()) {
         header('Location: ' . site_url('/admin?action=login'));
@@ -698,7 +703,10 @@ function checkout_internal_email_html(array $row): string {
 
 function checkout_send_email(string $toEmail, string $toName, string $subject, string $html): bool {
     $cfg = checkout_smtp_config();
-    if ($cfg['pass'] === '') return false;
+    if ($cfg['pass'] === '') {
+        checkout_email_last_error('A senha SMTP ainda não foi salva em Configuração do checkout.');
+        return false;
+    }
     $plain = trim(preg_replace('/\s+/', ' ', strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $html))));
     $boundary = '=_IBETP_' . bin2hex(random_bytes(12));
     $headers = [
@@ -714,14 +722,24 @@ function checkout_send_email(string $toEmail, string $toName, string $subject, s
     return checkout_smtp_send($cfg, $toEmail, $message);
 }
 
+function checkout_email_last_error(?string $message = null): string {
+    static $last = '';
+    if ($message !== null) $last = $message;
+    return $last;
+}
+
 function checkout_mime_header(string $text): string {
     return '=?UTF-8?B?' . base64_encode($text) . '?=';
 }
 
 function checkout_smtp_send(array $cfg, string $toEmail, string $message): bool {
+    checkout_email_last_error('');
     $remote = ($cfg['security'] === 'ssl' ? 'ssl://' : '') . $cfg['host'] . ':' . $cfg['port'];
     $socket = @stream_socket_client($remote, $errno, $errstr, 20, STREAM_CLIENT_CONNECT);
-    if (!$socket) return false;
+    if (!$socket) {
+        checkout_email_last_error('Não foi possível conectar ao SMTP em ' . $remote . '. Erro: ' . $errno . ' ' . $errstr);
+        return false;
+    }
     stream_set_timeout($socket, 20);
     $read = function () use ($socket): string {
         $data = '';
@@ -735,25 +753,73 @@ function checkout_smtp_send(array $cfg, string $toEmail, string $message): bool 
         fwrite($socket, $command . "\r\n");
         return $read();
     };
-    $read();
-    $cmd('EHLO ibetp.com.br');
+    $hello = $read();
+    if ($hello && !str_starts_with($hello, '220')) {
+        checkout_email_last_error('Resposta inicial inesperada do SMTP: ' . trim($hello));
+    }
+    $ehlo = $cmd('EHLO ibetp.com.br');
+    if (!str_starts_with($ehlo, '250')) {
+        checkout_email_last_error('SMTP não aceitou EHLO: ' . trim($ehlo));
+    }
     if ($cfg['security'] === 'tls') {
-        $cmd('STARTTLS');
-        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        $startTls = $cmd('STARTTLS');
+        if (!str_starts_with($startTls, '220')) {
+            fclose($socket);
+            checkout_email_last_error('SMTP não aceitou STARTTLS: ' . trim($startTls));
+            return false;
+        }
+        if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            fclose($socket);
+            checkout_email_last_error('Falha ao ativar criptografia TLS no SMTP.');
+            return false;
+        }
         $cmd('EHLO ibetp.com.br');
     }
-    $cmd('AUTH LOGIN');
-    $cmd(base64_encode($cfg['user']));
+    $authLogin = $cmd('AUTH LOGIN');
+    if (!str_starts_with($authLogin, '334')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP não aceitou AUTH LOGIN: ' . trim($authLogin));
+        return false;
+    }
+    $authUser = $cmd(base64_encode($cfg['user']));
+    if (!str_starts_with($authUser, '334')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP não aceitou o usuário informado: ' . trim($authUser));
+        return false;
+    }
     $auth = $cmd(base64_encode($cfg['pass']));
-    if (!str_starts_with($auth, '235')) { fclose($socket); return false; }
-    $cmd('MAIL FROM:<' . $cfg['from_email'] . '>');
-    $cmd('RCPT TO:<' . $toEmail . '>');
-    $cmd('DATA');
+    if (!str_starts_with($auth, '235')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP recusou a senha/login: ' . trim($auth));
+        return false;
+    }
+    $mailFrom = $cmd('MAIL FROM:<' . $cfg['from_email'] . '>');
+    if (!str_starts_with($mailFrom, '250')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP recusou o remetente: ' . trim($mailFrom));
+        return false;
+    }
+    $rcptTo = $cmd('RCPT TO:<' . $toEmail . '>');
+    if (!str_starts_with($rcptTo, '250') && !str_starts_with($rcptTo, '251')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP recusou o destinatário: ' . trim($rcptTo));
+        return false;
+    }
+    $data = $cmd('DATA');
+    if (!str_starts_with($data, '354')) {
+        fclose($socket);
+        checkout_email_last_error('SMTP não abriu DATA: ' . trim($data));
+        return false;
+    }
     fwrite($socket, str_replace("\n.", "\n..", $message) . "\r\n.\r\n");
     $result = $read();
     $cmd('QUIT');
     fclose($socket);
-    return str_starts_with($result, '250');
+    if (!str_starts_with($result, '250')) {
+        checkout_email_last_error('SMTP recebeu a mensagem mas recusou o envio: ' . trim($result));
+        return false;
+    }
+    return true;
 }
 
 function render_checkout_form(array $product, array $values = [], array $errors = []): void {
@@ -889,12 +955,13 @@ function render_checkout_admin_config(): void {
 }
 
 function render_checkout_email_test(string $to, ?bool $result): void {
+    $error = checkout_email_last_error();
     ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Teste de e-mail do checkout IBETP</title><style>
     body{margin:0;background:#f3f7fc;color:#061b45;font-family:Inter,Segoe UI,Arial,sans-serif}.email-test{max-width:820px;margin:48px auto;padding:34px;border:1px solid #d9e4f2;border-radius:28px;background:#fff;box-shadow:0 22px 60px rgba(6,27,69,.08)}.email-test h1{margin:0 0 10px;font-size:38px}.email-test p{font-size:18px;line-height:1.6;color:#52617a}.email-test form{display:grid;gap:14px;margin-top:22px}.email-test label{display:grid;gap:8px;font-weight:900}.email-test input{min-height:54px;border:1px solid #cbd8ea;border-radius:16px;padding:0 15px;font-size:18px}.email-test button,.email-test a{display:inline-flex;width:max-content;align-items:center;justify-content:center;border:0;border-radius:14px;padding:14px 18px;background:#05864b;color:#fff;font-weight:950;text-decoration:none;cursor:pointer}.email-test a{background:#061b45}.email-test .ok{padding:14px 16px;border-radius:16px;background:#e9f8ef;color:#08783b;font-weight:900}.email-test .bad{padding:14px 16px;border-radius:16px;background:#fff2f2;color:#9b1c1c;font-weight:900}.email-test .actions{display:flex;gap:12px;flex-wrap:wrap}
     </style></head><body><main class="email-test">
       <h1>Teste de e-mail do checkout</h1>
       <p>Use esta tela para confirmar se o envio automático pelo e-mail institucional está funcionando antes de fazer um pagamento real.</p>
-      <?php if ($result === true): ?><div class="ok">E-mail de teste enviado com sucesso.</div><?php elseif ($result === false): ?><div class="bad">O envio falhou. Confira se a senha SMTP foi salva em “Configuração do checkout”.</div><?php endif; ?>
+      <?php if ($result === true): ?><div class="ok">E-mail de teste enviado com sucesso.</div><?php elseif ($result === false): ?><div class="bad">O envio falhou. <?= e($error ?: 'Confira se a senha SMTP foi salva em “Configuração do checkout”.') ?></div><?php endif; ?>
       <form method="post">
         <label>E-mail de destino para o teste<input name="test_email" type="email" value="<?= e($to) ?>" required></label>
         <div class="actions">
@@ -902,6 +969,62 @@ function render_checkout_email_test(string $to, ?bool $result): void {
           <a href="<?= e(site_url('/admin/checkout-config')) ?>">Voltar à configuração</a>
         </div>
       </form>
+    </main></body></html><?php
+}
+
+function render_admin_access_reset(): void {
+    $expectedHash = '7e3a0b46460ad54dc7ac18a02a1b78eb0f6c6ee392d29798f21947e493f7935b';
+    $token = (string)($_GET['chave'] ?? $_POST['chave'] ?? '');
+    $valid = $token !== '' && hash_equals($expectedHash, hash('sha256', $token));
+    $used = setting('admin_access_reset_used', '') === '1';
+    $message = null;
+    $success = false;
+
+    if (!$valid || $used) {
+        http_response_code(404);
+        layout('Página não encontrada', 'Página não encontrada.', '<main class="checkout-page"><section class="checkout-result"><h1>Página não encontrada</h1></section></main>', null, true);
+        return;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name = trim((string)($_POST['name'] ?? 'Administrador IBETP'));
+        $email = trim((string)($_POST['email'] ?? ''));
+        $password = (string)($_POST['password'] ?? '');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $message = 'Informe um e-mail válido para o administrador.';
+        } elseif (strlen($password) < 10) {
+            $message = 'A senha precisa ter pelo menos 10 caracteres.';
+        } else {
+            Database::exec(
+                "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE name=VALUES(name), password_hash=VALUES(password_hash), role=VALUES(role)",
+                [$name ?: 'Administrador IBETP', $email, password_hash($password, PASSWORD_DEFAULT), 'admin']
+            );
+            save_setting('admin_access_reset_used', '1');
+            $success = true;
+            $message = 'Acesso administrativo criado/atualizado. Use este e-mail e senha para entrar no painel.';
+        }
+    }
+
+    ?><!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Criar acesso administrativo IBETP</title><style>
+    body{margin:0;background:#f3f7fc;color:#061b45;font-family:Inter,Segoe UI,Arial,sans-serif}.reset{max-width:760px;margin:48px auto;padding:34px;background:#fff;border:1px solid #d9e4f2;border-radius:28px;box-shadow:0 22px 60px rgba(6,27,69,.08)}h1{margin:0 0 8px;font-size:34px}p{font-size:17px;line-height:1.55;color:#52617a}.grid{display:grid;gap:14px;margin-top:22px}label{display:grid;gap:8px;font-weight:900}input{min-height:54px;border:1px solid #cbd8ea;border-radius:16px;padding:0 15px;font-size:18px}.btn{display:inline-flex;width:max-content;align-items:center;justify-content:center;border:0;border-radius:14px;padding:14px 18px;background:#05864b;color:#fff;font-weight:950;text-decoration:none;cursor:pointer}.ok{padding:14px 16px;border-radius:16px;background:#e9f8ef;color:#08783b;font-weight:900}.bad{padding:14px 16px;border-radius:16px;background:#fff2f2;color:#9b1c1c;font-weight:900}.actions{display:flex;gap:12px;flex-wrap:wrap}
+    </style></head><body><main class="reset">
+      <h1>Criar acesso administrativo IBETP</h1>
+      <p>Defina o e-mail e a senha que serão usados para acessar as áreas administrativas do site. Este link é de uso único.</p>
+      <?php if ($message): ?><div class="<?= $success ? 'ok' : 'bad' ?>"><?= e($message) ?></div><?php endif; ?>
+      <?php if (!$success): ?>
+      <form class="grid" method="post">
+        <input type="hidden" name="chave" value="<?= e($token) ?>">
+        <label>Nome do administrador<input name="name" value="Administrador IBETP" required></label>
+        <label>E-mail de login<input name="email" type="email" value="secretaria@ibetp.com.br" required></label>
+        <label>Nova senha do painel<input name="password" type="password" minlength="10" required></label>
+        <button class="btn">Criar/atualizar acesso</button>
+      </form>
+      <?php else: ?>
+      <div class="actions" style="margin-top:18px">
+        <a class="btn" href="<?= e(site_url('/admin?action=login')) ?>">Entrar no painel</a>
+        <a class="btn" style="background:#061b45" href="<?= e(site_url('/admin/checkout-config')) ?>">Configurar checkout</a>
+      </div>
+      <?php endif; ?>
     </main></body></html><?php
 }
 

@@ -37,6 +37,7 @@ if ($path === 'sitemap.xml') {
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">';
     echo '<url><loc>' . e(site_url('/')) . '</loc><changefreq>daily</changefreq><priority>1.0</priority></url>';
     foreach ($rows as $row) {
+        if ($row['type'] === 'product' && !product_publicly_visible($row)) continue;
         $prefix = $row['type'] === 'glossary' ? 'glossario' : ($row['type'] === 'product' ? 'produto' : 'blog');
         if ($row['type'] === 'page') $prefix = '';
         if ($row['type'] === 'product') $seenProductSlugs[ibetp_slug_key((string)$row['slug'])] = true;
@@ -48,6 +49,15 @@ if ($path === 'sitemap.xml') {
         echo '</url>';
     }
     foreach (official_no_internship_technical_products() as $product) {
+        $slugKey = ibetp_slug_key((string)$product['slug']);
+        if (isset($seenProductSlugs[$slugKey])) continue;
+        echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
+        if (!empty($product['image'])) {
+            echo '<image:image><image:loc>' . e(absolute_asset($product['image'])) . '</image:loc><image:title>' . e($product['title']) . '</image:title></image:image>';
+        }
+        echo '</url>';
+    }
+    foreach (array_merge(official_technologist_products(), official_post_technical_products()) as $product) {
         $slugKey = ibetp_slug_key((string)$product['slug']);
         if (isset($seenProductSlugs[$slugKey])) continue;
         echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
@@ -79,6 +89,7 @@ if ($path === 'checkout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
     if (!$product && $id < 0) $product = official_technical_product_by_id($id);
     if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
+    if (!$product && $id < 0) $product = official_post_technical_product_by_id($id);
     if (!$product) { http_response_code(404); echo 'Produto indisponível.'; exit; }
     $product = product_for_checkout($product);
     try {
@@ -134,12 +145,18 @@ function product_effective_price(array $product): float {
     if (product_is_competency_certification($product)) {
         return 1299.90;
     }
+    if (product_is_post_technical($product)) {
+        return 799.00;
+    }
     return (float)($product['price'] ?? 0);
 }
 
 function product_for_checkout(array $product): array {
     if (product_is_competency_certification($product)) {
         $product['price'] = 1299.90;
+    }
+    if (product_is_post_technical($product)) {
+        $product['price'] = 799.00;
     }
     return $product;
 }
@@ -174,11 +191,21 @@ function product_is_technologist(array $product): bool {
     return str_contains($text, 'tecnólogo') || str_contains($text, 'tecnologo') || str_contains($text, 'superior de tecnologia');
 }
 
+function product_is_post_technical(array $product): bool {
+    $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
+    $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
+    $slug = mb_strtolower((string)($product['slug'] ?? ''), 'UTF-8');
+    $text = $title . ' ' . $category . ' ' . $slug;
+    $normalized = ibetp_slug_key($text);
+    return str_contains($normalized, 'pos-tecnico') || str_contains($normalized, 'pos-tecnica') || str_contains($normalized, 'especializacao-tecnica');
+}
+
 function product_category_label(array $product): string {
     $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
     $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
     $text = $title . ' ' . $category;
     if (product_is_technologist($product)) return 'Tecnólogo EAD';
+    if (product_is_post_technical($product)) return 'Pós-técnico';
     if (str_contains($text, 'competência') || str_contains($text, 'competencia')) return 'Certificação Técnica por Competência';
     if (str_contains($text, 'pós-graduação') || str_contains($text, 'pos-graduacao') || str_contains($text, 'mba')) return 'Pós-graduação e MBA';
     if (str_contains($text, 'pós-técnico') || str_contains($text, 'pos-tecnico')) return 'Pós-técnico';
@@ -305,6 +332,9 @@ function product_publicly_visible(array $product): bool {
     if (product_is_technologist($product) && !official_technologist_slug_allowed($product)) {
         return false;
     }
+    if (product_is_post_technical($product) && !official_post_technical_slug_allowed($product)) {
+        return false;
+    }
     $isCompetence = str_contains($text, 'competencia');
     if (!$isCompetence) {
         return true;
@@ -315,6 +345,101 @@ function product_publicly_visible(array $product): bool {
         }
     }
     return true;
+}
+
+function official_post_technical_products(): array {
+    return [
+        [
+            'id' => -9801,
+            'slug' => 'pos-tecnico-em-enfermagem-do-trabalho',
+            'title' => 'Especialização Técnica em Enfermagem do Trabalho',
+            'category' => 'Pós-técnico',
+            'area' => 'Saúde',
+            'price' => 799.00,
+            'checkout_enabled' => 1,
+            'status' => 'active',
+            'duration' => '6 meses',
+            'workload' => '360h',
+            'image' => '/assets/produtos/pos-tecnico-em-enfermagem-do-trabalho.jpg',
+            'short_description' => 'Especialização Técnica em Enfermagem do Trabalho. Formação pós-técnica com matriz curricular oficial de 360 horas e duração de 6 meses.',
+            'description' => 'Especialização Técnica em Enfermagem do Trabalho, com matriz curricular oficial, investimento de R$ 799,00 e atendimento do IBETP para matrícula, documentação e próximos passos.',
+            'seo_title' => 'Especialização Técnica em Enfermagem do Trabalho | IBETP',
+            'seo_description' => 'Conheça a Especialização Técnica em Enfermagem do Trabalho do IBETP: matriz curricular oficial, duração, carga horária, investimento e matrícula.',
+            'updated_at' => '2026-07-20 00:00:00',
+        ],
+        [
+            'id' => -9802,
+            'slug' => 'pos-tecnico-em-agrimensura',
+            'title' => 'Especialização Técnica em Agrimensura',
+            'category' => 'Pós-técnico',
+            'area' => 'Construção e infraestrutura',
+            'price' => 799.00,
+            'checkout_enabled' => 1,
+            'status' => 'active',
+            'duration' => '6 meses',
+            'workload' => '320h',
+            'image' => '/assets/produtos/pos-tecnico-em-agrimensura.webp',
+            'short_description' => 'Especialização Técnica em Agrimensura. Formação pós-técnica EAD com matriz curricular oficial de 320 horas e duração de 6 meses.',
+            'description' => 'Especialização Técnica em Agrimensura, com matriz curricular oficial, investimento de R$ 799,00 e atendimento do IBETP para matrícula, documentação e próximos passos.',
+            'seo_title' => 'Especialização Técnica em Agrimensura | IBETP',
+            'seo_description' => 'Conheça a Especialização Técnica em Agrimensura do IBETP: matriz curricular oficial, duração, carga horária, investimento e matrícula.',
+            'updated_at' => '2026-07-20 00:00:00',
+        ],
+    ];
+}
+
+function official_post_technical_slug_allowed(array $product): bool {
+    if (!product_is_post_technical($product)) return true;
+    $textKey = ibetp_slug_key((string)($product['slug'] ?? '') . ' ' . (string)($product['title'] ?? ''));
+    foreach (official_post_technical_products() as $official) {
+        $officialKey = ibetp_slug_key((string)$official['slug'] . ' ' . (string)$official['title']);
+        if (str_contains($textKey, ibetp_slug_key((string)$official['slug'])) || str_contains($officialKey, $textKey) || (str_contains($textKey, 'agrimensura') && str_contains($officialKey, 'agrimensura')) || (str_contains($textKey, 'enfermagem-do-trabalho') && str_contains($officialKey, 'enfermagem-do-trabalho'))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function official_post_technical_product_by_slug(string $slug): ?array {
+    $slugKey = ibetp_slug_key($slug);
+    foreach (official_post_technical_products() as $product) {
+        if (ibetp_slug_key((string)$product['slug']) === $slugKey) {
+            return $product;
+        }
+        if (str_contains($slugKey, 'agrimensura') && str_contains(ibetp_slug_key((string)$product['slug']), 'agrimensura')) {
+            return $product;
+        }
+        if (str_contains($slugKey, 'enfermagem-do-trabalho') && str_contains(ibetp_slug_key((string)$product['slug']), 'enfermagem-do-trabalho')) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function official_post_technical_product_by_id(int $id): ?array {
+    foreach (official_post_technical_products() as $product) {
+        if ((int)$product['id'] === $id) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function merge_official_post_technical_products(array $items): array {
+    $merged = [];
+    foreach ($items as $item) {
+        $key = ibetp_slug_key((string)($item['slug'] ?? $item['title'] ?? ''));
+        if (product_is_post_technical($item) && !official_post_technical_slug_allowed($item)) {
+            continue;
+        }
+        $official = product_is_post_technical($item) ? official_post_technical_product_by_slug((string)($item['slug'] ?? $item['title'] ?? '')) : null;
+        $merged[$key] = $official ?: $item;
+    }
+    foreach (official_post_technical_products() as $product) {
+        $merged[ibetp_slug_key((string)$product['slug'])] = $product;
+    }
+    uasort($merged, fn($a, $b) => strcasecmp((string)($a['title'] ?? ''), (string)($b['title'] ?? '')));
+    return array_values($merged);
 }
 
 function official_no_internship_technical_products(): array {
@@ -534,6 +659,56 @@ function technologist_common_profile(string $duration, string $workload, string 
         'eixo' => $eixo,
         'modules' => $modules,
     ];
+}
+
+function official_post_technical_profile_override(string $slugKey): ?array {
+    if (str_contains($slugKey, 'enfermagem-do-trabalho')) {
+        return [
+            'duration' => '6 meses',
+            'workload' => '360h',
+            'modality_note' => 'Especialização Técnica com matriz curricular oficial extraída do informativo acadêmico.',
+            'presence' => '',
+            'internship' => '',
+            'tcc' => '',
+            'source' => 'Informativo de Curso — Especialização em Enfermagem do Trabalho.',
+            'modules' => [
+                ['Módulo I', '360h', [
+                    ['Práticas de Enfermagem','40h'],
+                    ['Epidemiologia e Vigilâncias em Saúde do Trabalhador','60h'],
+                    ['Higiene, Segurança do Trabalho e Prevenção de Acidentes — CIPA','40h'],
+                    ['Gerenciamento de Perigos e Riscos na Saúde do Trabalhador','40h'],
+                    ['Saúde Laboral e Toxicologia','60h'],
+                    ['Ergonomia e Medicina do Trabalho','40h'],
+                    ['Vigilância Sanitária, Epidemiológica e Ambiental','40h'],
+                    ['Sistema de saúde e organização da atenção básica: saúde do homem, do adulto e idoso','40h'],
+                ]],
+            ],
+        ];
+    }
+    if (str_contains($slugKey, 'agrimensura')) {
+        return [
+            'duration' => '6 meses',
+            'workload' => '320h',
+            'modality_note' => 'Especialização Técnica EAD com matriz curricular oficial extraída do informativo acadêmico.',
+            'presence' => '',
+            'internship' => '',
+            'tcc' => '',
+            'source' => 'Informativo de Curso — Especialização Técnica em Agrimensura.',
+            'modules' => [
+                ['Módulo I', '320h', [
+                    ['Geodésia','40h'],
+                    ['Topografia','40h'],
+                    ['Cartografia e Geoprocessamento','40h'],
+                    ['Legislação aplicada à agrimensura','40h'],
+                    ['Projeto geométrico de estradas','40h'],
+                    ['Sistemas de Informação Geográfica','40h'],
+                    ['Planejamento Urbano e Cidades Inteligentes','40h'],
+                    ['Georreferenciamento de Imóveis Rurais e Geodésia','40h'],
+                ]],
+            ],
+        ];
+    }
+    return null;
 }
 
 function official_technologist_profile_override(string $slugKey): ?array {
@@ -880,6 +1055,9 @@ function product_primary_payment_label(array $product): string {
     if (product_is_technologist($product)) {
         return 'Pagar Matrícula via Pix';
     }
+    if (product_is_post_technical($product)) {
+        return 'Comprar Pós-técnico';
+    }
     if (product_is_competency_certification($product)) {
         return 'Comprar Certificação';
     }
@@ -970,6 +1148,9 @@ function product_investment_text(array $product): string {
     }
     if (product_is_competency_certification($product)) {
         return 'Certificação Técnica por Competência por R$ 1.299,90 à vista, com possibilidade de parcelamento em até 12 vezes com juros no cartão. O diploma técnico é emitido em até 20 dias úteis após aprovação na prova e análise documental.';
+    }
+    if (product_is_post_technical($product)) {
+        return 'Pós-técnico por R$ 799,00 à vista, com possibilidade de parcelamento com juros no cartão. A página apresenta a matriz curricular oficial, duração e carga horária conforme informativo acadêmico.';
     }
     return 'Condições e disponibilidade podem ser confirmadas com a equipe IBETP.';
 }
@@ -1186,6 +1367,10 @@ function product_academic_profile(array $product): ?array {
     }
     if ($slugKey === 'tecnico-em-maquinas-pesadas') {
         $slugKey = 'tecnico-em-manutencao-de-maquinas-pesadas';
+    }
+    $postTechnicalOverride = official_post_technical_profile_override($slugKey);
+    if ($postTechnicalOverride !== null && product_is_post_technical($product)) {
+        return $postTechnicalOverride;
     }
     $technologistOverride = official_technologist_profile_override($slugKey);
     if ($technologistOverride !== null && product_is_technologist($product)) {
@@ -1970,6 +2155,11 @@ function layout(string $title, string $description, string $body, ?string $image
 if ($path === '' || $path === 'index.php') {
     $recent = Database::all("SELECT * FROM posts WHERE status='published' ORDER BY published_at DESC LIMIT 3");
     $products = Database::all("SELECT * FROM products WHERE status='active' ORDER BY updated_at DESC LIMIT 8");
+    $products = array_values(array_filter($products, 'product_publicly_visible'));
+    $products = merge_official_technical_products($products);
+    $products = merge_official_technologist_products($products);
+    $products = merge_official_post_technical_products($products);
+    $products = array_slice($products, 0, 8);
     $featuredCourses = [
         ['/assets/curso-seguranca-trabalho-v3.webp', 'Técnico EAD', 'Segurança do Trabalho', 'Atuação preventiva em indústrias, obras e grandes operações.'],
         ['/assets/curso-administracao-v3.webp', 'Técnico EAD', 'Administração', 'Formação versátil para empresas de todos os setores.'],
@@ -2136,6 +2326,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         $items = Database::all("SELECT * FROM products WHERE status='active' ORDER BY title");
         $items = merge_official_technical_products($items);
         $items = merge_official_technologist_products($items);
+        $items = merge_official_post_technical_products($items);
         $items = array_values(array_filter($items, 'product_publicly_visible'));
         $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
         $heading = 'Cursos e produtos IBETP';
@@ -2250,9 +2441,12 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
     $officialTechnologist = official_technologist_product_by_slug($m[1]);
     if ($officialTechnologist) $product = $officialTechnologist;
+    $officialPostTechnical = official_post_technical_product_by_slug($m[1]);
+    if ($officialPostTechnical) $product = $officialPostTechnical;
     if (!$product) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $isCompetencyCertification = product_is_competency_certification($product);
+    $isPostTechnical = product_is_post_technical($product);
     $academic = product_academic_profile($product);
     $internshipText = $academic ? trim((string)($academic['internship'] ?? '')) : '';
     $tccText = $academic ? trim((string)($academic['tcc'] ?? '')) : '';
@@ -2282,6 +2476,10 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         <div><strong>01</strong><span>Análise da experiência profissional comprovada na área.</span></div>
         <div><strong>02</strong><span>Prova EAD com 10 questões, até 3 tentativas e média mínima 7,0.</span></div>
         <div><strong>03</strong><span>Diploma técnico em até 20 dias úteis após aprovação e análise documental.</span></div>
+        <?php elseif ($isPostTechnical): ?>
+        <div><strong>01</strong><span>Matriz curricular oficial apresentada na página.</span></div>
+        <div><strong>02</strong><span>Investimento de R$ 799,00 à vista ou parcelado com juros no cartão.</span></div>
+        <div><strong>03</strong><span>Duração e carga horária conforme informativo acadêmico.</span></div>
         <?php else: ?>
         <div><strong>01</strong><span>Início em até 24 horas úteis após a confirmação do pagamento.</span></div>
         <div><strong>02</strong><span>Receba orientação sobre matrícula e próximos passos.</span></div>
@@ -2292,12 +2490,12 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         <div class="conversion-copy">
           <p class="section-kicker">Decisão com clareza</p>
           <h2>Uma página feita para você entender o curso antes de pagar.</h2>
-          <p><?= e($isCompetencyCertification ? 'O IBETP organiza as informações essenciais — investimento, requisitos, documentação, prova, solicitação de diploma e base legal — para que a certificação aconteça com segurança e sem surpresa.' : 'O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.') ?></p>
+          <p><?= e($isCompetencyCertification ? 'O IBETP organiza as informações essenciais — investimento, requisitos, documentação, prova, solicitação de diploma e base legal — para que a certificação aconteça com segurança e sem surpresa.' : ($isPostTechnical ? 'O IBETP organiza as informações essenciais — investimento, duração, carga horária, matriz curricular oficial e atendimento — para que a matrícula aconteça com segurança e sem surpresa.' : 'O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.')) ?></p>
         </div>
         <div class="conversion-points">
           <div><strong>O que você confirma aqui</strong><span>Valor, formato de pagamento, carga horária, duração e caminho de atendimento.</span></div>
-          <div><strong>O que você confere antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Experiência mínima, documentação necessária, prova e fluxo até a emissão do diploma.' : 'Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.') ?></span></div>
-          <div><strong>Como seguir com segurança</strong><span><?= e($isCompetencyCertification ? 'Confirme sua experiência, envie a documentação e fale com o IBETP para tirar dúvidas antes de avançar.' : 'Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.') ?></span></div>
+          <div><strong>O que você confere antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Experiência mínima, documentação necessária, prova e fluxo até a emissão do diploma.' : ($isPostTechnical ? 'Matriz curricular oficial, duração, carga horária e escopo da especialização técnica.' : 'Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.')) ?></span></div>
+          <div><strong>Como seguir com segurança</strong><span><?= e($isCompetencyCertification ? 'Confirme sua experiência, envie a documentação e fale com o IBETP para tirar dúvidas antes de avançar.' : ($isPostTechnical ? 'Compre com segurança pelo site ou fale com o IBETP para confirmar documentação e próximos passos.' : 'Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.')) ?></span></div>
         </div>
       </section>
       <article class="article-body product-detail">
@@ -2307,9 +2505,9 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <h2>Formação para quem busca atuar com segurança profissional.</h2>
             <p><?= e($product['short_description'] ?: excerpt(strip_tags($product['description']), 260)) ?></p>
             <div class="premium-grid">
-              <div class="premium-card"><strong>Antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Você entende valores, experiência mínima, documentos e critérios da prova antes de avançar.' : 'Você entende valores, requisitos e próximos passos antes de avançar.') ?></span></div>
-              <div class="premium-card"><strong>Durante o processo</strong><span><?= e($isCompetencyCertification ? 'O atendimento do IBETP orienta documentação, acesso ao Portal do Aluno e solicitação do diploma.' : 'O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.') ?></span></div>
-              <div class="premium-card"><strong>Depois da aprovação</strong><span><?= e($isCompetencyCertification ? 'O diploma técnico é emitido em até 20 dias úteis após aprovação da prova e análise documental.' : 'O início ocorre em até 24 horas úteis após a confirmação do pagamento.') ?></span></div>
+              <div class="premium-card"><strong>Antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Você entende valores, experiência mínima, documentos e critérios da prova antes de avançar.' : ($isPostTechnical ? 'Você entende investimento, matriz curricular, duração e carga horária antes de avançar.' : 'Você entende valores, requisitos e próximos passos antes de avançar.')) ?></span></div>
+              <div class="premium-card"><strong>Durante o processo</strong><span><?= e($isCompetencyCertification ? 'O atendimento do IBETP orienta documentação, acesso ao Portal do Aluno e solicitação do diploma.' : ($isPostTechnical ? 'O atendimento do IBETP orienta matrícula, documentação e encaminhamento acadêmico.' : 'O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.')) ?></span></div>
+              <div class="premium-card"><strong>Depois da confirmação</strong><span><?= e($isCompetencyCertification ? 'O diploma técnico é emitido em até 20 dias úteis após aprovação da prova e análise documental.' : ($isPostTechnical ? 'A equipe orienta os próximos passos conforme o curso escolhido e a documentação necessária.' : 'O início ocorre em até 24 horas úteis após a confirmação do pagamento.')) ?></span></div>
             </div>
           </section>
           <section class="premium-price">
@@ -2458,7 +2656,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         </div>
       </article>
       <aside class="offer-box product-final-cta">
-        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p><?= e($isCompetencyCertification ? 'Fale com o IBETP para confirmar experiência profissional, documentação, prova, valores e próximos passos da certificação.' : 'Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.') ?></p></div>
+        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p><?= e($isCompetencyCertification ? 'Fale com o IBETP para confirmar experiência profissional, documentação, prova, valores e próximos passos da certificação.' : ($isPostTechnical ? 'Fale com o IBETP para confirmar matriz curricular, documentação, investimento, forma de pagamento e próximos passos deste pós-técnico.' : 'Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.')) ?></p></div>
         <div class="product-final-actions">
           <?php if (product_checkout_enabled($product)): ?>
             <form method="post" action="<?= e(site_url('/checkout')) ?>"><input type="hidden" name="product_id" value="<?= (int)$product['id'] ?>"><button class="btn primary"><?= e(product_primary_payment_label($product)) ?></button></form>

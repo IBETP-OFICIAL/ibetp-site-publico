@@ -2042,13 +2042,17 @@ function premium_product_image(array $product): string {
     if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
         return $explicit;
     }
-    $slugSpecific = '/assets/produtos/' . ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? '')) . '.webp';
-    if (file_exists(__DIR__ . $slugSpecific)) {
-        return $slugSpecific;
-    }
-    $titleSpecific = '/assets/produtos/' . ibetp_slug_key((string)($product['title'] ?? '')) . '.webp';
-    if (file_exists(__DIR__ . $titleSpecific)) {
-        return $titleSpecific;
+    $slugBase = '/assets/produtos/' . ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    $titleBase = '/assets/produtos/' . ibetp_slug_key((string)($product['title'] ?? ''));
+    foreach (['webp', 'png', 'jpg', 'jpeg'] as $ext) {
+        $slugSpecific = $slugBase . '.' . $ext;
+        if (file_exists(__DIR__ . $slugSpecific)) {
+            return $slugSpecific;
+        }
+        $titleSpecific = $titleBase . '.' . $ext;
+        if (file_exists(__DIR__ . $titleSpecific)) {
+            return $titleSpecific;
+        }
     }
     if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnico-em-secretaria-escolar.webp')) {
         return '/assets/produtos/tecnico-em-secretaria-escolar.webp';

@@ -131,3 +131,12 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .product-visual-card img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;border-radius:26px!important}
 }
 @media(max-width:760px){.product-visual-card img{width:100%!important;height:auto!important}}
+
+/* Certificação Técnica por Competência */
+.competency-official .premium-grid,.competency-exam .premium-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.competency-docs .document-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:20px}
+.competency-docs .document-list>div{position:relative;padding:18px 18px 18px 48px;border:1px solid #dbe6f4;border-radius:18px;background:linear-gradient(180deg,#fff,#f8fbff);color:#263a59;font-size:18px;line-height:1.55;box-shadow:0 12px 32px rgba(6,27,69,.05)}
+.competency-docs .document-list>div:before{content:"✓";position:absolute;left:18px;top:18px;display:grid;place-items:center;width:22px;height:22px;border-radius:999px;background:#05864b;color:#fff;font-size:13px;font-weight:950}
+.competency-law{background:linear-gradient(180deg,#fff,#fffdf2)!important;border-color:#f2df93!important}
+.competency-flow .premium-steps div,.competency-exam .premium-card{background:#f8fbff}
+@media(max-width:760px){.competency-docs .document-list{grid-template-columns:1fr}.competency-docs .document-list>div{font-size:17px}}

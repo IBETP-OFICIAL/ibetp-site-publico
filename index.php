@@ -80,6 +80,7 @@ if ($path === 'checkout' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$product && $id < 0) $product = official_technical_product_by_id($id);
     if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
     if (!$product) { http_response_code(404); echo 'Produto indisponível.'; exit; }
+    $product = product_for_checkout($product);
     try {
         $preference = MercadoPago::createPreference($product);
         header('Location: ' . $preference['init_point']);
@@ -117,8 +118,30 @@ function item_label(array $item, string $fallback = 'IBETP'): string {
 }
 
 function product_price_label(array $product): string {
-    $price = (float)($product['price'] ?? 0);
+    $price = product_effective_price($product);
     return $price > 0 ? 'R$ ' . number_format($price, 2, ',', '.') : 'Consultar';
+}
+
+function product_is_competency_certification(array $product): bool {
+    $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
+    $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
+    $text = $title . ' ' . $category;
+    $normalized = ibetp_slug_key($text);
+    return str_contains($text, 'competência') || str_contains($text, 'competencia') || str_contains($normalized, 'competencia');
+}
+
+function product_effective_price(array $product): float {
+    if (product_is_competency_certification($product)) {
+        return 1299.90;
+    }
+    return (float)($product['price'] ?? 0);
+}
+
+function product_for_checkout(array $product): array {
+    if (product_is_competency_certification($product)) {
+        $product['price'] = 1299.90;
+    }
+    return $product;
 }
 
 function product_checkout_enabled(array $product): bool {
@@ -857,6 +880,9 @@ function product_primary_payment_label(array $product): string {
     if (product_is_technologist($product)) {
         return 'Pagar Matrícula via Pix';
     }
+    if (product_is_competency_certification($product)) {
+        return 'Comprar Certificação';
+    }
     return 'Comprar com Mercado Pago';
 }
 
@@ -941,6 +967,9 @@ function product_investment_text(array $product): string {
     }
     if (product_is_technologist($product)) {
         return 'Curso Tecnólogo com matrícula de R$ 99,90 paga via Pix no site do IBETP. O início ocorre em até 24 horas úteis após a confirmação do pagamento. As mensalidades de R$ 149,90 são pagas diretamente no AVA, conforme o vencimento e as opções disponíveis na plataforma.';
+    }
+    if (product_is_competency_certification($product)) {
+        return 'Certificação Técnica por Competência por R$ 1.299,90 à vista, com possibilidade de parcelamento em até 12 vezes com juros no cartão. O diploma técnico é emitido em até 20 dias úteis após aprovação na prova e análise documental.';
     }
     return 'Condições e disponibilidade podem ser confirmadas com a equipe IBETP.';
 }
@@ -2223,6 +2252,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     if ($officialTechnologist) $product = $officialTechnologist;
     if (!$product) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
+    $isCompetencyCertification = product_is_competency_certification($product);
     $academic = product_academic_profile($product);
     $internshipText = $academic ? trim((string)($academic['internship'] ?? '')) : '';
     $tccText = $academic ? trim((string)($academic['tcc'] ?? '')) : '';
@@ -2248,20 +2278,26 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         </aside>
       </section>
       <section class="product-trust wrap">
+        <?php if ($isCompetencyCertification): ?>
+        <div><strong>01</strong><span>Análise da experiência profissional comprovada na área.</span></div>
+        <div><strong>02</strong><span>Prova EAD com 10 questões, até 3 tentativas e média mínima 7,0.</span></div>
+        <div><strong>03</strong><span>Diploma técnico em até 20 dias úteis após aprovação e análise documental.</span></div>
+        <?php else: ?>
         <div><strong>01</strong><span>Início em até 24 horas úteis após a confirmação do pagamento.</span></div>
         <div><strong>02</strong><span>Receba orientação sobre matrícula e próximos passos.</span></div>
         <div><strong>03</strong><span>Escolha com apoio humano e foco profissional.</span></div>
+        <?php endif; ?>
       </section>
       <section class="product-conversion wrap">
         <div class="conversion-copy">
           <p class="section-kicker">Decisão com clareza</p>
           <h2>Uma página feita para você entender o curso antes de pagar.</h2>
-          <p>O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.</p>
+          <p><?= e($isCompetencyCertification ? 'O IBETP organiza as informações essenciais — investimento, requisitos, documentação, prova, solicitação de diploma e base legal — para que a certificação aconteça com segurança e sem surpresa.' : 'O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.') ?></p>
         </div>
         <div class="conversion-points">
           <div><strong>O que você confirma aqui</strong><span>Valor, formato de pagamento, carga horária, duração e caminho de atendimento.</span></div>
-          <div><strong>O que você confere antes da matrícula</strong><span>Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.</span></div>
-          <div><strong>Como seguir com segurança</strong><span>Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.</span></div>
+          <div><strong>O que você confere antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Experiência mínima, documentação necessária, prova e fluxo até a emissão do diploma.' : 'Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.') ?></span></div>
+          <div><strong>Como seguir com segurança</strong><span><?= e($isCompetencyCertification ? 'Confirme sua experiência, envie a documentação e fale com o IBETP para tirar dúvidas antes de avançar.' : 'Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.') ?></span></div>
         </div>
       </section>
       <article class="article-body product-detail">
@@ -2271,15 +2307,66 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <h2>Formação para quem busca atuar com segurança profissional.</h2>
             <p><?= e($product['short_description'] ?: excerpt(strip_tags($product['description']), 260)) ?></p>
             <div class="premium-grid">
-              <div class="premium-card"><strong>Antes da matrícula</strong><span>Você entende valores, requisitos e próximos passos antes de avançar.</span></div>
-              <div class="premium-card"><strong>Durante o processo</strong><span>O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.</span></div>
-              <div class="premium-card"><strong>Depois da confirmação</strong><span>O início ocorre em até 24 horas úteis após a confirmação do pagamento.</span></div>
+              <div class="premium-card"><strong>Antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Você entende valores, experiência mínima, documentos e critérios da prova antes de avançar.' : 'Você entende valores, requisitos e próximos passos antes de avançar.') ?></span></div>
+              <div class="premium-card"><strong>Durante o processo</strong><span><?= e($isCompetencyCertification ? 'O atendimento do IBETP orienta documentação, acesso ao Portal do Aluno e solicitação do diploma.' : 'O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.') ?></span></div>
+              <div class="premium-card"><strong>Depois da aprovação</strong><span><?= e($isCompetencyCertification ? 'O diploma técnico é emitido em até 20 dias úteis após aprovação da prova e análise documental.' : 'O início ocorre em até 24 horas úteis após a confirmação do pagamento.') ?></span></div>
             </div>
           </section>
           <section class="premium-price">
             <div><small>Investimento</small><strong><?= e(product_investment_label($product)) ?></strong><span><?= e(product_investment_text($product)) ?></span></div>
           </section>
-          <?php if ($academic): ?>
+          <?php if ($isCompetencyCertification): ?>
+          <section class="premium-section competency-official">
+            <div class="section-kicker">Certificação Técnica por Competência</div>
+            <h2>Reconhecimento da experiência profissional comprovada.</h2>
+            <p>A Certificação Técnica por Competência é destinada ao profissional que já atua no mercado de trabalho e possui, no mínimo, 2 anos de experiência comprovada na área em que deseja obter o diploma técnico. As certificações são reconhecidas pelo SISTEC.</p>
+            <div class="premium-grid">
+              <div class="premium-card"><strong>Público-alvo</strong><span>Profissional com experiência prática comprovada de 2 anos ou mais na área pretendida.</span></div>
+              <div class="premium-card"><strong>Modalidade</strong><span>EAD, com prova realizada pelo Portal do Aluno.</span></div>
+              <div class="premium-card"><strong>Duração</strong><span>Diploma técnico em até 20 dias úteis após aprovação da prova e análise documental.</span></div>
+              <div class="premium-card"><strong>Reconhecimento</strong><span>Processo reconhecido pelo SISTEC, conforme regras da educação profissional técnica.</span></div>
+            </div>
+          </section>
+          <section class="premium-section competency-flow">
+            <div class="section-kicker">Fluxo da certificação</div>
+            <h2>Etapas do processo</h2>
+            <div class="premium-steps">
+              <div><span>Análise da experiência profissional comprovada na área.</span></div>
+              <div><span>Matrícula no SGU com envio da documentação exigida.</span></div>
+              <div><span>Liberação da prova no Portal do Aluno.</span></div>
+              <div><span>Após aprovação, solicitação do diploma em: Solicitações → Certificações → Solicitação de Diploma (1ª via PDF).</span></div>
+              <div><span>Emissão do diploma em até 20 dias úteis após aprovação da prova e da documentação.</span></div>
+            </div>
+          </section>
+          <section class="premium-section competency-exam">
+            <div class="section-kicker">Como será a prova?</div>
+            <h2>Prova objetiva, com critérios claros de aprovação.</h2>
+            <div class="premium-grid">
+              <div class="premium-card"><strong>10 questões</strong><span>A avaliação é composta por 10 questões objetivas.</span></div>
+              <div class="premium-card"><strong>Até 3 tentativas</strong><span>O aluno possui até 3 tentativas para alcançar o desempenho necessário.</span></div>
+              <div class="premium-card"><strong>Média mínima 7,0</strong><span>A aprovação exige média mínima de 7,0 pontos.</span></div>
+            </div>
+          </section>
+          <section class="premium-section competency-docs">
+            <div class="section-kicker">Documentação</div>
+            <h2>Documentos necessários para análise</h2>
+            <div class="document-list">
+              <div>Certidão de Nascimento ou Casamento.</div>
+              <div>Documento com foto: CNH ou RG e CPF.</div>
+              <div>Comprovante de residência.</div>
+              <div>Título de Eleitor.</div>
+              <div>Certificado de Reservista para homens de 18 a 45 anos.</div>
+              <div>Histórico e Certificado do Ensino Médio.</div>
+              <div>Carteira de trabalho digital e/ou declaração de experiência profissional emitida pela empresa da área, com funções desempenhadas e período de 2 anos ou mais de experiência comprovada. Caso o contrato ainda esteja em aberto, providenciar declaração de vínculo junto à empresa.</div>
+              <div>Contrato Social ou MEI, caso seja sócio ou dono de empresa na área, com envio do CNPJ. A data da situação cadastral precisa comprovar 2 anos ou mais de CNPJ ativo.</div>
+            </div>
+          </section>
+          <section class="premium-section competency-law">
+            <div class="section-kicker">Base legal</div>
+            <h2>Reconhecimento legal da experiência profissional</h2>
+            <p>A Certificação por Competência é um processo legal, amparado pela Lei Federal 9.394/96, artigo 41, que reconhece a experiência profissional prática de trabalhadores para obtenção de diploma técnico oficial, sem necessidade de cursar aulas tradicionais.</p>
+          </section>
+          <?php elseif ($academic): ?>
           <section class="premium-section academic-official">
             <div class="section-kicker">Grade curricular oficial</div>
             <h2>Grade curricular</h2>
@@ -2371,7 +2458,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         </div>
       </article>
       <aside class="offer-box product-final-cta">
-        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p>Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.</p></div>
+        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p><?= e($isCompetencyCertification ? 'Fale com o IBETP para confirmar experiência profissional, documentação, prova, valores e próximos passos da certificação.' : 'Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.') ?></p></div>
         <div class="product-final-actions">
           <?php if (product_checkout_enabled($product)): ?>
             <form method="post" action="<?= e(site_url('/checkout')) ?>"><input type="hidden" name="product_id" value="<?= (int)$product['id'] ?>"><button class="btn primary"><?= e(product_primary_payment_label($product)) ?></button></form>
@@ -2392,7 +2479,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         'provider' => ['@id' => site_url('/#organization')],
         'offers' => [
             '@type' => 'Offer',
-            'price' => (string)$product['price'],
+            'price' => (string)product_effective_price($product),
             'priceCurrency' => $product['currency'] ?: 'BRL',
             'availability' => 'https://schema.org/InStock',
             'url' => site_url('/produto/' . $product['slug'])

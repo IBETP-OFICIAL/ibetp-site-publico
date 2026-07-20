@@ -873,7 +873,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à atuação em gastronomia, gestão de alimentos, cozinha e segurança alimentar.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Possui estágio supervisionado obrigatório por pertencer à área da saúde. A orientação documental, campos aceitos, registros e prazos são confirmados pelo IBETP conforme documentação acadêmica do curso.',
+            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria. A presencialidade é cumprida por meio de ATAs, enviadas ao e-mail do responsável legal pela parceria, assinadas e devolvidas conforme orientação acadêmica.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '', [['História da alimentação','60h'], ['Nutrição e Dietética','60h'], ['Gestão de alimentos e bebidas','60h'], ['Cozinha brasileira e internacional','60h'], ['Comunicação eficaz','40h']]],
@@ -886,7 +886,7 @@ function product_academic_profile(array $product): ?array {
             'workload' => '800h',
             'modality_note' => 'Curso Técnico EAD com início em até 24 horas úteis após a confirmação do pagamento e matriz curricular oficial voltada à confeitaria, segurança alimentar, criatividade e gestão de alimentos.',
             'presence' => 'Metodologia oficial: 80% online e 20% de presencialidade cumprida exclusivamente por assinatura de ATAs. O aluno não precisa comparecer presencialmente à escola; as ATAs são enviadas por e-mail, assinadas pelo aluno e devolvidas conforme orientação acadêmica.',
-            'internship' => 'Possui estágio supervisionado obrigatório por pertencer à área da saúde. A orientação documental, campos aceitos, registros e prazos são confirmados pelo IBETP conforme documentação acadêmica do curso.',
+            'internship' => 'Não possui estágio obrigatório e não possui TCC, conforme metodologia oficial da categoria. A presencialidade é cumprida por meio de ATAs, enviadas ao e-mail do responsável legal pela parceria, assinadas e devolvidas conforme orientação acadêmica.',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['1º semestre', '240h', [['Fundamentos em Administração e Empreendedorismo','60h'], ['Liderança e Equipe Organizacional','60h'], ['História da Alimentação','60h'], ['Bases Legais e Ações de Vigilância sobre Alimentos','60h']]],

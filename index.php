@@ -428,16 +428,34 @@ function checkout_mp_token(): string {
 
 function checkout_create_preference(array $product, int $enrollmentId, array $data): array {
     $external = 'ibetp-matricula-' . $enrollmentId . '-' . time();
+    [$payerName, $payerSurname] = checkout_split_full_name((string)$data['full_name']);
+    [$phoneArea, $phoneNumber] = checkout_split_phone((string)$data['phone']);
     $payload = [
         'items' => [[
             'title' => product_primary_payment_label($product) . ' — ' . $product['title'],
+            'description' => excerpt((string)($product['short_description'] ?? $product['description'] ?? $product['title']), 220),
+            'picture_url' => absolute_asset(premium_product_image($product)),
             'quantity' => 1,
             'currency_id' => $product['currency'] ?: 'BRL',
             'unit_price' => (float)product_effective_price($product),
         ]],
         'payer' => [
-            'name' => $data['full_name'],
+            'name' => $payerName,
+            'surname' => $payerSurname,
             'email' => $data['email'],
+            'phone' => [
+                'area_code' => $phoneArea,
+                'number' => $phoneNumber,
+            ],
+            'identification' => [
+                'type' => 'CPF',
+                'number' => preg_replace('/\D+/', '', (string)$data['cpf']),
+            ],
+            'address' => [
+                'zip_code' => preg_replace('/\D+/', '', (string)$data['cep']),
+                'street_name' => (string)$data['address'],
+                'street_number' => (string)$data['number'],
+            ],
         ],
         'external_reference' => $external,
         'notification_url' => site_url('/mercado-pago/webhook'),
@@ -474,6 +492,22 @@ function checkout_create_preference(array $product, int $enrollmentId, array $da
     );
     Database::exec("UPDATE pre_enrollments SET external_reference=?, payment_status=?, updated_at=NOW() WHERE id=?", [$external, 'preference_created', $enrollmentId]);
     return $response;
+}
+
+function checkout_split_full_name(string $fullName): array {
+    $fullName = trim(preg_replace('/\s+/', ' ', $fullName));
+    if ($fullName === '') return ['Aluno', 'IBETP'];
+    $parts = explode(' ', $fullName);
+    $name = array_shift($parts) ?: $fullName;
+    $surname = trim(implode(' ', $parts));
+    return [$name, $surname !== '' ? $surname : 'IBETP'];
+}
+
+function checkout_split_phone(string $phone): array {
+    $digits = preg_replace('/\D+/', '', $phone);
+    if (strlen($digits) >= 11) return [substr($digits, 0, 2), substr($digits, 2)];
+    if (strlen($digits) >= 10) return [substr($digits, 0, 2), substr($digits, 2)];
+    return ['21', $digits !== '' ? $digits : '983177702'];
 }
 
 function checkout_requires_pix_first_payment(array $product): bool {

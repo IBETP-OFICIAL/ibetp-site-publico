@@ -2042,6 +2042,43 @@ function premium_product_image(array $product): string {
     if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
         return $explicit;
     }
+    $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
+    $isTechnicalEadImage = product_is_technical_ead($product)
+        || str_contains($slugKey, 'tecnico-ead-')
+        || str_contains($slugKey, 'tecnico-em-')
+        || str_contains(ibetp_slug_key((string)($product['category'] ?? '')), 'cursos-tecnicos-ead');
+    if ($isTechnicalEadImage) {
+        $aliases = array_filter([$slugKey, $titleKey]);
+        foreach ([$slugKey, $titleKey] as $key) {
+            if ($key === '') {
+                continue;
+            }
+            if (str_starts_with($key, 'tecnico-ead-')) {
+                $aliases[] = 'tecnico-em-' . substr($key, strlen('tecnico-ead-'));
+            }
+            if (str_starts_with($key, 'tecnico-em-')) {
+                $aliases[] = 'tecnico-ead-' . substr($key, strlen('tecnico-em-'));
+            }
+            $specialAliases = [
+                'tecnico-ead-secretariado-escolar' => 'tecnico-em-secretaria-escolar',
+                'tecnico-em-secretaria-escolar' => 'tecnico-ead-secretariado-escolar',
+                'tecnico-em-maquinas-pesadas' => 'tecnico-em-manutencao-de-maquinas-pesadas',
+                'tecnico-em-manutencao-de-maquinas-pesadas' => 'tecnico-em-maquinas-pesadas',
+            ];
+            if (isset($specialAliases[$key])) {
+                $aliases[] = $specialAliases[$key];
+            }
+        }
+        foreach (array_unique($aliases) as $key) {
+            foreach (['webp', 'jpg', 'jpeg', 'png'] as $ext) {
+                $candidate = '/assets/produtos/tecnicos-ead-v2/' . $key . '.' . $ext;
+                if (file_exists(__DIR__ . $candidate)) {
+                    return $candidate;
+                }
+            }
+        }
+    }
     $slugBase = '/assets/produtos/' . ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
     $titleBase = '/assets/produtos/' . ibetp_slug_key((string)($product['title'] ?? ''));
     foreach (['webp', 'png', 'jpg', 'jpeg'] as $ext) {

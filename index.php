@@ -166,6 +166,8 @@ if ($path === 'mercado-pago/webhook' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (in_array($path, ['pagamento/sucesso', 'pagamento/pendente', 'pagamento/erro'], true)) {
+    checkout_ensure_schema();
+    checkout_process_return_payment($_GET);
     $kind = str_ends_with($path, 'sucesso') ? 'success' : (str_ends_with($path, 'pendente') ? 'pending' : 'error');
     $title = $kind === 'success' ? 'Pagamento recebido' : ($kind === 'pending' ? 'Pagamento em análise' : 'Pagamento não concluído');
     $message = $kind === 'success'
@@ -227,6 +229,9 @@ function product_checkout_enabled(array $product): bool {
 function checkout_product_from_request(): ?array {
     $id = (int)($_POST['product_id'] ?? ($_GET['product_id'] ?? 0));
     $slug = trim((string)($_POST['product_slug'] ?? ($_GET['produto'] ?? '')));
+    if ($id === 900001 || $slug === 'teste-checkout-6-reais') {
+        return checkout_test_product();
+    }
     if ($id !== 0) {
         $product = Database::one("SELECT * FROM products WHERE id=? AND status='active' AND checkout_enabled=1", [$id]);
         if (!$product && $id < 0) $product = official_technical_product_by_id($id);
@@ -242,6 +247,24 @@ function checkout_product_from_request(): ?array {
         return $product && product_checkout_enabled($product) ? $product : null;
     }
     return null;
+}
+
+function checkout_test_product(): array {
+    return [
+        'id' => 900001,
+        'slug' => 'teste-checkout-6-reais',
+        'title' => 'Produto de Teste — Checkout IBETP',
+        'category' => 'Teste interno',
+        'short_description' => 'Produto oculto para testar pré-matrícula, pagamento real no Mercado Pago e envio automático de e-mails.',
+        'description' => 'Produto técnico interno usado exclusivamente para validação do fluxo de checkout, cadastro e comunicação institucional.',
+        'price' => 6.00,
+        'currency' => 'BRL',
+        'checkout_enabled' => 1,
+        'image' => '/assets/hero-industria-profissionais-tecnicos-premium.png',
+        'image_path' => '/assets/hero-industria-profissionais-tecnicos-premium.png',
+        'status' => 'active',
+        'updated_at' => date('Y-m-d H:i:s'),
+    ];
 }
 
 function checkout_ensure_schema(): void {
@@ -493,6 +516,22 @@ function checkout_fetch_webhook_payment(array $payload): ?array {
     } catch (Throwable $e) {
         return null;
     }
+}
+
+function checkout_process_return_payment(array $query): void {
+    $paymentId = $query['payment_id'] ?? $query['collection_id'] ?? null;
+    if (!$paymentId) return;
+    try {
+        $payment = checkout_mp_request('GET', 'https://api.mercadopago.com/v1/payments/' . rawurlencode((string)$paymentId));
+    } catch (Throwable $e) {
+        return;
+    }
+    $external = $payment['external_reference'] ?? null;
+    if (!$external) return;
+    $status = (string)($payment['status'] ?? 'returned');
+    $raw = json_encode($payment, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    Database::exec("UPDATE payment_orders SET status=?, payment_id=?, raw_response=?, updated_at=NOW() WHERE external_reference=?", [$status, (string)$paymentId, $raw, $external]);
+    checkout_mark_enrollment_payment($external, $status, (string)$paymentId, $raw);
 }
 
 function checkout_mark_enrollment_payment(string $external, string $status, string $paymentId, string $raw): void {
@@ -2759,7 +2798,7 @@ function layout(string $title, string $description, string $body, ?string $image
   <link rel="alternate" type="application/rss+xml" title="Blog IBETP" href="<?= e(site_url('/feed.xml')) ?>">
   <link rel="icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
   <link rel="apple-touch-icon" href="<?= e(site_url('/assets/favicon-ibetp.png')) ?>">
-  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-pro-v2')) ?>" as="style">
+  <link rel="preload" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-test-v1')) ?>" as="style">
   <meta property="og:title" content="<?= e($title) ?>">
   <meta property="og:description" content="<?= e($description) ?>">
   <meta property="og:image" content="<?= e($og) ?>">
@@ -2780,7 +2819,7 @@ function layout(string $title, string $description, string $body, ?string $image
     gtag('config', <?= json_encode($gaId, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>);
   </script>
   <?php endif; ?>
-  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-pro-v2')) ?>">
+  <link rel="stylesheet" href="<?= e(site_url('/assets/site.css?v=premium-20260720-checkout-test-v1')) ?>">
 </head>
 <body>
 <header class="topbar">
@@ -3089,12 +3128,13 @@ if (preg_match('#^(blog|glossario)/([^/]+)$#', $path, $m)) {
 }
 
 if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
-    $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
+    $isCheckoutTestProduct = $m[1] === 'teste-checkout-6-reais';
+    $product = $isCheckoutTestProduct ? checkout_test_product() : Database::one("SELECT * FROM products WHERE slug=? AND status='active'", [$m[1]]);
     $officialTechnologist = official_technologist_product_by_slug($m[1]);
-    if ($officialTechnologist) $product = $officialTechnologist;
+    if (!$isCheckoutTestProduct && $officialTechnologist) $product = $officialTechnologist;
     $officialPostTechnical = official_post_technical_product_by_slug($m[1]);
-    if ($officialPostTechnical) $product = $officialPostTechnical;
-    if (!$product) $product = official_technical_product_by_slug($m[1]);
+    if (!$isCheckoutTestProduct && $officialPostTechnical) $product = $officialPostTechnical;
+    if (!$product && !$isCheckoutTestProduct) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $isCompetencyCertification = product_is_competency_certification($product);
     $isPostTechnical = product_is_post_technical($product);
@@ -3335,7 +3375,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         ]
     ];
     $schemas = [$productSchema, breadcrumb_schema(['Início' => site_url('/'), 'Cursos' => site_url('/cursos'), $product['title'] => site_url('/produto/' . $product['slug'])])];
-    layout($product['title'] . ' | IBETP', excerpt($product['short_description'] ?: $product['description']), ob_get_clean(), premium_product_image($product), false, $schemas); exit;
+    layout($product['title'] . ' | IBETP', excerpt($product['short_description'] ?: $product['description']), ob_get_clean(), premium_product_image($product), $isCheckoutTestProduct, $schemas); exit;
 }
 
 $page = Database::one("SELECT * FROM posts WHERE slug=? AND type='page' AND status='published'", [$path]);

@@ -467,7 +467,7 @@ function checkout_create_preference(array $product, int $enrollmentId, array $da
         'items' => [[
             'title' => product_primary_payment_label($product) . ' — ' . $product['title'],
             'description' => excerpt((string)($product['short_description'] ?? $product['description'] ?? $product['title']), 220),
-            'picture_url' => absolute_asset(premium_product_image($product)),
+                'picture_url' => product_image_url($product),
             'quantity' => 1,
             'currency_id' => $product['currency'] ?: 'BRL',
             'unit_price' => (float)product_effective_price($product),
@@ -827,7 +827,7 @@ function checkout_smtp_send(array $cfg, string $toEmail, string $message): bool 
 
 function render_checkout_form(array $product, array $values = [], array $errors = []): void {
     $value = fn(string $key): string => (string)($values[$key] ?? '');
-    $image = premium_product_image($product);
+    $image = product_image_url($product);
     $paymentLabel = product_primary_payment_label($product);
     $investmentLabel = product_investment_label($product);
     $pixOnly = checkout_requires_pix_first_payment($product);
@@ -1436,7 +1436,7 @@ function official_no_internship_technical_products(): array {
             'price' => 99.90,
             'checkout_enabled' => 1,
             'status' => 'active',
-            'image' => '/assets/produtos/' . $slug . '.webp',
+            'image' => '/assets/produtos/tecnicos-ead-v2/' . $slug . '.jpg',
             'short_description' => $title . '. Formação técnica EAD com matriz curricular oficial, presencialidade por ATA e início em até 24 horas úteis após a confirmação do pagamento.',
             'description' => $title . '. Curso Técnico EAD com 12 mensalidades de R$ 99,90, grade curricular oficial e atendimento do IBETP para orientação de matrícula, documentação e próximos passos.',
             'seo_title' => $title . ' | IBETP',
@@ -2077,6 +2077,7 @@ function premium_product_image(array $product): string {
                 }
             }
         }
+        return '/assets/produtos/tecnicos-ead-v2/tecnico-em-administracao.jpg';
     }
     $explicit = trim((string)($product['image_path'] ?? $product['image'] ?? ''));
     if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
@@ -2094,8 +2095,8 @@ function premium_product_image(array $product): string {
             return $titleSpecific;
         }
     }
-    if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnico-em-secretaria-escolar.webp')) {
-        return '/assets/produtos/tecnico-em-secretaria-escolar.webp';
+    if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnicos-ead-v2/tecnico-em-secretaria-escolar.jpg')) {
+        return '/assets/produtos/tecnicos-ead-v2/tecnico-em-secretaria-escolar.jpg';
     }
     if (str_contains($title, 'enfermagem') || str_contains($title, 'saúde') || str_contains($title, 'saude') || str_contains($category, 'saúde') || str_contains($category, 'saude')) {
         return '/assets/setor-saude-hospital-profissionais-premium.png';
@@ -2122,6 +2123,16 @@ function premium_product_image(array $product): string {
         return '/assets/hero-industria-profissionais-tecnicos-premium.png';
     }
     return '/assets/hero-industria-profissionais-tecnicos-premium.png';
+}
+
+function product_image_url(array $product): string {
+    $path = premium_product_image($product);
+    $url = absolute_asset($path);
+    if (product_is_technical_ead($product)) {
+        $separator = str_contains($url, '?') ? '&' : '?';
+        return $url . $separator . 'v=tecnicos-ead-unicos-20260720';
+    }
+    return $url;
 }
 
 function product_investment_text(array $product): string {
@@ -3275,7 +3286,7 @@ if ($path === '' || $path === 'index.php') {
       </section>
       <section class="grid-section">
         <h2>Cursos e produtos em destaque</h2>
-        <div class="cards"><?php foreach ($products as $p): ?><a class="card" href="<?= e(site_url('/produto/' . $p['slug'])) ?>"><img src="<?= e(absolute_asset(premium_product_image($p))) ?>" alt="<?= e($p['title']) ?>"><strong><?= e($p['title']) ?></strong><span><?= e($p['category']) ?></span></a><?php endforeach; ?></div>
+        <div class="cards"><?php foreach ($products as $p): ?><a class="card" href="<?= e(site_url('/produto/' . $p['slug'])) ?>"><img src="<?= e(product_image_url($p)) ?>" alt="<?= e($p['title']) ?>"><strong><?= e($p['title']) ?></strong><span><?= e($p['category']) ?></span></a><?php endforeach; ?></div>
       </section>
       <section class="grid-section">
         <h2>Conteúdos recentes</h2>
@@ -3330,7 +3341,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(absolute_asset(premium_product_image($item))) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
+        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(product_image_url($item)) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
       <?php else: ?>
         <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a>
       <?php endif; ?>
@@ -3456,7 +3467,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           </div>
         </div>
         <aside class="product-visual-card">
-          <?php if (premium_product_image($product)): ?><img src="<?= e(absolute_asset(premium_product_image($product))) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
+          <?php if (premium_product_image($product)): ?><img src="<?= e(product_image_url($product)) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
         </aside>
       </section>
       <section class="product-trust wrap">

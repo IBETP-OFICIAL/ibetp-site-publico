@@ -126,7 +126,7 @@ if ($path === 'sitemap.xml') {
         }
         echo '</url>';
     }
-    foreach (array_merge(official_technologist_products(), official_post_technical_products()) as $product) {
+    foreach (array_merge(official_technologist_products(), official_post_technical_products(), official_sequential_products()) as $product) {
         $slugKey = ibetp_slug_key((string)$product['slug']);
         if (isset($seenProductSlugs[$slugKey])) continue;
         echo '<url><loc>' . e(site_url('/produto/' . $product['slug'])) . '</loc><lastmod>' . e(substr((string)$product['updated_at'], 0, 10)) . '</lastmod><changefreq>weekly</changefreq><priority>0.9</priority>';
@@ -242,6 +242,9 @@ function product_effective_price(array $product): float {
     if (product_is_post_technical($product)) {
         return 799.00;
     }
+    if (product_is_sequential($product)) {
+        return 699.00;
+    }
     return (float)($product['price'] ?? 0);
 }
 
@@ -251,6 +254,9 @@ function product_for_checkout(array $product): array {
     }
     if (product_is_post_technical($product)) {
         $product['price'] = 799.00;
+    }
+    if (product_is_sequential($product)) {
+        $product['price'] = 699.00;
     }
     return $product;
 }
@@ -270,12 +276,14 @@ function checkout_product_from_request(): ?array {
         if (!$product && $id < 0) $product = official_technical_product_by_id($id);
         if (!$product && $id < 0) $product = official_technologist_product_by_id($id);
         if (!$product && $id < 0) $product = official_post_technical_product_by_id($id);
+        if (!$product && $id < 0) $product = official_sequential_product_by_id($id);
         return $product && product_checkout_enabled($product) ? $product : null;
     }
     if ($slug !== '') {
         $product = Database::one("SELECT * FROM products WHERE slug=? AND status='active' AND checkout_enabled=1", [$slug]);
         if (!$product) $product = official_technologist_product_by_slug($slug);
         if (!$product) $product = official_post_technical_product_by_slug($slug);
+        if (!$product) $product = official_sequential_product_by_slug($slug);
         if (!$product) $product = official_technical_product_by_slug($slug);
         return $product && product_checkout_enabled($product) ? $product : null;
     }
@@ -1084,6 +1092,8 @@ function product_is_technical_ead(array $product): bool {
         str_contains($text, 'competencia') ||
         str_contains($normalized, 'competencia') ||
         str_contains($normalized, 'pos-tecnico') ||
+        str_contains($normalized, 'superior-sequencial') ||
+        str_contains($normalized, 'sequencial') ||
         str_contains($normalized, 'pos-graduacao') ||
         str_contains($normalized, 'mba') ||
         str_contains($normalized, 'especializacao')
@@ -1091,6 +1101,15 @@ function product_is_technical_ead(array $product): bool {
         return false;
     }
     return str_contains($text, 'técnico') || str_contains($text, 'tecnico');
+}
+
+function product_is_sequential(array $product): bool {
+    $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
+    $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
+    $slug = mb_strtolower((string)($product['slug'] ?? ''), 'UTF-8');
+    $text = $title . ' ' . $category . ' ' . $slug;
+    $normalized = ibetp_slug_key($text);
+    return str_contains($normalized, 'superior-sequencial') || str_contains($normalized, 'sequencial');
 }
 
 function product_is_technologist(array $product): bool {
@@ -1113,13 +1132,13 @@ function product_category_label(array $product): string {
     $title = mb_strtolower((string)($product['title'] ?? ''), 'UTF-8');
     $category = mb_strtolower((string)($product['category'] ?? ''), 'UTF-8');
     $text = $title . ' ' . $category;
+    if (product_is_sequential($product)) return 'Superior Sequencial';
     if (product_is_technologist($product)) return 'Tecnólogo EAD';
     if (product_is_post_technical($product)) return 'Pós-técnico';
     if (str_contains($text, 'competência') || str_contains($text, 'competencia')) return 'Certificação Técnica por Competência';
     if (str_contains($text, 'pós-graduação') || str_contains($text, 'pos-graduacao') || str_contains($text, 'mba')) return 'Pós-graduação e MBA';
     if (str_contains($text, 'pós-técnico') || str_contains($text, 'pos-tecnico')) return 'Pós-técnico';
     if (product_is_technical_ead($product)) return 'Cursos Técnicos EAD';
-    if (str_contains($text, 'sequencial')) return 'Superior Sequencial';
     if (str_contains($text, 'profissionalizante')) return 'Profissionalizante';
     $label = trim((string)($product['category'] ?? 'Formação IBETP'));
     $label = str_ireplace(['UNICORP FAAO', 'UNICORP', 'SEI', 'UNIDADE PARAÍBA', 'UNIDADE PARÁ', 'CENTRO UNIVERSITÁRIO'], '', $label);
@@ -1252,6 +1271,7 @@ function product_payment_condition_label(array $product): string {
     if (product_is_technologist($product)) return 'Matrícula via Pix; mensalidades de R$ 149,90 no AVA.';
     if (product_is_competency_certification($product)) return 'À vista ou em até 12x com juros no cartão.';
     if (product_is_post_technical($product)) return 'À vista ou parcelado com juros no cartão.';
+    if (product_is_sequential($product)) return 'À vista ou parcelado com juros no cartão.';
     return 'Condições confirmadas com a equipe IBETP.';
 }
 
@@ -1306,6 +1326,9 @@ function product_publicly_visible(array $product): bool {
         return false;
     }
     if (product_is_post_technical($product) && !official_post_technical_slug_allowed($product)) {
+        return false;
+    }
+    if (product_is_sequential($product) && !official_sequential_slug_allowed($product)) {
         return false;
     }
     $isCompetence = str_contains($text, 'competencia');
@@ -1435,6 +1458,67 @@ function dedupe_post_technical_products(array $items): array {
         $deduped[$key] = $item;
     }
     return array_values($deduped);
+}
+
+function official_sequential_products(): array {
+    static $products = null;
+    if ($products !== null) {
+        return $products;
+    }
+    $path = __DIR__ . '/data-sequential-products.php';
+    $loaded = is_file($path) ? require $path : [];
+    $products = array_values(array_filter($loaded, fn($product) => is_array($product)));
+    return $products;
+}
+
+function official_sequential_slug_allowed(array $product): bool {
+    if (!product_is_sequential($product)) return true;
+    $slugKey = ibetp_slug_key((string)($product['slug'] ?? $product['title'] ?? ''));
+    foreach (official_sequential_products() as $official) {
+        if ($slugKey === ibetp_slug_key((string)$official['slug'])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function official_sequential_product_by_slug(string $slug): ?array {
+    $slugKey = ibetp_slug_key($slug);
+    foreach (official_sequential_products() as $product) {
+        if (ibetp_slug_key((string)$product['slug']) === $slugKey) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function official_sequential_product_by_id(int $id): ?array {
+    foreach (official_sequential_products() as $product) {
+        if ((int)$product['id'] === $id) {
+            return $product;
+        }
+    }
+    return null;
+}
+
+function merge_official_sequential_products(array $items): array {
+    $merged = [];
+    foreach ($items as $item) {
+        $key = ibetp_slug_key((string)($item['slug'] ?? $item['title'] ?? ''));
+        if (product_is_sequential($item) && !official_sequential_slug_allowed($item)) {
+            continue;
+        }
+        $official = product_is_sequential($item) ? official_sequential_product_by_slug((string)($item['slug'] ?? $item['title'] ?? '')) : null;
+        if ($official) {
+            $key = ibetp_slug_key((string)$official['slug']);
+        }
+        $merged[$key] = $official ?: $item;
+    }
+    foreach (official_sequential_products() as $product) {
+        $merged[ibetp_slug_key((string)$product['slug'])] = $product;
+    }
+    uasort($merged, fn($a, $b) => strcasecmp((string)($a['title'] ?? ''), (string)($b['title'] ?? '')));
+    return array_values($merged);
 }
 
 function official_no_internship_technical_products(): array {
@@ -2053,6 +2137,9 @@ function product_primary_payment_label(array $product): string {
     if (product_is_post_technical($product)) {
         return 'Comprar Pós-técnico';
     }
+    if (product_is_sequential($product)) {
+        return 'Comprar Superior Sequencial';
+    }
     if (product_is_competency_certification($product)) {
         return 'Comprar Certificação';
     }
@@ -2167,6 +2254,9 @@ function product_investment_text(array $product): string {
     if (product_is_post_technical($product)) {
         return 'Pós-técnico por R$ 799,00 à vista, com possibilidade de parcelamento com juros no cartão. A página apresenta a matriz curricular oficial, duração e carga horária conforme informativo acadêmico.';
     }
+    if (product_is_sequential($product)) {
+        return 'Curso Superior Sequencial por R$ 699,00 à vista, com possibilidade de parcelamento com juros no cartão de crédito. Modalidade 100% EAD, com matriz curricular oficial de 560 horas.';
+    }
     return 'Condições e disponibilidade podem ser confirmadas com a equipe IBETP.';
 }
 
@@ -2176,6 +2266,9 @@ function product_investment_label(array $product): string {
     }
     if (product_is_technologist($product)) {
         return 'Matrícula R$ 99,90';
+    }
+    if (product_is_sequential($product)) {
+        return 'R$ 699,00';
     }
     return product_price_label($product);
 }
@@ -2362,6 +2455,9 @@ function official_drive_technical_profile_override(string $slugKey, string $titl
 }
 
 function product_academic_profile(array $product): ?array {
+    if (isset($product['academic']) && is_array($product['academic'])) {
+        return $product['academic'];
+    }
     $titleKey = ibetp_slug_key((string)($product['title'] ?? ''));
     $slugKey = ibetp_slug_key((string)($product['slug'] ?? ''));
     $categoryKey = ibetp_slug_key((string)($product['category'] ?? ''));
@@ -3174,6 +3270,7 @@ if ($path === '' || $path === 'index.php') {
     $products = merge_official_technical_products($products);
     $products = merge_official_technologist_products($products);
     $products = merge_official_post_technical_products($products);
+    $products = merge_official_sequential_products($products);
     $products = dedupe_post_technical_products($products);
     $products = array_slice($products, 0, 8);
     $featuredCourses = [
@@ -3343,6 +3440,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
         $items = merge_official_technical_products($items);
         $items = merge_official_technologist_products($items);
         $items = merge_official_post_technical_products($items);
+        $items = merge_official_sequential_products($items);
         $items = array_values(array_filter($items, 'product_publicly_visible'));
         $items = array_values(array_filter($items, 'technical_ead_drive_slug_allowed'));
         $items = dedupe_post_technical_products($items);
@@ -3461,10 +3559,13 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
     if (!$isCheckoutTestProduct && $officialTechnologist) $product = $officialTechnologist;
     $officialPostTechnical = official_post_technical_product_by_slug($m[1]);
     if (!$isCheckoutTestProduct && $officialPostTechnical) $product = $officialPostTechnical;
+    $officialSequential = official_sequential_product_by_slug($m[1]);
+    if (!$isCheckoutTestProduct && $officialSequential) $product = $officialSequential;
     if (!$product && !$isCheckoutTestProduct) $product = official_technical_product_by_slug($m[1]);
     if (!$product || !product_publicly_visible($product)) { http_response_code(404); layout('Produto não encontrado', 'Produto não encontrado.', '<main><h1>404</h1></main>', null, true); exit; }
     $isCompetencyCertification = product_is_competency_certification($product);
     $isPostTechnical = product_is_post_technical($product);
+    $isSequential = product_is_sequential($product);
     $academic = product_academic_profile($product);
     $internshipText = $academic ? trim((string)($academic['internship'] ?? '')) : '';
     $tccText = $academic ? trim((string)($academic['tcc'] ?? '')) : '';
@@ -3498,6 +3599,10 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         <div><strong>01</strong><span>Matriz curricular oficial apresentada na página.</span></div>
         <div><strong>02</strong><span>Investimento de R$ 799,00 à vista ou parcelado com juros no cartão.</span></div>
         <div><strong>03</strong><span>Duração e carga horária conforme informativo acadêmico.</span></div>
+        <?php elseif ($isSequential): ?>
+        <div><strong>01</strong><span>Matriz curricular oficial de 560 horas apresentada na página.</span></div>
+        <div><strong>02</strong><span>Modalidade 100% EAD, conforme regras do curso Superior Sequencial.</span></div>
+        <div><strong>03</strong><span>Investimento de R$ 699,00 à vista ou parcelado com juros no cartão.</span></div>
         <?php else: ?>
         <div><strong>01</strong><span>Início em até 24 horas úteis após a confirmação do pagamento.</span></div>
         <div><strong>02</strong><span>Receba orientação sobre matrícula e próximos passos.</span></div>
@@ -3508,12 +3613,12 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         <div class="conversion-copy">
           <p class="section-kicker">Decisão com clareza</p>
           <h2>Uma página feita para você entender o curso antes de pagar.</h2>
-          <p><?= e($isCompetencyCertification ? 'O IBETP organiza as informações essenciais — investimento, requisitos, documentação, prova, solicitação de diploma e base legal — para que a certificação aconteça com segurança e sem surpresa.' : ($isPostTechnical ? 'O IBETP organiza as informações essenciais — investimento, duração, carga horária, matriz curricular oficial e atendimento — para que a matrícula aconteça com segurança e sem surpresa.' : 'O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.')) ?></p>
+          <p><?= e($isCompetencyCertification ? 'O IBETP organiza as informações essenciais — investimento, requisitos, documentação, prova, solicitação de diploma e base legal — para que a certificação aconteça com segurança e sem surpresa.' : ($isPostTechnical ? 'O IBETP organiza as informações essenciais — investimento, duração, carga horária, matriz curricular oficial e atendimento — para que a matrícula aconteça com segurança e sem surpresa.' : ($isSequential ? 'O IBETP organiza as informações essenciais — investimento, requisito de Ensino Médio, modalidade 100% EAD, matriz curricular oficial e documentação — para que a matrícula aconteça com segurança e sem surpresa.' : 'O IBETP organiza as informações essenciais — investimento, início, documentação, grade, estágio e atendimento — para que a matrícula aconteça com segurança e sem surpresa.'))) ?></p>
         </div>
         <div class="conversion-points">
           <div><strong>O que você confirma aqui</strong><span>Valor, formato de pagamento, carga horária, duração e caminho de atendimento.</span></div>
-          <div><strong>O que você confere antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Experiência mínima, documentação necessária, prova e fluxo até a emissão do diploma.' : ($isPostTechnical ? 'Matriz curricular oficial, duração, carga horária e escopo da especialização técnica.' : 'Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.')) ?></span></div>
-          <div><strong>Como seguir com segurança</strong><span><?= e($isCompetencyCertification ? 'Confirme sua experiência, envie a documentação e fale com o IBETP para tirar dúvidas antes de avançar.' : ($isPostTechnical ? 'Compre com segurança pelo site ou fale com o IBETP para confirmar documentação e próximos passos.' : 'Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.')) ?></span></div>
+          <div><strong>O que você confere antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Experiência mínima, documentação necessária, prova e fluxo até a emissão do diploma.' : ($isPostTechnical ? 'Matriz curricular oficial, duração, carga horária e escopo da especialização técnica.' : ($isSequential ? 'Módulo básico, disciplinas seletivas, carga horária total, requisito de Ensino Médio e documentos de matrícula.' : 'Grade curricular, estágio quando obrigatório e documentos acadêmicos relevantes.'))) ?></span></div>
+          <div><strong>Como seguir com segurança</strong><span><?= e($isCompetencyCertification ? 'Confirme sua experiência, envie a documentação e fale com o IBETP para tirar dúvidas antes de avançar.' : ($isPostTechnical ? 'Compre com segurança pelo site ou fale com o IBETP para confirmar documentação e próximos passos.' : ($isSequential ? 'Compre pelo site ou fale com o IBETP para confirmar documentação, matrícula e percurso acadêmico.' : 'Pague a etapa inicial pelo site ou fale com o IBETP para tirar dúvidas antes de avançar.'))) ?></span></div>
         </div>
       </section>
       <article class="article-body product-detail">
@@ -3523,9 +3628,9 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             <h2>Formação para quem busca atuar com segurança profissional.</h2>
             <p><?= e($product['short_description'] ?: excerpt(strip_tags($product['description']), 260)) ?></p>
             <div class="premium-grid">
-              <div class="premium-card"><strong>Antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Você entende valores, experiência mínima, documentos e critérios da prova antes de avançar.' : ($isPostTechnical ? 'Você entende investimento, matriz curricular, duração e carga horária antes de avançar.' : 'Você entende valores, requisitos e próximos passos antes de avançar.')) ?></span></div>
-              <div class="premium-card"><strong>Durante o processo</strong><span><?= e($isCompetencyCertification ? 'O atendimento do IBETP orienta documentação, acesso ao Portal do Aluno e solicitação do diploma.' : ($isPostTechnical ? 'O atendimento do IBETP orienta matrícula, documentação e encaminhamento acadêmico.' : 'O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.')) ?></span></div>
-              <div class="premium-card"><strong>Depois da confirmação</strong><span><?= e($isCompetencyCertification ? 'O diploma técnico é emitido em até 20 dias úteis após aprovação da prova e análise documental.' : ($isPostTechnical ? 'A equipe orienta os próximos passos conforme o curso escolhido e a documentação necessária.' : 'O início ocorre em até 24 horas úteis após a confirmação do pagamento.')) ?></span></div>
+              <div class="premium-card"><strong>Antes da matrícula</strong><span><?= e($isCompetencyCertification ? 'Você entende valores, experiência mínima, documentos e critérios da prova antes de avançar.' : ($isPostTechnical ? 'Você entende investimento, matriz curricular, duração e carga horária antes de avançar.' : ($isSequential ? 'Você confere investimento, requisito de Ensino Médio e matriz curricular oficial antes de avançar.' : 'Você entende valores, requisitos e próximos passos antes de avançar.'))) ?></span></div>
+              <div class="premium-card"><strong>Durante o processo</strong><span><?= e($isCompetencyCertification ? 'O atendimento do IBETP orienta documentação, acesso ao Portal do Aluno e solicitação do diploma.' : ($isPostTechnical ? 'O atendimento do IBETP orienta matrícula, documentação e encaminhamento acadêmico.' : ($isSequential ? 'O atendimento do IBETP orienta documentação, matrícula e percurso acadêmico 100% EAD.' : 'O atendimento do IBETP orienta documentação, acesso e etapas acadêmicas.'))) ?></span></div>
+              <div class="premium-card"><strong>Depois da confirmação</strong><span><?= e($isCompetencyCertification ? 'O diploma técnico é emitido em até 20 dias úteis após aprovação da prova e análise documental.' : ($isPostTechnical ? 'A equipe orienta os próximos passos conforme o curso escolhido e a documentação necessária.' : ($isSequential ? 'Você segue o percurso acadêmico conforme as regras do curso Superior Sequencial.' : 'O início ocorre em até 24 horas úteis após a confirmação do pagamento.'))) ?></span></div>
             </div>
           </section>
           <section class="premium-price">
@@ -3612,7 +3717,43 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
               </div>
             <?php endforeach; ?>
           </section>
-          <?php elseif (product_is_technical_ead($product) || product_is_technologist($product)): ?>
+          <?php if ($isSequential): ?>
+          <section class="premium-section sequential-official">
+            <div class="section-kicker">Regras do Superior Sequencial</div>
+            <h2>Curso Superior Sequencial de Complementação de Estudos.</h2>
+            <div class="premium-grid">
+              <div class="premium-card"><strong>Modalidade</strong><span>100% EAD, conforme informativo oficial do curso.</span></div>
+              <div class="premium-card"><strong>Requisito</strong><span>Certificado de conclusão do Ensino Médio para matrícula.</span></div>
+              <div class="premium-card"><strong>Módulo I</strong><span>Quatro disciplinas obrigatórias comuns a todos os cursos superiores sequenciais.</span></div>
+              <div class="premium-card"><strong>Módulo II</strong><span>Escolha de três disciplinas seletivas relacionadas ao curso, totalizando 240 horas. Disciplinas extras podem gerar taxa adicional.</span></div>
+            </div>
+          </section>
+          <section class="premium-section sequential-docs">
+            <div class="section-kicker">Documentos para matrícula</div>
+            <h2>Documentação necessária</h2>
+            <div class="document-list">
+              <div>Formulário de Inscrição — Superior Sequencial.</div>
+              <div>RG e CPF.</div>
+              <div>Certidão de Nascimento ou Casamento.</div>
+              <div>Comprovante de residência.</div>
+              <div>Foto recente.</div>
+              <div>Certificado de conclusão do Ensino Médio.</div>
+            </div>
+          </section>
+          <section class="premium-section sequential-law">
+            <div class="section-kicker">Base legal</div>
+            <h2>Fundamentação acadêmica informada no material do curso</h2>
+            <div class="premium-grid">
+              <div class="premium-card"><strong>LDB 9.394/96</strong><span>Artigo 44.</span></div>
+              <div class="premium-card"><strong>Resolução nº 1</strong><span>22 de maio de 2017.</span></div>
+              <div class="premium-card"><strong>Lei nº 11.632</strong><span>27 de dezembro de 2007.</span></div>
+              <div class="premium-card"><strong>Resolução CNE/CES nº 1</strong><span>27 de janeiro de 1999.</span></div>
+              <div class="premium-card"><strong>Parecer CNE/CES nº 968/98</strong><span>Diretrizes relacionadas aos cursos sequenciais.</span></div>
+            </div>
+          </section>
+          <?php endif; ?>
+          <?php endif; ?>
+          <?php if (!$academic && !$isCompetencyCertification && (product_is_technical_ead($product) || product_is_technologist($product))): ?>
           <section class="premium-section academic-pending">
             <div class="section-kicker">Dados acadêmicos em validação</div>
             <h2>Grade curricular oficial em conferência</h2>
@@ -3671,10 +3812,22 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             </div>
           </section>
           <?php endif; ?>
+          <?php if ($isSequential): ?>
+          <section class="premium-section">
+            <div class="section-kicker">Pagamento do Superior Sequencial</div>
+            <h2>R$ 699,00 à vista ou parcelado com juros no cartão</h2>
+            <p>O Curso Superior Sequencial possui investimento de R$ 699,00 à vista, com possibilidade de parcelamento com juros no cartão de crédito. Antes de avançar, confira a matriz curricular, a documentação necessária e fale com o IBETP se tiver qualquer dúvida sobre matrícula.</p>
+            <div class="premium-steps">
+              <div><span>Pagamento à vista de R$ 699,00.</span></div>
+              <div><span>Parcelamento disponível com juros no cartão de crédito.</span></div>
+              <div><span>Atendimento do IBETP para orientação documental e próximos passos.</span></div>
+            </div>
+          </section>
+          <?php endif; ?>
         </div>
       </article>
       <aside class="offer-box product-final-cta">
-        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p><?= e($isCompetencyCertification ? 'Fale com o IBETP para confirmar experiência profissional, documentação, prova, valores e próximos passos da certificação.' : ($isPostTechnical ? 'Fale com o IBETP para confirmar matriz curricular, documentação, investimento, forma de pagamento e próximos passos deste pós-técnico.' : 'Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.')) ?></p></div>
+        <div><small>Pronto para decidir?</small><strong><?= e($product['title']) ?></strong><p><?= e($isCompetencyCertification ? 'Fale com o IBETP para confirmar experiência profissional, documentação, prova, valores e próximos passos da certificação.' : ($isPostTechnical ? 'Fale com o IBETP para confirmar matriz curricular, documentação, investimento, forma de pagamento e próximos passos deste pós-técnico.' : ($isSequential ? 'Fale com o IBETP para confirmar matriz curricular, documentação, investimento, forma de pagamento e próximos passos deste Superior Sequencial.' : 'Fale com o IBETP para confirmar matrícula, documentação, estágio, valores e próximos passos deste curso.'))) ?></p></div>
         <div class="product-final-actions">
           <?php if (product_checkout_enabled($product)): ?>
             <form method="post" action="<?= e(site_url('/checkout')) ?>"><input type="hidden" name="product_id" value="<?= (int)$product['id'] ?>"><button class="btn primary"><?= e(product_primary_payment_label($product)) ?></button></form>

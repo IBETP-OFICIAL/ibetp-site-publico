@@ -46,8 +46,8 @@ $seq = function (int $id, string $slug, string $title, string $description, stri
             'workload' => '560 horas',
             'modality_note' => 'Curso Superior Sequencial de Complementação de Estudos, 100% EAD.',
             'presence' => 'Modalidade 100% EAD conforme informativo oficial do curso.',
-            'internship' => 'O informativo acadêmico analisado não informa estágio obrigatório para este curso.',
-            'tcc' => 'O informativo acadêmico analisado não informa TCC obrigatório.',
+            'internship' => '',
+            'tcc' => '',
             'source' => 'Grade oficial extraída do informativo do curso.',
             'modules' => [
                 ['Módulo I — Disciplinas fixas', '320h', $fixedSequential],

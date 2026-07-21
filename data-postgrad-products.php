@@ -1,6 +1,206 @@
 <?php
 declare(strict_types=1);
 
+$officialPostgradCurricula = [
+    'direito-eleitoral' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Direito Eleitoral',
+        'area' => 'Jurídica',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Direito Eleitoral EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '20h'],
+                ['Noções de Direito', '80h'],
+                ['Marketing Político', '80h'],
+                ['Estatística Básica', '80h'],
+                ['Direito Eleitoral', '80h'],
+                ['Ética e Cidadania', '60h'],
+                ['Análise do Cenário Econômico, Político e Social', '80h'],
+                ['Combate à Desinformação e às Fake News', '80h'],
+            ]],
+        ],
+    ],
+    'psicologia-do-transito' => [
+        'duration' => '04 a 12 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Psicologia do Trânsito',
+        'area' => 'Psicologia',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Psicologia do Trânsito EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Políticas Públicas e Legislação de Trânsito', '80h'],
+                ['Avaliação Psicológica e Psicodiagnóstico', '80h'],
+                ['Fundamentos da Psicologia Humanista', '80h'],
+                ['Ética e Cidadania', '80h'],
+                ['Psicologia da Personalidade', '80h'],
+                ['Psicologia do Desenvolvimento', '80h'],
+                ['Psicomotricidade', '80h'],
+            ]],
+        ],
+    ],
+    'neuropsicopedagogia' => [
+        'duration' => '04 a 12 meses',
+        'workload' => '720 horas',
+        'degree' => 'Especialista em Neuropsicopedagogia',
+        'area' => 'Psicologia',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Neuropsicopedagogia EAD.',
+        'modules' => [
+            ['Matriz curricular', '720 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Psicopedagogia', '80h'],
+                ['Psicologia da Aprendizagem', '80h'],
+                ['Psicologia do Desenvolvimento', '80h'],
+                ['Atuação Interdisciplinar e Neuroeducação', '80h'],
+                ['Neuroeducação e Tecnologias Educacionais', '80h'],
+                ['Neurociências e as Práticas Pedagógicas: Jogos, Brincadeiras e Didática Aplicadas à Neuroeducação', '80h'],
+                ['Desenvolvimento Neuropsicomotor e da Aprendizagem', '80h'],
+            ]],
+        ],
+    ],
+    'psicologia-hospitalar' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Psicologia Hospitalar',
+        'area' => 'Saúde',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Psicologia Hospitalar EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Comissões Hospitalares', '80h'],
+                ['Comunicação em Situações Difíceis no Tratamento Oncológico', '80h'],
+                ['Fundamentos da Psicologia Humanista', '80h'],
+                ['Ouvidoria Hospitalar', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Psicofarmacologia Clínica', '80h'],
+            ]],
+        ],
+    ],
+    'avaliacao-psicologica-e-psicodiagnostico' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Avaliação Psicológica e Psicologia Diagnóstica',
+        'area' => 'Psicologia',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Avaliação Psicológica e Psicologia Diagnóstica EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Avaliação Psicológica e Psicodiagnóstico', '80h'],
+                ['Fundamentos da Psicologia Humanista', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Psicologia da Personalidade', '80h'],
+                ['Psicologia do Desenvolvimento', '80h'],
+                ['Psicomotricidade', '80h'],
+            ]],
+        ],
+    ],
+    'pericia-social' => [
+        'duration' => '04 a 12 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Perícia Social',
+        'area' => 'Jurídica',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Perícia Social EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['A Política da Assistência Social, Ética e Direitos Humanos', '80h'],
+                ['Direito da Família', '80h'],
+                ['Direito da Criança e do Adolescente', '80h'],
+                ['Seguridade Social', '80h'],
+                ['Gestão Social, Acessória e Consultoria', '80h'],
+                ['Ética e Cidadania', '80h'],
+            ]],
+        ],
+    ],
+    'servico-social-no-terceiro-setor' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Serviço Social no Terceiro Setor',
+        'area' => 'Educação',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Serviço Social no Terceiro Setor EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Políticas Sociais', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Gestão Social, Assessoria e Consultoria', '80h'],
+                ['Classes e Movimentos Sociais', '80h'],
+                ['Gestão do Terceiro Setor', '80h'],
+                ['Serviço Social e Política Social', '80h'],
+            ]],
+        ],
+    ],
+    'servico-social-na-saude' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Serviço Social na Saúde',
+        'area' => 'Educação',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Serviço Social na Saúde EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Seguridade Social – Assistência Social', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Políticas Sociais', '80h'],
+                ['Tópicos Especiais em Serviço Social', '80h'],
+                ['Atenção Primária e a Estratégia Saúde da Família', '80h'],
+                ['Serviço Social e Política Social', '80h'],
+            ]],
+        ],
+    ],
+    'servico-social-na-educacao' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '440 horas',
+        'degree' => 'Especialista em Serviço Social na Educação',
+        'area' => 'Educação',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Serviço Social na Educação EAD.',
+        'modules' => [
+            ['Matriz curricular', '440 horas', [
+                ['Introdução à EAD', '40h'],
+                ['Serviço Social e Processos de Trabalho - Dimensão Técnico-Operativa', '40h'],
+                ['Serviço Social e Processos de Trabalho - Dimensão Pedagógica', '40h'],
+                ['Educação em Direitos Humanos', '40h'],
+                ['Ética e Cidadania', '40h'],
+                ['Segurança, Meio Ambiente, Saúde e Responsabilidade Social', '40h'],
+                ['Pensamento Científico', '40h'],
+                ['Educação das Relações Étnico-Raciais', '40h'],
+                ['Organização e Legislação da Educação', '40h'],
+                ['Educação Inclusiva', '40h'],
+                ['Cultura e Sociedade', '40h'],
+            ]],
+        ],
+    ],
+    'servico-social-na-administracao-publica' => [
+        'duration' => '04 a 06 meses',
+        'workload' => '560 horas',
+        'degree' => 'Especialista em Serviço Social na Administração Pública',
+        'area' => 'Educação',
+        'tcc' => 'Trabalho de Conclusão de Curso: opcional, conforme informativo oficial.',
+        'source' => 'Matriz curricular extraída do informativo oficial de Especialização em Serviço Social na Administração Pública EAD.',
+        'modules' => [
+            ['Matriz curricular', '560 horas', [
+                ['Introdução à EAD', '80h'],
+                ['Serviço Social e Política Social', '80h'],
+                ['Pensamento Científico', '80h'],
+                ['Administração Pública', '80h'],
+                ['Políticas Sociais', '80h'],
+                ['Planejamento e Gestão em Serviço Social', '80h'],
+                ['Serviço Social e Política Social', '80h'],
+            ]],
+        ],
+    ],
+];
+
 $groups = [
     'Direito' => [
         'Direito de Família e Sucessões',
@@ -216,7 +416,12 @@ foreach ($groups as $area => $courses) {
         $category = 'Pós-graduação e MBA';
         $isMba = str_starts_with($title, 'MBA em');
         $kind = $isMba ? 'MBA lato sensu' : 'Pós-graduação lato sensu';
-        $short = $title . '. ' . $kind . ' EAD, com titulação de Especialista, duração de 4 a 12 meses e carga horária de 400 a 800 horas, conforme informativo acadêmico.';
+        $curriculumKey = ibetp_slug_key(str_replace(['Especialização em ', 'MBA em '], '', $title));
+        $officialCurriculum = $officialPostgradCurricula[$curriculumKey] ?? null;
+        $duration = $officialCurriculum['duration'] ?? '4 a 12 meses';
+        $workload = $officialCurriculum['workload'] ?? '400 a 800 horas';
+        $officialDegree = $officialCurriculum['degree'] ?? 'Especialista';
+        $short = $title . '. ' . $kind . ' EAD, com titulação de ' . $officialDegree . ', duração de ' . $duration . ' e carga horária de ' . $workload . ', conforme informativo acadêmico.';
         $products[] = [
             'id' => $id,
             'slug' => $slug,
@@ -227,8 +432,8 @@ foreach ($groups as $area => $courses) {
             'currency' => 'BRL',
             'checkout_enabled' => 1,
             'status' => 'active',
-            'duration' => '4 a 12 meses',
-            'workload' => '400 a 800 horas',
+            'duration' => $duration,
+            'workload' => $workload,
             'image' => '',
             'short_description' => $short,
             'description' => $short . ' O IBETP realiza atendimento consultivo para matrícula, documentação e próximos passos acadêmicos, sem expor contatos de instituições parceiras.',
@@ -236,15 +441,15 @@ foreach ($groups as $area => $courses) {
             'seo_description' => $title . ' EAD no IBETP: investimento, documentos, modalidade, duração e funcionamento acadêmico para matrícula segura.',
             'updated_at' => '2026-07-21 00:00:00',
             'academic' => [
-                'duration' => '4 a 12 meses',
-                'workload' => '400 a 800 horas',
+                'duration' => $duration,
+                'workload' => $workload,
                 'modality_note' => 'Modalidade EAD, com a maior parte do conteúdo disponibilizada por videoaulas gravadas, trilhas de aprendizagem e materiais digitais.',
                 'presence' => 'Modalidade EAD com estudo online, materiais digitais, avaliações e acompanhamento acadêmico pelo ambiente de aprendizagem.',
                 'internship' => '',
-                'tcc' => '',
-                'source' => 'Informativo oficial de Pós-Graduação disponibilizado ao IBETP.',
-                'curriculum_note' => '',
-                'modules' => [],
+                'tcc' => $officialCurriculum['tcc'] ?? '',
+                'source' => $officialCurriculum['source'] ?? 'Informativo oficial de Pós-Graduação disponibilizado ao IBETP.',
+                'curriculum_note' => $officialCurriculum ? '' : 'Matriz curricular oficial ainda não vinculada a este cadastro. O IBETP deve publicar somente a grade extraída do informativo correspondente.',
+                'modules' => $officialCurriculum['modules'] ?? [],
             ],
         ];
     }

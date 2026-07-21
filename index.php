@@ -897,7 +897,7 @@ function render_checkout_form(array $product, array $values = [], array $errors 
         </div>
 
         <aside class="checkout-summary-card" aria-label="Resumo do pedido">
-          <img src="<?= e($image) ?>" alt="<?= e($product['title']) ?>">
+          <?php if ($image !== ''): ?><img src="<?= e($image) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
           <div class="checkout-summary-body">
             <span class="checkout-summary-kicker"><?= e(product_category_label($product)) ?></span>
             <h2><?= e($product['title']) ?></h2>
@@ -2077,7 +2077,7 @@ function premium_product_image(array $product): string {
                 }
             }
         }
-        return '/assets/produtos/tecnicos-ead-v2/tecnico-em-administracao.jpg';
+        return '';
     }
     $explicit = trim((string)($product['image_path'] ?? $product['image'] ?? ''));
     if ($explicit !== '' && str_starts_with($explicit, '/assets/') && file_exists(__DIR__ . $explicit)) {
@@ -2095,38 +2095,14 @@ function premium_product_image(array $product): string {
             return $titleSpecific;
         }
     }
-    if ((str_contains($slug, 'secretariado-escolar') || str_contains($title, 'secretaria escolar')) && file_exists(__DIR__ . '/assets/produtos/tecnicos-ead-v2/tecnico-em-secretaria-escolar.jpg')) {
-        return '/assets/produtos/tecnicos-ead-v2/tecnico-em-secretaria-escolar.jpg';
-    }
-    if (str_contains($title, 'enfermagem') || str_contains($title, 'saúde') || str_contains($title, 'saude') || str_contains($category, 'saúde') || str_contains($category, 'saude')) {
-        return '/assets/setor-saude-hospital-profissionais-premium.png';
-    }
-    if (str_contains($title, 'petróleo') || str_contains($title, 'petroleo') || str_contains($title, 'gás') || str_contains($title, 'gas') || str_contains($slug, 'petroleo') || str_contains($slug, 'gas')) {
-        return '/assets/setor-petroleo-gas-plataforma-offshore-premium.png';
-    }
-    if (str_contains($title, 'metal') || str_contains($title, 'solda') || str_contains($title, 'caldeir') || str_contains($title, 'mecânica') || str_contains($title, 'mecanica')) {
-        return '/assets/setor-metalurgica-caldeiraria-premium.png';
-    }
-    if (str_contains($title, 'administra') || str_contains($title, 'gestão') || str_contains($title, 'gestao') || str_contains($title, 'logística') || str_contains($title, 'logistica') || str_contains($category, 'gestão') || str_contains($category, 'gestao')) {
-        return '/assets/curso-gestao-administracao-premium.png';
-    }
-    if (str_contains($title, 'edifica') || str_contains($title, 'agrimens') || str_contains($title, 'constru') || str_contains($title, 'defesa civil') || str_contains($category, 'constru')) {
-        return '/assets/curso-construcao-agrimensura-edificacoes-premium.png';
-    }
-    if (str_contains($title, 'agro') || str_contains($title, 'agric') || str_contains($category, 'meio ambiente') || str_contains($category, 'ambient')) {
-        return '/assets/curso-agro-meio-ambiente-premium.png';
-    }
-    if (str_contains($title, 'educação física') || str_contains($title, 'educacao fisica') || str_contains($category, 'educação física') || str_contains($category, 'educacao fisica')) {
-        return '/assets/artigo-educacao-fisica-inclusiva-premium.png';
-    }
-    if (str_contains($category, 'indústria') || str_contains($category, 'industria')) {
-        return '/assets/hero-industria-profissionais-tecnicos-premium.png';
-    }
-    return '/assets/hero-industria-profissionais-tecnicos-premium.png';
+    return '';
 }
 
 function product_image_url(array $product): string {
     $path = premium_product_image($product);
+    if ($path === '') {
+        return '';
+    }
     $url = absolute_asset($path);
     if (product_is_technical_ead($product)) {
         $separator = str_contains($url, '?') ? '&' : '?';
@@ -3286,7 +3262,7 @@ if ($path === '' || $path === 'index.php') {
       </section>
       <section class="grid-section">
         <h2>Cursos e produtos em destaque</h2>
-        <div class="cards"><?php foreach ($products as $p): ?><a class="card" href="<?= e(site_url('/produto/' . $p['slug'])) ?>"><img src="<?= e(product_image_url($p)) ?>" alt="<?= e($p['title']) ?>"><strong><?= e($p['title']) ?></strong><span><?= e($p['category']) ?></span></a><?php endforeach; ?></div>
+        <div class="cards"><?php foreach ($products as $p): $productCardImage = product_image_url($p); ?><a class="card" href="<?= e(site_url('/produto/' . $p['slug'])) ?>"><?php if ($productCardImage !== ''): ?><img src="<?= e($productCardImage) ?>" alt="<?= e($p['title']) ?>"><?php endif; ?><strong><?= e($p['title']) ?></strong><span><?= e($p['category']) ?></span></a><?php endforeach; ?></div>
       </section>
       <section class="grid-section">
         <h2>Conteúdos recentes</h2>
@@ -3341,7 +3317,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><img src="<?= e(product_image_url($item)) ?>" alt="<?= e($item['title']) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
+        <?php $courseCardImage = product_image_url($item); ?><a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><?php if ($courseCardImage !== ''): ?><img src="<?= e($courseCardImage) ?>" alt="<?= e($item['title']) ?>"><?php endif; ?><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
       <?php else: ?>
         <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a>
       <?php endif; ?>
@@ -3672,7 +3648,6 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
         'name' => $product['title'],
         'description' => excerpt($product['short_description'] ?: $product['description'], 240),
         'url' => site_url('/produto/' . $product['slug']),
-        'image' => absolute_asset(premium_product_image($product)),
         'provider' => ['@id' => site_url('/#organization')],
         'offers' => [
             '@type' => 'Offer',
@@ -3682,6 +3657,10 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
             'url' => site_url('/produto/' . $product['slug'])
         ]
     ];
+    $schemaImage = product_image_url($product);
+    if ($schemaImage !== '') {
+        $productSchema['image'] = $schemaImage;
+    }
     $schemas = [$productSchema, breadcrumb_schema(['Início' => site_url('/'), 'Cursos' => site_url('/cursos'), $product['title'] => site_url('/produto/' . $product['slug'])])];
     layout($product['title'] . ' | IBETP', excerpt($product['short_description'] ?: $product['description']), ob_get_clean(), premium_product_image($product), $isCheckoutTestProduct, $schemas); exit;
 }

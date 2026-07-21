@@ -897,7 +897,7 @@ function render_checkout_form(array $product, array $values = [], array $errors 
         </div>
 
         <aside class="checkout-summary-card" aria-label="Resumo do pedido">
-          <?php if ($image !== ''): ?><img src="<?= e($image) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
+          <?= product_visual_art($product, 'checkout') ?>
           <div class="checkout-summary-body">
             <span class="checkout-summary-kicker"><?= e(product_category_label($product)) ?></span>
             <h2><?= e($product['title']) ?></h2>
@@ -1202,6 +1202,69 @@ function product_catalog_card_summary(array $product): string {
         return $area . ' • ' . $summary;
     }
     return $summary;
+}
+
+function product_visual_icon_key(array $product): string {
+    $key = ibetp_slug_key((string)($product['title'] ?? '') . ' ' . product_category_label($product) . ' ' . product_area_label($product));
+    if (product_is_competency_certification($product)) return 'certificate';
+    if (product_is_post_technical($product)) return 'specialty';
+    if (str_contains($key, 'enfermagem') || str_contains($key, 'saude') || str_contains($key, 'nutricao') || str_contains($key, 'estetica') || str_contains($key, 'agente-comunitario')) return 'health';
+    if (str_contains($key, 'informatica') || str_contains($key, 'computacao') || str_contains($key, 'sistemas') || str_contains($key, 'redes') || str_contains($key, 'programacao') || str_contains($key, 'jogos') || str_contains($key, 'internet')) return 'technology';
+    if (str_contains($key, 'administracao') || str_contains($key, 'gestao') || str_contains($key, 'recursos-humanos') || str_contains($key, 'marketing') || str_contains($key, 'contabilidade') || str_contains($key, 'secretaria') || str_contains($key, 'servicos-juridicos') || str_contains($key, 'transacoes-imobiliarias')) return 'management';
+    if (str_contains($key, 'agrimensura') || str_contains($key, 'edificacoes') || str_contains($key, 'construcao') || str_contains($key, 'estrada') || str_contains($key, 'saneamento') || str_contains($key, 'mineracao')) return 'construction';
+    if (str_contains($key, 'mecanica') || str_contains($key, 'mecatronica') || str_contains($key, 'eletro') || str_contains($key, 'automacao') || str_contains($key, 'metalurgia') || str_contains($key, 'soldagem') || str_contains($key, 'petroleo') || str_contains($key, 'gas') || str_contains($key, 'maquinas')) return 'engineering';
+    if (str_contains($key, 'agro') || str_contains($key, 'ambiente') || str_contains($key, 'agricultura') || str_contains($key, 'aquicultura') || str_contains($key, 'renovavel')) return 'environment';
+    if (str_contains($key, 'seguranca') || str_contains($key, 'defesa-civil') || str_contains($key, 'incendio') || str_contains($key, 'transito')) return 'safety';
+    if (str_contains($key, 'turismo') || str_contains($key, 'eventos') || str_contains($key, 'gastronomia') || str_contains($key, 'confeitaria') || str_contains($key, 'interiores')) return 'services';
+    if (str_contains($key, 'educacao') || str_contains($key, 'pedagogia') || str_contains($key, 'libras')) return 'education';
+    return 'institutional';
+}
+
+function product_visual_art(array $product, string $size = 'card'): string {
+    $icon = product_visual_icon_key($product);
+    $area = product_area_label($product);
+    $category = product_category_label($product);
+    $title = trim((string)($product['title'] ?? 'Curso IBETP'));
+    $initials = '';
+    foreach (preg_split('/\s+/u', preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $title)) as $word) {
+        $w = trim($word);
+        if ($w === '' || mb_strlen($w, 'UTF-8') < 3 || in_array(mb_strtolower($w, 'UTF-8'), ['ead','com','para','curso','tecnico','técnico','tecnologo','tecnólogo'], true)) continue;
+        $initials .= mb_substr($w, 0, 1, 'UTF-8');
+        if (mb_strlen($initials, 'UTF-8') >= 3) break;
+    }
+    $initials = mb_strtoupper($initials ?: 'IB', 'UTF-8');
+    return '<div class="product-visual-art product-visual-' . e($icon) . ' product-visual-' . e($size) . '" aria-hidden="true">'
+        . '<div class="product-visual-orbit one"></div><div class="product-visual-orbit two"></div>'
+        . '<div class="product-visual-core">' . product_visual_svg($icon) . '</div>'
+        . '<div class="product-visual-initials">' . e($initials) . '</div>'
+        . '<div class="product-visual-meta"><span>' . e($category) . '</span><strong>' . e($area) . '</strong></div>'
+        . '</div>';
+}
+
+function product_visual_svg(string $icon): string {
+    $svg = [
+        'health' => '<svg viewBox="0 0 96 96" role="img"><path d="M48 18v60M18 48h60"/><path d="M18 68c12-23 23-23 34-6 8 12 15 6 26-22"/></svg>',
+        'technology' => '<svg viewBox="0 0 96 96" role="img"><path d="M28 34 14 48l14 14M68 34l14 14-14 14M56 24 40 72"/><rect x="23" y="20" width="50" height="56" rx="10"/></svg>',
+        'management' => '<svg viewBox="0 0 96 96" role="img"><path d="M20 72h56M28 62V44M48 62V28M68 62V36"/><path d="M24 28h50M24 28v46M74 28v46"/></svg>',
+        'construction' => '<svg viewBox="0 0 96 96" role="img"><path d="M18 68h60M24 62l8-30 16-10 16 10 8 30"/><path d="M36 62V42h24v20M30 76h36"/></svg>',
+        'engineering' => '<svg viewBox="0 0 96 96" role="img"><path d="M48 28v-8M48 76v-8M28 48h-8M76 48h-8M34 34l-6-6M68 68l-6-6M62 34l6-6M28 68l6-6"/><circle cx="48" cy="48" r="18"/><circle cx="48" cy="48" r="6"/></svg>',
+        'environment' => '<svg viewBox="0 0 96 96" role="img"><path d="M72 22C44 22 22 38 22 66c30 4 52-12 50-44Z"/><path d="M22 66c18-20 32-28 50-44M44 70c0-20-12-32-28-38"/></svg>',
+        'safety' => '<svg viewBox="0 0 96 96" role="img"><path d="M48 14 76 26v20c0 19-11 33-28 42-17-9-28-23-28-42V26l28-12Z"/><path d="m34 48 9 9 20-22"/></svg>',
+        'services' => '<svg viewBox="0 0 96 96" role="img"><path d="M48 16 58 38l24 3-18 17 5 24-21-12-21 12 5-24-18-17 24-3 10-22Z"/></svg>',
+        'education' => '<svg viewBox="0 0 96 96" role="img"><path d="M18 30c16-6 24-3 30 4 6-7 14-10 30-4v42c-16-6-24-3-30 4-6-7-14-10-30-4V30Z"/><path d="M48 34v42"/></svg>',
+        'certificate' => '<svg viewBox="0 0 96 96" role="img"><rect x="20" y="18" width="56" height="48" rx="8"/><path d="M32 34h32M32 46h22M38 66l-8 16 18-8 18 8-8-16"/></svg>',
+        'specialty' => '<svg viewBox="0 0 96 96" role="img"><path d="M48 14 60 38l26 4-19 18 5 26-24-13-24 13 5-26-19-18 26-4 12-24Z"/><circle cx="48" cy="51" r="10"/></svg>',
+        'institutional' => '<svg viewBox="0 0 96 96" role="img"><path d="M20 74h56M26 66V36l22-14 22 14v30"/><path d="M38 66V46h20v20"/></svg>',
+    ];
+    return $svg[$icon] ?? $svg['institutional'];
+}
+
+function product_payment_condition_label(array $product): string {
+    if (product_is_technical_ead($product)) return '1ª mensalidade via Pix; demais mensalidades por link mensal.';
+    if (product_is_technologist($product)) return 'Matrícula via Pix; mensalidades de R$ 149,90 no AVA.';
+    if (product_is_competency_certification($product)) return 'À vista ou em até 12x com juros no cartão.';
+    if (product_is_post_technical($product)) return 'À vista ou parcelado com juros no cartão.';
+    return 'Condições confirmadas com a equipe IBETP.';
 }
 
 function product_catalog_filter_groups(array $items, callable $labeler, callable $weight): array {
@@ -2038,6 +2101,7 @@ function premium_post_image(array $post): string {
 }
 
 function premium_product_image(array $product): string {
+    return '';
     $category = strtolower((string)($product['category'] ?? ''));
     $title = strtolower((string)($product['title'] ?? ''));
     $slug = strtolower((string)($product['slug'] ?? ''));
@@ -2099,16 +2163,7 @@ function premium_product_image(array $product): string {
 }
 
 function product_image_url(array $product): string {
-    $path = premium_product_image($product);
-    if ($path === '') {
-        return '';
-    }
-    $url = absolute_asset($path);
-    if (product_is_technical_ead($product)) {
-        $separator = str_contains($url, '?') ? '&' : '?';
-        return $url . $separator . 'v=tecnicos-ead-unicos-20260720';
-    }
-    return $url;
+    return '';
 }
 
 function product_investment_text(array $product): string {
@@ -3317,7 +3372,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <?php $courseCardImage = product_image_url($item); ?><a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><?php if ($courseCardImage !== ''): ?><img src="<?= e($courseCardImage) ?>" alt="<?= e($item['title']) ?>"><?php endif; ?><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta"><small><?= e(product_investment_label($item)) ?></small><b>Ver detalhes ?</b></div></div></a>
+        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><?= product_visual_art($item, 'card') ?><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta course-meta-payment"><small><?= e(product_investment_label($item)) ?></small><div><span><?= e(product_payment_condition_label($item)) ?></span><b>Ver detalhes ?</b></div></div></div></a>
       <?php else: ?>
         <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a>
       <?php endif; ?>
@@ -3443,7 +3498,7 @@ if (preg_match('#^produto/([^/]+)$#', $path, $m)) {
           </div>
         </div>
         <aside class="product-visual-card">
-          <?php if (premium_product_image($product)): ?><img src="<?= e(product_image_url($product)) ?>" alt="<?= e($product['title']) ?>"><?php endif; ?>
+          <?= product_visual_art($product, 'hero') ?>
         </aside>
       </section>
       <section class="product-trust wrap">

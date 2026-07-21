@@ -1221,23 +1221,11 @@ function product_visual_icon_key(array $product): string {
 }
 
 function product_visual_art(array $product, string $size = 'card'): string {
-    $icon = product_visual_icon_key($product);
-    $area = product_area_label($product);
     $category = product_category_label($product);
-    $title = trim((string)($product['title'] ?? 'Curso IBETP'));
-    $initials = '';
-    foreach (preg_split('/\s+/u', preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $title)) as $word) {
-        $w = trim($word);
-        if ($w === '' || mb_strlen($w, 'UTF-8') < 3 || in_array(mb_strtolower($w, 'UTF-8'), ['ead','com','para','curso','tecnico','técnico','tecnologo','tecnólogo'], true)) continue;
-        $initials .= mb_substr($w, 0, 1, 'UTF-8');
-        if (mb_strlen($initials, 'UTF-8') >= 3) break;
-    }
-    $initials = mb_strtoupper($initials ?: 'IB', 'UTF-8');
-    return '<div class="product-visual-art product-visual-' . e($icon) . ' product-visual-' . e($size) . '" aria-hidden="true">'
-        . '<div class="product-visual-orbit one"></div><div class="product-visual-orbit two"></div>'
-        . '<div class="product-visual-core">' . product_visual_svg($icon) . '</div>'
-        . '<div class="product-visual-initials">' . e($initials) . '</div>'
-        . '<div class="product-visual-meta"><span>' . e($category) . '</span><strong>' . e($area) . '</strong></div>'
+    return '<div class="product-payment-panel product-payment-panel-' . e($size) . '">'
+        . '<span>' . e($category) . '</span>'
+        . '<strong>' . e(product_investment_label($product)) . '</strong>'
+        . '<p>' . e(product_payment_condition_label($product)) . '</p>'
         . '</div>';
 }
 
@@ -3372,7 +3360,7 @@ if ($path === 'blog' || $path === 'glossario' || $path === 'cursos') {
     ob_start(); ?><main><section class="page-hero <?= $path === 'cursos' ? 'courses-hero' : '' ?>"><p class="eyebrow"><?= $path === 'cursos' ? 'Vitrine IBETP' : 'IBETP' ?></p><h1><?= e($heading) ?></h1><p><?= $path === 'cursos' ? 'Escolha sua formação com clareza: catálogo organizado por modalidade e área profissional, atendimento consultivo e caminhos de matrícula para avançar com segurança.' : 'Conteúdos organizados, claros e orientados para decisão.' ?></p></section><?php if ($path === 'cursos'): ?><section class="course-search-panel" aria-label="Pesquisar cursos"><div><span>Busca inteligente</span><h2>Encontre o curso certo por nome, área ou modalidade.</h2><p>Use a pesquisa ou combine os filtros. O catálogo mostra apenas cursos ativos e organizados com atendimento do IBETP.</p></div><div class="course-search-controls"><label for="course-search">Pesquisar curso</label><div class="course-search-input-wrap"><input id="course-search" type="search" placeholder="Ex.: Administração, Mecatrônica, Saúde, Tecnologia..." autocomplete="off"><button type="button" id="course-search-submit">Pesquisar cursos</button><button type="button" id="course-search-clear">Limpar</button></div><small id="course-search-count"><?= count($items) ?> cursos disponíveis</small></div></section><div class="course-filter-block"><p class="course-filter-heading">Filtrar por modalidade</p><?= render_course_filter_nav($courseModalities, 'modalidade', 'Todas as modalidades', count($items)) ?><p class="course-filter-heading">Filtrar por área profissional</p><?= render_course_filter_nav($courseAreas, 'area', 'Todas as áreas', count($items)) ?></div><?php endif; ?><section id="<?= $path === 'cursos' ? 'course-results' : '' ?>" class="cards archive <?= $path === 'cursos' ? 'course-archive' : 'article-cards' ?>">
     <?php foreach ($items as $item): $url = $path === 'cursos' ? '/produto/' . $item['slug'] : '/' . $path . '/' . $item['slug']; ?>
       <?php if ($path === 'cursos'): ?>
-        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><?= product_visual_art($item, 'card') ?><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta course-meta-payment"><small><?= e(product_investment_label($item)) ?></small><div><span><?= e(product_payment_condition_label($item)) ?></span><b>Ver detalhes ?</b></div></div></div></a>
+        <a class="card course-list-card" href="<?= e(site_url($url)) ?>" data-course-card data-modalidade="<?= e(ibetp_slug_key(product_category_label($item))) ?>" data-area="<?= e(ibetp_slug_key(product_area_label($item))) ?>" data-search="<?= e(product_catalog_search_text($item)) ?>"><div class="card-body"><em><?= e(product_category_label($item)) ?></em><small class="course-area-pill"><?= e(product_area_label($item)) ?></small><strong><?= e($item['title']) ?></strong><span><?= e(product_catalog_card_summary($item)) ?></span><div class="course-meta course-meta-payment"><small><?= e(product_investment_label($item)) ?></small><div><span><?= e(product_payment_condition_label($item)) ?></span><b>Ver detalhes ?</b></div></div></div></a>
       <?php else: ?>
         <a class="card compact-card" href="<?= e(site_url($url)) ?>"><img src="<?= e(absolute_asset(premium_post_image($item))) ?>" alt="<?= e($item['featured_alt'] ?? $item['title']) ?>"><div class="card-body"><em><?= e($path === 'glossario' ? 'Glossário' : 'Blog') ?></em><strong><?= e($item['title']) ?></strong><span><?= e(card_summary($item, 78)) ?></span><b>Ler conteúdo ?</b></div></a>
       <?php endif; ?>

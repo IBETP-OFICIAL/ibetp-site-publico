@@ -179,3 +179,20 @@ body{overflow-x:hidden;background:#f3f7fc;color:#061b45;text-rendering:optimizeL
 .checkout-summary-card .product-visual-art{height:230px!important;border-radius:0!important}.checkout-summary-card .product-visual-core{width:104px;height:104px;border-radius:30px}
 @media(max-width:980px){.product-visual-card .product-visual-art{min-height:330px}.product-visual-card .product-visual-core{width:128px;height:128px}.product-visual-card .product-visual-core svg{width:72px;height:72px}.product-visual-card .product-visual-orbit.one{width:260px}.product-visual-card .product-visual-orbit.two{width:330px}}
 @media(max-width:760px){.course-list-card .product-visual-art{height:178px!important;min-height:178px!important}.course-meta-payment{align-items:flex-start!important}.course-meta-payment div span{font-size:12px!important;max-width:135px!important}.product-visual-card .product-visual-art{min-height:280px;border-radius:26px}.product-visual-card .product-visual-initials{font-size:64px}.checkout-summary-card .product-visual-art{height:210px!important}}
+/* Correção: produtos sem foto e sem elemento visual; somente valor e pagamento */
+.course-list-card{overflow:hidden!important;background:#fff!important}
+.course-list-card .product-visual-art,.course-list-card .product-payment-panel-card{display:none!important}
+.course-list-card .card-body{padding-top:28px!important;min-height:100%!important}
+.product-visual-card{align-self:center!important;justify-self:end!important;display:block!important;width:100%!important;max-width:430px!important;aspect-ratio:auto!important;min-height:0!important;overflow:visible!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+.product-visual-card .product-visual-art,.product-visual-card .product-visual-core,.product-visual-card .product-visual-orbit,.product-visual-card .product-visual-initials,.product-visual-card .product-visual-meta{display:none!important}
+.product-payment-panel{position:relative;overflow:hidden;border-radius:32px;background:linear-gradient(135deg,#061b45 0%,#057c45 100%);border:1px solid rgba(255,255,255,.22);box-shadow:0 28px 72px rgba(6,27,69,.22);color:#fff}
+.product-payment-panel:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 86% 0,rgba(255,207,46,.2),transparent 30%),radial-gradient(circle at 0 100%,rgba(255,255,255,.16),transparent 28%);pointer-events:none}
+.product-payment-panel span,.product-payment-panel strong,.product-payment-panel p{position:relative;z-index:1}
+.product-payment-panel span{display:inline-flex;width:max-content;max-width:100%;margin-bottom:18px;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#ffcf2e;font-size:12px;font-weight:950;letter-spacing:.09em;text-transform:uppercase}
+.product-payment-panel strong{display:block;color:#fff;font-size:clamp(38px,4.2vw,58px);line-height:1.02;font-weight:950;letter-spacing:-.04em}
+.product-payment-panel p{margin:16px 0 0!important;color:#eef6ff!important;font-size:20px!important;line-height:1.55!important;font-weight:750!important}
+.product-payment-panel-hero{padding:36px;min-height:300px;display:flex;flex-direction:column;justify-content:center}
+.product-payment-panel-checkout{border-radius:0;padding:22px;min-height:190px;box-shadow:none}.product-payment-panel-checkout strong{font-size:32px}.product-payment-panel-checkout p{font-size:16px!important}
+.checkout-summary-card .product-payment-panel{height:auto!important}
+@media(max-width:980px){.product-visual-card{max-width:none!important}.product-payment-panel-hero{min-height:0;padding:28px}.product-payment-panel strong{font-size:38px}.product-payment-panel p{font-size:18px!important}}
+@media(max-width:760px){.course-list-card .card-body{padding-top:24px!important}.product-payment-panel-hero{padding:24px;border-radius:26px}.product-payment-panel strong{font-size:34px}.product-payment-panel p{font-size:17px!important}}

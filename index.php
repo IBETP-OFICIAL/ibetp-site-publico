@@ -17,6 +17,7 @@ if ($basePath !== '' && ($path === $basePath || str_starts_with($path, $basePath
     $path = trim(substr($path, strlen($basePath)), '/');
 }
 publish_due_posts();
+sync_profession_articles_20260722();
 
 $redirect = find_redirect($path);
 if ($redirect) {
@@ -2248,6 +2249,30 @@ function whatsapp_course_url(array $product): string {
     }
     $message = 'Olá, IBETP! Tenho interesse em ' . $context . '. Pode me passar detalhes sobre matrícula, valores, requisitos, documentação e próximas turmas?';
     return 'https://wa.me/5521983177702?text=' . rawurlencode($message);
+}
+
+
+function sync_profession_articles_20260722(): void {
+    $file = __DIR__ . '/data-profession-articles.php';
+    if (!is_file($file)) return;
+    $articles = require $file;
+    if (!is_array($articles)) return;
+    $checksum = md5_file($file) ?: '';
+    try {
+        if (function_exists('setting') && setting('profession_articles_checksum_20260722', '') === $checksum) return;
+    } catch (Throwable $e) {}
+    foreach ($articles as $article) {
+        if (empty($article['slug']) || empty($article['title'])) continue;
+        $exists = Database::one("SELECT id FROM posts WHERE slug=? LIMIT 1", [$article['slug']]);
+        if ($exists) {
+            Database::exec("UPDATE posts SET title=?, type=?, excerpt=?, content=?, featured_image=?, seo_title=?, seo_description=?, noindex=?, status='published', updated_at=NOW() WHERE slug=?", [$article['title'], $article['type'] ?? 'post', $article['excerpt'] ?? '', $article['content'] ?? '', $article['featured_image'] ?? '', $article['seo_title'] ?? $article['title'], $article['seo_description'] ?? ($article['excerpt'] ?? ''), (int)($article['noindex'] ?? 0), $article['slug']]);
+        } else {
+            Database::exec("INSERT INTO posts (title, slug, type, excerpt, content, featured_image, seo_title, seo_description, status, noindex, published_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'published', ?, NOW(), NOW())", [$article['title'], $article['slug'], $article['type'] ?? 'post', $article['excerpt'] ?? '', $article['content'] ?? '', $article['featured_image'] ?? '', $article['seo_title'] ?? $article['title'], $article['seo_description'] ?? ($article['excerpt'] ?? ''), (int)($article['noindex'] ?? 0)]);
+        }
+    }
+    try {
+        if (function_exists('save_setting')) save_setting('profession_articles_checksum_20260722', $checksum);
+    } catch (Throwable $e) {}
 }
 
 function premium_post_image(array $post): string {

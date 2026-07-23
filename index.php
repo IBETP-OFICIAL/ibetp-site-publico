@@ -18,6 +18,7 @@ if ($basePath !== '' && ($path === $basePath || str_starts_with($path, $basePath
 }
 publish_due_posts();
 sync_profession_articles_20260722();
+sync_recovered_seo_content_20260722();
 
 $redirect = find_redirect($path);
 if ($redirect) {
@@ -2272,6 +2273,29 @@ function sync_profession_articles_20260722(): void {
     }
     try {
         if (function_exists('save_setting')) save_setting('profession_articles_checksum_20260722', $checksum);
+    } catch (Throwable $e) {}
+}
+
+function sync_recovered_seo_content_20260722(): void {
+    $file = __DIR__ . '/data-recovered-seo-content.php';
+    if (!is_file($file)) return;
+    $items = require $file;
+    if (!is_array($items)) return;
+    $checksum = md5_file($file) ?: '';
+    try {
+        if (function_exists('setting') && setting('recovered_seo_content_checksum_20260722', '') === $checksum) return;
+    } catch (Throwable $e) {}
+    foreach ($items as $item) {
+        if (empty($item['slug']) || empty($item['title'])) continue;
+        $exists = Database::one("SELECT id FROM posts WHERE slug=? LIMIT 1", [$item['slug']]);
+        if ($exists) {
+            Database::exec("UPDATE posts SET title=?, type=?, excerpt=?, content=?, featured_image=?, seo_title=?, seo_description=?, noindex=?, status='published', updated_at=NOW() WHERE slug=?", [$item['title'], $item['type'] ?? 'page', $item['excerpt'] ?? '', $item['content'] ?? '', $item['featured_image'] ?? '', $item['seo_title'] ?? $item['title'], $item['seo_description'] ?? ($item['excerpt'] ?? ''), (int)($item['noindex'] ?? 0), $item['slug']]);
+        } else {
+            Database::exec("INSERT INTO posts (title, slug, type, excerpt, content, featured_image, seo_title, seo_description, status, noindex, published_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'published', ?, NOW(), NOW())", [$item['title'], $item['slug'], $item['type'] ?? 'page', $item['excerpt'] ?? '', $item['content'] ?? '', $item['featured_image'] ?? '', $item['seo_title'] ?? $item['title'], $item['seo_description'] ?? ($item['excerpt'] ?? ''), (int)($item['noindex'] ?? 0)]);
+        }
+    }
+    try {
+        if (function_exists('save_setting')) save_setting('recovered_seo_content_checksum_20260722', $checksum);
     } catch (Throwable $e) {}
 }
 

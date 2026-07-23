@@ -55,6 +55,12 @@ Exportação do Google Search Console: `https://ibetp.com.br/-Performance-on-Sea
 - https://ibetp.com.br/glossario/qual-a-diferenca-entre-matematica-financeira-e-educacao-financeira
 - https://ibetp.com.br/glossario/como-era-a-educacao-nos-anos-80-e-90
 - https://ibetp.com.br/glossario/como-trabalhar-o-tema-paz-na-educacao-infantil
+- https://ibetp.com.br/artigos/tecnico-de-secretaria-escolar
+- https://ibetp.com.br/artigos/manutencao-de-ar-condicionado
+- https://ibetp.com.br/artigos/como-educar-seus-filhos
+- https://ibetp.com.br/blog/tecnico-enfermagem-vitoria-mercado-trabalho-2026
+- https://ibetp.com.br/blog/bem-vindo-ao-blog-do-ibetp
+- https://ibetp.com.br/blog/tecnico-em-seguranca-do-trabalho-salario-mercado-2026
 
 ## Critério de prioridade
 
@@ -67,6 +73,7 @@ Foram priorizados URLs com histórico de cliques, impressões e/ou menção expl
 - Páginas passam a entrar automaticamente no sitemap do site.
 - CTAs internos apontam para cursos, catálogo e WhatsApp do IBETP.
 - Conteúdo evita citar instituições parceiras, concorrentes, escolas ou agências.
+- A URL antiga `/blog/hello-world` não foi recuperada por ser conteúdo de teste sem valor editorial; manter fora do índice é mais seguro para SEO.
 
 ## Próxima etapa recomendada
 

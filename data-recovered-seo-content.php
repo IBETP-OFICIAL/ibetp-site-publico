@@ -795,4 +795,97 @@ HTML,
 <div class="cta-panel"><div><strong>Educação com cuidado e intencionalidade</strong><p>Conheça cursos do IBETP ligados à educação, aprendizagem e desenvolvimento infantil.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
 HTML,
     ],
+    [
+        'title' => 'Técnico de Secretaria Escolar: o que faz, mercado e formação',
+        'slug' => 'artigos/tecnico-de-secretaria-escolar',
+        'type' => 'page',
+        'excerpt' => 'Entenda a atuação do Técnico em Secretaria Escolar, responsabilidades, documentos, rotina administrativa e caminhos de formação.',
+        'featured_image' => '/assets/curso-gestao-administracao-premium.png',
+        'seo_title' => 'Técnico de Secretaria Escolar: o que faz | IBETP',
+        'seo_description' => 'Saiba o que faz o Técnico de Secretaria Escolar, onde atua, quais competências precisa desenvolver e como seguir na área.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Carreira educacional</p><h1>Técnico de Secretaria Escolar: o que faz, mercado e formação</h1><p class="lead">O Técnico de Secretaria Escolar atua na organização documental, atendimento, registros acadêmicos, processos administrativos e apoio à gestão educacional. É uma função estratégica para o funcionamento correto de instituições de ensino.</p></section>
+<section class="content-section"><h2>Principais atividades</h2><div class="premium-grid three"><article class="info-card"><strong>Documentação</strong><p>Organização de matrículas, históricos, declarações, arquivos e registros.</p></article><article class="info-card"><strong>Atendimento</strong><p>Comunicação com alunos, responsáveis, professores e equipe administrativa.</p></article><article class="info-card"><strong>Rotina escolar</strong><p>Apoio a calendário, processos internos, sistemas e fluxo de informações.</p></article></div></section>
+<section class="content-section"><h2>Perfil profissional</h2><p>Esse profissional precisa de atenção a detalhes, postura ética, organização, comunicação clara, sigilo sobre dados pessoais e domínio de rotinas administrativas. Em ambientes educacionais, erro documental pode gerar transtornos importantes, por isso a formação faz diferença.</p></section>
+<section class="content-section"><h2>Mercado de trabalho</h2><p>A atuação pode ocorrer em escolas, cursos, centros educacionais, setores administrativos e ambientes que lidam com documentação acadêmica. A demanda cresce quando instituições buscam atendimento mais organizado e gestão documental mais segura.</p></section>
+<div class="cta-panel"><div><strong>Quer atuar com secretaria escolar?</strong><p>Veja o curso relacionado no catálogo IBETP e tire dúvidas antes da matrícula.</p></div><p><a class="btn primary" href="/produto/tecnico-ead-secretariado-escolar">Ver curso relacionado</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Manutenção de ar-condicionado: carreira, segurança e formação técnica',
+        'slug' => 'artigos/manutencao-de-ar-condicionado',
+        'type' => 'page',
+        'excerpt' => 'Guia sobre manutenção de ar-condicionado, atuação profissional, segurança, refrigeração e oportunidades na área técnica.',
+        'featured_image' => '/assets/setor-metalurgica-caldeiraria-premium.png',
+        'seo_title' => 'Manutenção de ar-condicionado: carreira e formação | IBETP',
+        'seo_description' => 'Entenda a área de manutenção de ar-condicionado, refrigeração, climatização, segurança técnica e caminhos de formação.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Refrigeração e climatização</p><h1>Manutenção de ar-condicionado: carreira, segurança e formação técnica</h1><p class="lead">A manutenção de ar-condicionado envolve instalação, diagnóstico, limpeza, conservação, correção de falhas e cuidado com sistemas de climatização. É uma área técnica com demanda em residências, empresas, hospitais, comércio e indústria.</p></section>
+<section class="content-section"><h2>O que o profissional precisa saber</h2><div class="premium-grid three"><article class="info-card"><strong>Diagnóstico</strong><p>Identificar ruídos, vazamentos, falhas elétricas, baixo rendimento e problemas de operação.</p></article><article class="info-card"><strong>Segurança</strong><p>Trabalhar com EPIs, eletricidade, altura, ferramentas e procedimentos corretos.</p></article><article class="info-card"><strong>Manutenção</strong><p>Executar limpeza, ajustes, troca de componentes e orientação ao cliente.</p></article></div></section>
+<section class="content-section"><h2>Por que a área segue relevante?</h2><p>Climatização está ligada a conforto, produtividade, conservação de equipamentos e qualidade do ar. Ambientes comerciais e industriais dependem de manutenção preventiva para reduzir custos e evitar paradas.</p></section>
+<div class="cta-panel"><div><strong>Formação técnica para atuar na área</strong><p>Veja cursos do IBETP relacionados a refrigeração, climatização, eletrotécnica e manutenção.</p></div><p><a class="btn primary" href="/cursos?busca=refrigeracao">Ver cursos relacionados</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como educar seus filhos com afeto, limites e responsabilidade',
+        'slug' => 'artigos/como-educar-seus-filhos',
+        'type' => 'page',
+        'excerpt' => 'Orientações educativas sobre criação de filhos com diálogo, limites, rotina, cuidado emocional e parceria com a escola.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como educar seus filhos com afeto e limites | IBETP',
+        'seo_description' => 'Veja orientações para educar filhos com diálogo, rotina, limites respeitosos, responsabilidade e apoio à vida escolar.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Família e educação</p><h1>Como educar seus filhos com afeto, limites e responsabilidade</h1><p class="lead">Educar filhos não é escolher entre carinho e limite. Crianças e adolescentes precisam de afeto, presença, escuta, rotina, proteção, regras claras e adultos coerentes.</p></section>
+<section class="content-section"><h2>Pilares de uma educação saudável</h2><div class="premium-grid three"><article class="info-card"><strong>Vínculo</strong><p>Escuta, tempo de qualidade e demonstrações de cuidado fortalecem segurança emocional.</p></article><article class="info-card"><strong>Limites</strong><p>Regras claras ajudam a criança a compreender consequências e convivência.</p></article><article class="info-card"><strong>Exemplo</strong><p>Adultos educam também pelo comportamento diário, não apenas pelo discurso.</p></article></div></section>
+<section class="content-section"><h2>Rotina e escola</h2><p>Horário de sono, estudo, alimentação, uso de telas e participação escolar ajudam no desenvolvimento. A parceria entre família e escola precisa ser respeitosa e baseada em comunicação clara.</p></section>
+<section class="content-section"><h2>Quando buscar ajuda</h2><p>Se houver sofrimento intenso, violência, isolamento, queda brusca no desempenho, medo constante ou conflitos persistentes, a família deve buscar apoio profissional e institucional adequado.</p></section>
+<div class="cta-panel"><div><strong>Educação transforma trajetórias</strong><p>Conheça conteúdos e formações do IBETP ligados à educação, desenvolvimento e cuidado.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Técnico em Enfermagem em Vitória: mercado de trabalho e oportunidades',
+        'slug' => 'tecnico-enfermagem-vitoria-mercado-trabalho-2026',
+        'type' => 'post',
+        'excerpt' => 'Panorama sobre mercado de trabalho para Técnico em Enfermagem, atuação em saúde, documentação profissional e tendências.',
+        'featured_image' => '/assets/setor-saude-hospital-profissionais-premium.png',
+        'seo_title' => 'Técnico em Enfermagem: mercado de trabalho | IBETP',
+        'seo_description' => 'Entenda o mercado para Técnico em Enfermagem, áreas de atuação, competências e caminhos de formação profissional.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Saúde e carreira</p><h1>Técnico em Enfermagem: mercado de trabalho e oportunidades</h1><p class="lead">A área de enfermagem segue essencial para hospitais, clínicas, laboratórios, atendimento domiciliar, unidades de saúde e serviços especializados. O profissional técnico atua com cuidado, procedimento, registro e apoio à equipe de saúde.</p></section>
+<section class="content-section"><h2>Onde pode atuar</h2><div class="premium-grid three"><article class="info-card"><strong>Hospitais</strong><p>Apoio em setores assistenciais, rotina de cuidado e registros.</p></article><article class="info-card"><strong>Clínicas</strong><p>Atendimento, preparação de pacientes e suporte a procedimentos.</p></article><article class="info-card"><strong>Saúde pública</strong><p>Ações de prevenção, acompanhamento e orientação à população.</p></article></div></section>
+<section class="content-section"><h2>Competências valorizadas</h2><p>Humanização, responsabilidade, atenção a protocolos, comunicação, organização, ética e atualização constante são diferenciais. A atuação em saúde exige preparo técnico e compromisso com segurança do paciente.</p></section>
+<div class="cta-panel"><div><strong>Quer conhecer cursos na área da saúde?</strong><p>Veja o catálogo IBETP e fale com a equipe para confirmar requisitos e próximos passos.</p></div><p><a class="btn primary" href="/cursos?busca=enfermagem">Ver cursos de saúde</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Bem-vindo ao blog do IBETP: carreira, cursos e mercado de trabalho',
+        'slug' => 'bem-vindo-ao-blog-do-ibetp',
+        'type' => 'post',
+        'excerpt' => 'Conheça a proposta editorial do blog IBETP: conteúdos sobre profissões, cursos, documentação, mercado e orientação profissional.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Blog IBETP: carreira, cursos e mercado | IBETP',
+        'seo_description' => 'O blog do IBETP reúne conteúdos sobre carreira, cursos técnicos, formação profissional, documentação e mercado de trabalho.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Blog IBETP</p><h1>Bem-vindo ao blog do IBETP: carreira, cursos e mercado de trabalho</h1><p class="lead">O blog do IBETP reúne conteúdos para ajudar estudantes, trabalhadores e profissionais em transição a entenderem cursos, documentação, mercado de trabalho e oportunidades de formação.</p></section>
+<section class="content-section"><h2>O que você encontra aqui</h2><div class="premium-grid three"><article class="info-card"><strong>Profissões</strong><p>Guias sobre áreas técnicas, rotina de trabalho e possibilidades de atuação.</p></article><article class="info-card"><strong>Mercado</strong><p>Tendências, empregabilidade, setores em crescimento e decisões de carreira.</p></article><article class="info-card"><strong>Orientação</strong><p>Informações sobre matrícula, documentação, cursos e caminhos educacionais.</p></article></div></section>
+<section class="content-section"><h2>Como usar o blog</h2><p>Pesquise por área, leia os conteúdos relacionados e, quando encontrar uma formação alinhada ao seu objetivo, fale com a equipe IBETP para confirmar requisitos, valores, documentação e próximos passos.</p></section>
+<div class="cta-panel"><div><strong>Escolha sua próxima formação</strong><p>Veja o catálogo de cursos ativos do IBETP.</p></div><p><a class="btn primary" href="/cursos">Ver catálogo</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Técnico em Segurança do Trabalho: salário, mercado e carreira',
+        'slug' => 'tecnico-em-seguranca-do-trabalho-salario-mercado-2026',
+        'type' => 'post',
+        'excerpt' => 'Entenda o mercado para Técnico em Segurança do Trabalho, possibilidades de atuação, competências e crescimento profissional.',
+        'featured_image' => '/assets/hero-industria-profissionais-tecnicos-premium.png',
+        'seo_title' => 'Técnico em Segurança do Trabalho: mercado e carreira | IBETP',
+        'seo_description' => 'Veja o que faz o Técnico em Segurança do Trabalho, onde atua, competências valorizadas e caminhos de formação.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Segurança do Trabalho</p><h1>Técnico em Segurança do Trabalho: salário, mercado e carreira</h1><p class="lead">O Técnico em Segurança do Trabalho atua na prevenção de acidentes, análise de riscos, orientação de equipes, inspeções, treinamentos, documentação e apoio ao cumprimento de normas de saúde e segurança ocupacional.</p></section>
+<section class="content-section"><h2>Onde esse profissional atua</h2><div class="premium-grid three"><article class="info-card"><strong>Indústria</strong><p>Inspeções, treinamentos, riscos operacionais e cultura preventiva.</p></article><article class="info-card"><strong>Construção</strong><p>Acompanhamento de frentes de trabalho, EPIs, documentação e prevenção.</p></article><article class="info-card"><strong>Serviços</strong><p>Ambientes corporativos, hospitais, logística, comércio e operações diversas.</p></article></div></section>
+<section class="content-section"><h2>Competências valorizadas</h2><p>Comunicação, atenção a detalhes, capacidade de orientar equipes, leitura de documentos, registro de ocorrências, percepção de risco e postura ética são competências essenciais para crescer na área.</p></section>
+<section class="content-section"><h2>Sobre salário e mercado</h2><p>A remuneração varia conforme região, setor, porte da empresa, experiência e responsabilidades. O mais importante é construir uma trajetória com formação sólida, atualização e prática profissional responsável.</p></section>
+<div class="cta-panel"><div><strong>Quer atuar com prevenção e segurança?</strong><p>Conheça o curso relacionado no catálogo IBETP.</p></div><p><a class="btn primary" href="/produto/tecnico-ead-seguranca-do-trabalho">Ver curso relacionado</a></p></div>
+HTML,
+    ],
 ];

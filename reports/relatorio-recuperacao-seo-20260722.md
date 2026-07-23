@@ -36,6 +36,16 @@ Exportação do Google Search Console: `https://ibetp.com.br/-Performance-on-Sea
 - https://ibetp.com.br/glossario/a-importancia-da-higiene-na-educacao-fisica
 - https://ibetp.com.br/glossario/como-responder-uma-cantada-educadamente
 - https://ibetp.com.br/glossario/como-trabalhar-o-livro-amoras-na-educacao-infantil
+- https://ibetp.com.br/glossario/como-era-a-educacao-nos-anos-50
+- https://ibetp.com.br/glossario/a-historia-da-educacao-fisica-na-idade-media
+- https://ibetp.com.br/glossario/como-fazer-o-diagnostico-inicial-da-turma-de-educacao-infantil
+- https://ibetp.com.br/glossario/o-que-e-ritmo-na-educacao-fisica
+- https://ibetp.com.br/glossario/como-trabalhar-a-cultura-nordestina-na-educacao-infantil
+- https://ibetp.com.br/glossario/a-educacao-difusa-observada-entre-as-sociedades-tribais
+- https://ibetp.com.br/glossario/o-que-seria-alternativo-na-educacao-fisica
+- https://ibetp.com.br/glossario/como-trabalhar-o-hino-nacional-na-educacao-infantil
+- https://ibetp.com.br/glossario/a-importancia-do-calendario-na-educacao-infantil
+- https://ibetp.com.br/glossario/como-era-a-educacao-fisica-na-decada-de-80
 
 ## Critério de prioridade
 

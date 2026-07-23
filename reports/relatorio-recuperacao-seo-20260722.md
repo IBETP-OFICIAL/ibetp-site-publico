@@ -46,6 +46,15 @@ Exportação do Google Search Console: `https://ibetp.com.br/-Performance-on-Sea
 - https://ibetp.com.br/glossario/como-trabalhar-o-hino-nacional-na-educacao-infantil
 - https://ibetp.com.br/glossario/a-importancia-do-calendario-na-educacao-infantil
 - https://ibetp.com.br/glossario/como-era-a-educacao-fisica-na-decada-de-80
+- https://ibetp.com.br/glossario/o-que-e-habilitacao-em-educacao-infantil
+- https://ibetp.com.br/glossario/a-importancia-e-os-beneficios-da-educacao-superior-redacao
+- https://ibetp.com.br/glossario/como-fazer-a-sondagem-na-educacao-infantil
+- https://ibetp.com.br/glossario/como-cobrar-retorno-de-email-educadamente
+- https://ibetp.com.br/glossario/como-trabalhar-a-historia-do-patinho-feio-na-educacao-infantil
+- https://ibetp.com.br/glossario/como-finalizar-relatorio-de-aluno-educacao-infantil
+- https://ibetp.com.br/glossario/qual-a-diferenca-entre-matematica-financeira-e-educacao-financeira
+- https://ibetp.com.br/glossario/como-era-a-educacao-nos-anos-80-e-90
+- https://ibetp.com.br/glossario/como-trabalhar-o-tema-paz-na-educacao-infantil
 
 ## Critério de prioridade
 

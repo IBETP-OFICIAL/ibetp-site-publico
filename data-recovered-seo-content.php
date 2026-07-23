@@ -651,4 +651,148 @@ HTML,
 <div class="cta-panel"><div><strong>Educação Física e carreira</strong><p>Fale com o IBETP para conhecer possibilidades de formação na área.</p></div><p><a class="btn primary" href="https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.">Falar no WhatsApp</a></p></div>
 HTML,
     ],
+    [
+        'title' => 'O que é habilitação em Educação Infantil',
+        'slug' => 'o-que-e-habilitacao-em-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda o que significa habilitação para atuação na Educação Infantil, formação exigida, cuidados e caminhos profissionais.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'O que é habilitação em Educação Infantil | IBETP',
+        'seo_description' => 'Saiba o que é habilitação em Educação Infantil, relação com formação docente, atuação profissional e documentação.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Educação Infantil</p><h1>O que é habilitação em Educação Infantil</h1><p class="lead">Habilitação em Educação Infantil é a formação que permite ao profissional atuar com crianças pequenas de forma adequada às normas educacionais, à proposta pedagógica da instituição e às responsabilidades da etapa.</p></section>
+<section class="content-section"><h2>O que a habilitação representa</h2><p>Ela indica que o profissional possui formação compatível com a função exercida. Na prática, envolve conhecimentos sobre desenvolvimento infantil, planejamento, cuidado, brincadeira, linguagem, inclusão, avaliação e relação com famílias.</p></section>
+<div class="premium-grid three"><article class="info-card"><strong>Formação</strong><p>Base acadêmica compatível com a atuação educacional.</p></article><article class="info-card"><strong>Responsabilidade</strong><p>Atuação com segurança, ética e respeito à criança.</p></article><article class="info-card"><strong>Documentação</strong><p>Comprovação formal da trajetória formativa e profissional.</p></article></div>
+<section class="content-section"><h2>Por que isso importa?</h2><p>A Educação Infantil exige preparo específico. Não basta gostar de crianças: é necessário compreender intencionalidade pedagógica, direitos de aprendizagem, cuidado integral e desenvolvimento humano.</p></section>
+<div class="cta-panel"><div><strong>Quer atuar na área educacional?</strong><p>Veja cursos do IBETP ligados à educação, aprendizagem e desenvolvimento.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'A importância e os benefícios da educação superior',
+        'slug' => 'a-importancia-e-os-beneficios-da-educacao-superior-redacao',
+        'type' => 'glossary',
+        'excerpt' => 'Artigo sobre a importância da educação superior para carreira, renda, desenvolvimento social, repertório e tomada de decisão.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Importância e benefícios da educação superior | IBETP',
+        'seo_description' => 'Entenda como a educação superior contribui para carreira, desenvolvimento pessoal, empregabilidade e participação social.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Educação e carreira</p><h1>A importância e os benefícios da educação superior</h1><p class="lead">A educação superior amplia repertório, fortalece a tomada de decisão, melhora possibilidades profissionais e contribui para participação social mais qualificada. Ela não é apenas diploma: é desenvolvimento de pensamento, método e projeto de vida.</p></section>
+<section class="content-section"><h2>Benefícios para a carreira</h2><p>Formações superiores podem abrir portas em áreas que exigem titulação, apoiar progressão profissional, ampliar redes de contato e desenvolver competências valorizadas pelo mercado, como análise, comunicação, tecnologia, gestão e resolução de problemas.</p></section>
+<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th>Benefício</th></tr></thead><tbody><tr><td>Profissional</td><td>Melhor preparação para funções técnicas, gerenciais e especializadas.</td></tr><tr><td>Pessoal</td><td>Mais autonomia intelectual e capacidade de planejar escolhas.</td></tr><tr><td>Social</td><td>Participação mais crítica em debates, trabalho e comunidade.</td></tr></tbody></table></div>
+<section class="content-section"><h2>Educação superior e educação profissional</h2><p>As trajetórias podem se complementar. Cursos técnicos, tecnólogos, superiores sequenciais, graduação e pós-graduação atendem objetivos diferentes, mas todos podem fazer parte de um plano de crescimento.</p></section>
+<div class="cta-panel"><div><strong>Planeje sua próxima etapa</strong><p>Conheça opções de formação no catálogo IBETP e escolha com orientação.</p></div><p><a class="btn primary" href="/cursos">Ver catálogo</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como fazer a sondagem na Educação Infantil',
+        'slug' => 'como-fazer-a-sondagem-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Aprenda como fazer sondagem na Educação Infantil com observação, escuta, registro e planejamento sem rotular crianças.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como fazer sondagem na Educação Infantil | IBETP',
+        'seo_description' => 'Veja como fazer sondagem na Educação Infantil por meio de observação, brincadeiras, registros e escuta respeitosa.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Avaliação na infância</p><h1>Como fazer a sondagem na Educação Infantil</h1><p class="lead">Sondagem na Educação Infantil é um processo de observação e escuta para compreender como a criança pensa, brinca, fala, interage, cria hipóteses e participa. Ela deve orientar o planejamento, não classificar a criança.</p></section>
+<section class="content-section"><h2>Como começar</h2><p>Planeje situações naturais: roda de conversa, contação de histórias, desenho, brincadeira simbólica, jogos, exploração de materiais, música e rotina. Observe o que a criança faz espontaneamente e como responde aos convites pedagógicos.</p></section>
+<div class="premium-grid three"><article class="info-card"><strong>Observe</strong><p>Interações, linguagem, autonomia, coordenação, curiosidade e participação.</p></article><article class="info-card"><strong>Registre</strong><p>Anote situações reais, falas, produções e avanços percebidos.</p></article><article class="info-card"><strong>Planeje</strong><p>Transforme evidências em propostas pedagógicas adequadas à turma.</p></article></div>
+<section class="content-section"><h2>Cuidados fundamentais</h2><p>Evite testes padronizados inadequados, pressão por desempenho e comparação entre crianças. A sondagem precisa respeitar tempos, contextos, culturas, deficiência, linguagem e história de cada criança.</p></section>
+<div class="cta-panel"><div><strong>Educação Infantil com planejamento</strong><p>Veja cursos do IBETP ligados à área educacional.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como cobrar retorno de e-mail educadamente',
+        'slug' => 'como-cobrar-retorno-de-email-educadamente',
+        'type' => 'glossary',
+        'excerpt' => 'Modelos e boas práticas para cobrar resposta por e-mail com educação, objetividade, profissionalismo e respeito.',
+        'featured_image' => '/assets/curso-gestao-administracao-premium.png',
+        'seo_title' => 'Como cobrar retorno de e-mail educadamente | IBETP',
+        'seo_description' => 'Veja como pedir retorno de e-mail com educação, clareza e profissionalismo, sem parecer agressivo ou insistente.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Comunicação profissional</p><h1>Como cobrar retorno de e-mail educadamente</h1><p class="lead">Cobrar retorno de e-mail exige equilíbrio: ser claro sem ser ríspido, objetivo sem parecer frio e firme sem perder a cordialidade. A chave é lembrar o assunto, facilitar a resposta e indicar prazo quando necessário.</p></section>
+<section class="content-section"><h2>Estrutura recomendada</h2><div class="premium-grid three"><article class="info-card"><strong>Contexto</strong><p>Retome brevemente o assunto e a data do contato anterior.</p></article><article class="info-card"><strong>Pedido claro</strong><p>Diga exatamente qual retorno você precisa.</p></article><article class="info-card"><strong>Prazo gentil</strong><p>Quando necessário, indique uma data ou janela de resposta.</p></article></div></section>
+<section class="content-section"><h2>Modelo simples</h2><p>“Olá, tudo bem? Estou retomando o contato sobre [assunto]. Quando possível, poderia me confirmar se há alguma atualização? Caso seja mais prático, posso reenviar as informações ou ajustar o encaminhamento. Obrigado.”</p></section>
+<section class="content-section"><h2>O que evitar</h2><p>Evite ironia, letras maiúsculas, cobranças públicas, mensagens longas e repetição excessiva no mesmo dia. Comunicação profissional melhora quando existe respeito pelo tempo do outro e clareza sobre a necessidade.</p></section>
+<div class="cta-panel"><div><strong>Comunicação também é competência profissional</strong><p>Conheça cursos do IBETP ligados à gestão, administração e desenvolvimento de carreira.</p></div><p><a class="btn primary" href="/cursos?busca=administracao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como trabalhar a história do Patinho Feio na Educação Infantil',
+        'slug' => 'como-trabalhar-a-historia-do-patinho-feio-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Propostas para trabalhar Patinho Feio na Educação Infantil com acolhimento, identidade, diferença, respeito e linguagem.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Patinho Feio na Educação Infantil | IBETP',
+        'seo_description' => 'Ideias para trabalhar a história do Patinho Feio na Educação Infantil com respeito, identidade, diferenças e acolhimento.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Literatura e acolhimento</p><h1>Como trabalhar a história do Patinho Feio na Educação Infantil</h1><p class="lead">A história do Patinho Feio pode abrir conversas sobre acolhimento, diferença, pertencimento e respeito. Na Educação Infantil, o trabalho precisa ser sensível para não reforçar exclusões ou padrões de beleza.</p></section>
+<section class="content-section"><h2>Antes da leitura</h2><p>Converse sobre animais, famílias, sentimentos e diferenças. Faça perguntas abertas e evite antecipar uma moral pronta. O objetivo é ouvir as crianças e acolher interpretações.</p></section>
+<div class="premium-grid three"><article class="info-card"><strong>Sentimentos</strong><p>Como o personagem se sente em cada momento?</p></article><article class="info-card"><strong>Respeito</strong><p>Como tratamos alguém que parece diferente de nós?</p></article><article class="info-card"><strong>Pertencimento</strong><p>O que faz uma criança se sentir parte do grupo?</p></article></div>
+<section class="content-section"><h2>Atividades possíveis</h2><p>Use dramatização, desenho de cenas, reconto coletivo, roda de sentimentos, construção de finais alternativos e combinados de convivência. A história deve virar cuidado real na rotina da turma.</p></section>
+<div class="cta-panel"><div><strong>Educação com escuta e respeito</strong><p>Veja cursos do IBETP para quem deseja atuar ou se aperfeiçoar na área educacional.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como finalizar relatório de aluno na Educação Infantil',
+        'slug' => 'como-finalizar-relatorio-de-aluno-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Veja como finalizar relatório de aluno na Educação Infantil com clareza, respeito, evidências e linguagem profissional.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como finalizar relatório de aluno na Educação Infantil | IBETP',
+        'seo_description' => 'Aprenda a concluir relatório de aluno na Educação Infantil com linguagem respeitosa, evidências e foco no desenvolvimento.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Relatórios pedagógicos</p><h1>Como finalizar relatório de aluno na Educação Infantil</h1><p class="lead">A conclusão de um relatório na Educação Infantil deve reunir avanços, interesses, participação, apoios necessários e próximos caminhos. Ela precisa ser respeitosa, objetiva e baseada em observações reais.</p></section>
+<section class="content-section"><h2>O que uma boa conclusão deve conter</h2><div class="premium-grid three"><article class="info-card"><strong>Avanços</strong><p>O que a criança desenvolveu no período.</p></article><article class="info-card"><strong>Interesses</strong><p>Brincadeiras, temas, linguagens e atividades que mobilizam a criança.</p></article><article class="info-card"><strong>Continuidade</strong><p>Próximas propostas para apoiar o desenvolvimento.</p></article></div></section>
+<section class="content-section"><h2>Exemplo de fechamento</h2><p>“Ao longo do período, a criança demonstrou avanços em sua participação nas propostas, ampliando interações e expressando interesses com mais segurança. Seguiremos oferecendo situações de brincadeira, linguagem, movimento e convivência que favoreçam sua autonomia e desenvolvimento integral.”</p></section>
+<section class="content-section"><h2>Cuidados de linguagem</h2><p>Evite rótulos, diagnósticos sem base, comparações e frases definitivas. Prefira linguagem descritiva, acolhedora e comprometida com a continuidade do trabalho pedagógico.</p></section>
+<div class="cta-panel"><div><strong>Atuação pedagógica profissional</strong><p>Conheça formações do IBETP ligadas à educação e desenvolvimento infantil.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Matemática Financeira e Educação Financeira: qual é a diferença?',
+        'slug' => 'qual-a-diferenca-entre-matematica-financeira-e-educacao-financeira',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a diferença entre Matemática Financeira e Educação Financeira, com exemplos práticos para estudos, trabalho e vida pessoal.',
+        'featured_image' => '/assets/curso-gestao-administracao-premium.png',
+        'seo_title' => 'Matemática Financeira e Educação Financeira | IBETP',
+        'seo_description' => 'Saiba a diferença entre Matemática Financeira e Educação Financeira, conceitos, exemplos e aplicações no mercado.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Finanças e carreira</p><h1>Matemática Financeira e Educação Financeira: qual é a diferença?</h1><p class="lead">Matemática Financeira envolve cálculos como juros, descontos, parcelas, taxas e valor do dinheiro no tempo. Educação Financeira envolve comportamento, planejamento, escolhas, consumo, crédito, orçamento e tomada de decisão.</p></section>
+<div class="table-wrap"><table><thead><tr><th>Área</th><th>Foco</th><th>Exemplo</th></tr></thead><tbody><tr><td>Matemática Financeira</td><td>Cálculo</td><td>Comparar juros de um parcelamento.</td></tr><tr><td>Educação Financeira</td><td>Decisão</td><td>Definir se a compra cabe no orçamento.</td></tr><tr><td>Uso conjunto</td><td>Planejamento</td><td>Escolher crédito com menor custo e menor risco.</td></tr></tbody></table></div>
+<section class="content-section"><h2>Por que as duas importam?</h2><p>No trabalho, nos estudos e na vida pessoal, calcular bem não basta se a decisão for ruim. Da mesma forma, querer se organizar sem entender juros e prazos pode gerar escolhas caras. As duas áreas se complementam.</p></section>
+<section class="content-section"><h2>Aplicações profissionais</h2><p>Administração, logística, vendas, contabilidade, gestão, comércio, recursos humanos e empreendedorismo usam noções financeiras para orçamento, negociação, controle e análise de resultados.</p></section>
+<div class="cta-panel"><div><strong>Finanças aplicadas à carreira</strong><p>Veja cursos do IBETP em administração, gestão e áreas relacionadas.</p></div><p><a class="btn primary" href="/cursos?busca=administracao">Ver cursos</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como era a educação no Brasil nos anos 80 e 90',
+        'slug' => 'como-era-a-educacao-nos-anos-80-e-90',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a educação brasileira nos anos 80 e 90, redemocratização, Constituição de 1988, LDB de 1996 e desigualdades.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Educação no Brasil nos anos 80 e 90 | IBETP',
+        'seo_description' => 'Panorama da educação brasileira nos anos 80 e 90: direitos, redemocratização, LDB, expansão escolar e desafios.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">História da Educação</p><h1>Como era a educação no Brasil nos anos 80 e 90</h1><p class="lead">As décadas de 1980 e 1990 foram decisivas para a educação brasileira. O país saiu da ditadura, reconstruiu instituições democráticas, reconheceu a educação como direito na Constituição de 1988 e reorganizou a educação nacional pela LDB de 1996.</p></section>
+<section class="content-section"><h2>Anos 80: redemocratização e direitos</h2><p>Nos anos 80, movimentos sociais, educadores e famílias reivindicavam escola pública, acesso, permanência e participação. A Constituição de 1988 fortaleceu a educação como direito social e dever do Estado e da família.</p></section>
+<section class="content-section"><h2>Anos 90: reorganização e expansão</h2><p>A década de 90 trouxe debates sobre gestão, avaliação, financiamento, formação docente e universalização. A LDB de 1996 organizou bases importantes para a educação nacional.</p></section>
+<div class="premium-grid three"><article class="info-card"><strong>Direito</strong><p>Educação ganha força como direito social.</p></article><article class="info-card"><strong>Expansão</strong><p>Mais matrículas e maior pressão por acesso.</p></article><article class="info-card"><strong>Desafio</strong><p>Qualidade, desigualdade e permanência seguem no centro do debate.</p></article></div>
+<div class="cta-panel"><div><strong>Educação e futuro profissional</strong><p>Conheça cursos do IBETP para ampliar sua trajetória.</p></div><p><a class="btn primary" href="/cursos">Ver catálogo</a></p></div>
+HTML,
+    ],
+    [
+        'title' => 'Como trabalhar o tema paz na Educação Infantil',
+        'slug' => 'como-trabalhar-o-tema-paz-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Ideias para trabalhar cultura de paz na Educação Infantil com convivência, escuta, reparação, respeito e resolução de conflitos.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como trabalhar paz na Educação Infantil | IBETP',
+        'seo_description' => 'Veja como trabalhar cultura de paz na Educação Infantil com atividades, combinados, escuta e respeito às crianças.',
+        'content' => <<<'HTML'
+<section class="article-hero-card"><p class="eyebrow">Convivência e infância</p><h1>Como trabalhar o tema paz na Educação Infantil</h1><p class="lead">Cultura de paz não significa eliminar conflitos, exigir silêncio ou ensinar crianças a aceitar injustiças. Ela se constrói quando a escola protege, escuta, previne violências, promove pertencimento e ensina formas respeitosas de discordar, reparar danos e pedir ajuda.</p></section>
+<section class="content-section"><h2>Como começar na rotina</h2><p>Trabalhe paz nas pequenas situações: disputa por brinquedos, frustrações, espera, combinados, cuidado com materiais, acolhimento de sentimentos e resolução de conflitos com mediação adulta.</p></section>
+<div class="premium-grid three"><article class="info-card"><strong>Escuta</strong><p>Ajudar a criança a nomear sentimentos e ouvir o outro.</p></article><article class="info-card"><strong>Reparação</strong><p>Ensinar formas de consertar, pedir desculpas e reconstruir vínculos.</p></article><article class="info-card"><strong>Proteção</strong><p>Intervir quando há agressão, exclusão ou risco para a criança.</p></article></div>
+<section class="content-section"><h2>Atividades possíveis</h2><p>Use histórias, rodas de conversa, combinados ilustrados, dramatizações, cantos de acolhimento, projetos de gentileza, cuidado com plantas, brincadeiras cooperativas e registros coletivos.</p></section>
+<div class="cta-panel"><div><strong>Educação com cuidado e intencionalidade</strong><p>Conheça cursos do IBETP ligados à educação, aprendizagem e desenvolvimento infantil.</p></div><p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos</a></p></div>
+HTML,
+    ],
 ];

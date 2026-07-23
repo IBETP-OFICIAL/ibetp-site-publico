@@ -26,6 +26,16 @@ Exportação do Google Search Console: `https://ibetp.com.br/-Performance-on-Sea
 - https://ibetp.com.br/blog/carreira-seguranca-trabalho-tecnico-engenheiro-2026
 - https://ibetp.com.br/blog/oportunidades-profissionais-shopping-centers-2026-mercado-formacao
 - https://ibetp.com.br/blog/profissoes-alta-area-administrativa-regiao-tendencias-2026
+- https://ibetp.com.br/glossario/como-finalizar-um-relatorio-individual-na-educacao-infantil
+- https://ibetp.com.br/glossario/como-trabalhar-aniversario-da-cidade-na-educacao-infantil
+- https://ibetp.com.br/glossario/a-historia-da-educacao-fisica-na-idade-moderna
+- https://ibetp.com.br/glossario/como-era-a-educacao-nos-anos-80-no-brasil
+- https://ibetp.com.br/glossario/a-educacao-fisica-na-idade-media
+- https://ibetp.com.br/glossario/o-que-e-velocidade-na-educacao-fisica
+- https://ibetp.com.br/glossario/como-era-a-educacao-nos-anos-70
+- https://ibetp.com.br/glossario/a-importancia-da-higiene-na-educacao-fisica
+- https://ibetp.com.br/glossario/como-responder-uma-cantada-educadamente
+- https://ibetp.com.br/glossario/como-trabalhar-o-livro-amoras-na-educacao-infantil
 
 ## Critério de prioridade
 

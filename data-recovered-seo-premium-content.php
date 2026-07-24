@@ -1,4 +1,47 @@
 <?php
+function ibetp_recovered_premium_article(array $a): string {
+    $title = htmlspecialchars((string)$a['title'], ENT_QUOTES, 'UTF-8');
+    $eyebrow = htmlspecialchars((string)($a['eyebrow'] ?? 'Glossário profissional'), ENT_QUOTES, 'UTF-8');
+    $lead = htmlspecialchars((string)($a['lead'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $intent = htmlspecialchars((string)($a['intent'] ?? ''), ENT_QUOTES, 'UTF-8');
+    $audience = htmlspecialchars((string)($a['audience'] ?? 'estudantes, educadores e profissionais em formação'), ENT_QUOTES, 'UTF-8');
+    $ctaTitle = htmlspecialchars((string)($a['cta_title'] ?? 'Conheça cursos relacionados no IBETP'), ENT_QUOTES, 'UTF-8');
+    $ctaText = htmlspecialchars((string)($a['cta_text'] ?? 'Veja formações que podem fortalecer sua trajetória profissional.'), ENT_QUOTES, 'UTF-8');
+    $ctaUrl = htmlspecialchars((string)($a['cta_url'] ?? '/cursos'), ENT_QUOTES, 'UTF-8');
+    $cards = $a['cards'] ?? ['Conceito' => 'Entenda o tema com linguagem clara e aplicação prática.', 'Prática' => 'Veja como levar a ideia para estudos, trabalho ou sala de aula.', 'Decisão' => 'Use o conteúdo para escolher melhor seus próximos passos.'];
+    $rows = $a['rows'] ?? [['Conceito central', 'Organizar a compreensão do tema.', 'Ajuda a transformar dúvida em decisão.'], ['Aplicação prática', 'Levar o conteúdo para a rotina.', 'Fortalece aprendizagem e repertório.'], ['Próximo passo', 'Buscar formação e orientação.', 'Aproxima estudo, trabalho e carreira.']];
+    $specific = $a['specific'] ?? [];
+    $html = '<section class="article-hero-card"><p class="eyebrow">' . $eyebrow . '</p><h1>' . $title . '</h1><p class="lead">' . $lead . '</p></section>';
+    $html .= '<nav class="toc-card" aria-label="Índice do artigo"><strong>Neste guia você verá:</strong><ol><li><a href="#entenda">O que significa este tema</a></li><li><a href="#importancia">Por que ele importa</a></li><li><a href="#pratica">Como aplicar na prática</a></li><li><a href="#cuidados">Cuidados importantes</a></li><li><a href="#proximos-passos">Próximos passos de estudo e carreira</a></li></ol></nav>';
+    $html .= '<section class="content-section" id="entenda"><h2>O que significa este tema?</h2>';
+    $html .= '<p>' . $intent . '</p>';
+    $html .= '<p>Quando uma pessoa pesquisa por “' . $title . '”, normalmente ela não quer apenas uma definição curta. Ela quer entender o contexto, encontrar exemplos, saber como usar a informação e perceber se aquele conhecimento pode ajudar em uma atividade escolar, acadêmica, profissional ou familiar. Por isso, este conteúdo foi estruturado como um guia completo, com explicações, exemplos, cuidados e caminhos de aprofundamento.</p>';
+    $html .= '<p>O IBETP trata esse tipo de conteúdo como parte de uma orientação educacional mais ampla. A ideia é transformar uma dúvida isolada em compreensão útil, conectando aprendizagem, mercado de trabalho, desenvolvimento humano e escolha profissional. Um bom glossário não deve ser apenas um dicionário; ele precisa ajudar o leitor a tomar decisões melhores.</p>';
+    foreach ($specific as $p) { $html .= '<p>' . htmlspecialchars((string)$p, ENT_QUOTES, 'UTF-8') . '</p>'; }
+    $html .= '</section>';
+    $html .= '<section class="content-section" id="importancia"><h2>Por que isso importa para ' . $audience . '?</h2>';
+    $html .= '<p>Este tema importa porque aparece em situações concretas de estudo, planejamento, convivência, prática profissional e desenvolvimento de competências. Em educação, por exemplo, conceitos aparentemente simples podem orientar projetos, relatórios, atividades, avaliações e decisões pedagógicas. Em carreira, podem ajudar o profissional a se posicionar melhor, comunicar ideias e compreender demandas do mercado.</p>';
+    $html .= '<p>Também é importante porque muitos leitores chegam a esse conteúdo em momentos de dúvida. Alguns precisam preparar uma atividade; outros buscam melhorar a prática profissional; outros querem entender se determinada área combina com seus objetivos. A função deste artigo é organizar a informação de forma clara, sem exageros e sem promessas vazias.</p>';
+    $html .= '<div class="premium-grid three">';
+    foreach ($cards as $k => $v) { $html .= '<article class="info-card"><strong>' . htmlspecialchars((string)$k, ENT_QUOTES, 'UTF-8') . '</strong><p>' . htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8') . '</p></article>'; }
+    $html .= '</div></section>';
+    $html .= '<section class="content-section" id="pratica"><h2>Como aplicar na prática</h2>';
+    $html .= '<p>A aplicação prática começa pela observação da realidade. Antes de usar qualquer conceito, é importante perguntar: quem é o público envolvido? Qual é o objetivo? Que linguagem será compreendida? Quais limites precisam ser respeitados? Quais evidências sustentam a decisão? Essas perguntas evitam respostas automáticas e tornam o uso do conhecimento mais responsável.</p>';
+    $html .= '<p>Em sala de aula, o tema pode virar roda de conversa, projeto, registro, pesquisa, atividade corporal, análise de texto, produção coletiva, painel visual, estudo de caso ou reflexão orientada. Em ambientes profissionais, pode orientar comunicação, organização, segurança, planejamento, atendimento e postura ética. O ponto central é adaptar o conteúdo à situação real, sem copiar modelos prontos de forma mecânica.</p>';
+    $html .= '<div class="table-wrap"><table><thead><tr><th>Elemento</th><th>Como usar</th><th>Resultado esperado</th></tr></thead><tbody>';
+    foreach ($rows as $r) { $html .= '<tr><td>' . htmlspecialchars((string)$r[0], ENT_QUOTES, 'UTF-8') . '</td><td>' . htmlspecialchars((string)$r[1], ENT_QUOTES, 'UTF-8') . '</td><td>' . htmlspecialchars((string)$r[2], ENT_QUOTES, 'UTF-8') . '</td></tr>'; }
+    $html .= '</tbody></table></div></section>';
+    $html .= '<section class="content-section" id="cuidados"><h2>Cuidados importantes</h2>';
+    $html .= '<p>O primeiro cuidado é evitar simplificações excessivas. Conteúdos educacionais e profissionais envolvem pessoas, contextos, legislação, documentos, cultura, história e objetivos diferentes. Uma resposta curta pode até resolver uma dúvida imediata, mas nem sempre ajuda a compreender o cenário completo.</p>';
+    $html .= '<p>O segundo cuidado é evitar copiar atividades ou conclusões sem analisar a realidade. Um relatório, uma proposta pedagógica, uma orientação de carreira ou uma escolha de curso precisa fazer sentido para o contexto em que será aplicada. O terceiro cuidado é preservar respeito, inclusão e responsabilidade. Qualquer conteúdo usado em ambiente educacional deve considerar diversidade, acessibilidade, linguagem adequada e cuidado com estigmas.</p>';
+    $html .= '<p>Quando o tema envolve crianças, adolescentes, saúde, segurança, direitos ou documentação, a atenção deve ser ainda maior. O ideal é buscar orientação qualificada, usar fontes confiáveis e evitar decisões apressadas. O conhecimento deve servir para proteger, orientar e ampliar possibilidades, não para rotular pessoas ou reforçar informações frágeis.</p></section>';
+    $html .= '<section class="content-section" id="proximos-passos"><h2>Próximos passos de estudo e carreira</h2>';
+    $html .= '<p>Depois de compreender o tema, o próximo passo é transformar a informação em ação. Isso pode significar preparar uma atividade mais bem planejada, revisar um relatório, conversar com a escola, buscar uma formação, organizar um projeto ou avaliar uma área profissional. Aprender só faz diferença quando se conecta à prática.</p>';
+    $html .= '<p>O IBETP reúne conteúdos e cursos para apoiar pessoas que desejam crescer profissionalmente, entender melhor o mercado e escolher uma formação com mais segurança. Antes de se matricular, converse com a equipe, confirme documentos, valores, modalidade e próximos passos.</p>';
+    $html .= '<div class="cta-panel"><div><strong>' . $ctaTitle . '</strong><p>' . $ctaText . '</p></div><p><a class="btn primary" href="' . $ctaUrl . '">Ver cursos relacionados</a></p></div></section>';
+    return $html;
+}
+
 return [
     [
         'title' => 'Técnico de Secretaria Escolar: o que faz, mercado, rotina e formação',
@@ -653,5 +696,506 @@ HTML,
   </div>
 </section>
 HTML,
+    ],
+    [
+        'title' => 'A história da Educação Física na Idade Moderna',
+        'slug' => 'a-historia-da-educacao-fisica-na-idade-moderna',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a história da Educação Física na Idade Moderna, mudanças culturais, corpo, escola, saúde e formação humana.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Educação Física na Idade Moderna: história e contexto',
+        'seo_description' => 'Guia completo sobre a Educação Física na Idade Moderna, corpo, saúde, escola, cultura e desenvolvimento humano.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A história da Educação Física na Idade Moderna',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'A Educação Física na Idade Moderna passou a ser compreendida de forma mais organizada, ligada à formação do corpo, à disciplina, à saúde, à educação e às transformações sociais que marcaram o período.',
+            'intent' => 'A Idade Moderna trouxe novas formas de pensar o corpo, o conhecimento, a disciplina e a vida social. Nesse contexto, práticas corporais passaram a se relacionar com educação, preparação física, saúde, moral, organização social e desenvolvimento humano.',
+            'audience' => 'estudantes de Educação Física, educadores e pessoas interessadas na história do corpo',
+            'cards' => ['Corpo e cultura' => 'O corpo passa a ser observado como parte da formação humana.', 'Escola' => 'A prática corporal se aproxima de projetos educacionais.', 'Saúde' => 'Movimento e cuidado físico ganham importância social.'],
+            'rows' => [['Contexto histórico', 'Relacionar corpo e sociedade.', 'Compreensão crítica da época.'], ['Práticas corporais', 'Observar exercícios, disciplina e jogos.', 'Ligação entre cultura e educação.'], ['Formação humana', 'Entender corpo, mente e convivência.', 'Visão integral do desenvolvimento.']],
+            'cta_title' => 'Quer seguir na área da Educação Física?',
+            'cta_text' => 'Fale com o IBETP para conhecer formações relacionadas à área e receber orientação sobre matrícula.',
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como era a educação nos anos 80 no Brasil',
+        'slug' => 'como-era-a-educacao-nos-anos-80-no-brasil',
+        'type' => 'glossary',
+        'excerpt' => 'Panorama sobre a educação brasileira nos anos 80, redemocratização, direito à educação, escola pública e desafios sociais.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como era a educação nos anos 80 no Brasil | IBETP',
+        'seo_description' => 'Entenda a educação brasileira nos anos 80, redemocratização, Constituição de 1988, acesso, escola pública e desigualdades.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como era a educação nos anos 80 no Brasil',
+            'eyebrow' => 'História da Educação',
+            'lead' => 'A educação brasileira nos anos 80 foi marcada pela redemocratização, pela defesa da escola pública, pela ampliação do debate sobre direitos e pela construção de novas bases para a educação nacional.',
+            'intent' => 'Pesquisar a educação nos anos 80 no Brasil é buscar entender um período de transição política e social. A escola refletia desigualdades históricas, mas também se tornou espaço de reivindicação por acesso, permanência, participação e qualidade.',
+            'audience' => 'educadores, estudantes e profissionais interessados em história da educação',
+            'cards' => ['Direito' => 'A educação ganha força como pauta social e política.', 'Acesso' => 'A ampliação da escola pública se torna demanda central.', 'Desigualdade' => 'Regiões e grupos sociais viviam realidades muito diferentes.'],
+            'cta_title' => 'Educação também é trajetória profissional',
+            'cta_text' => 'Conheça formações do IBETP ligadas à educação, desenvolvimento e atuação profissional.',
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'A Educação Física na Idade Média',
+        'slug' => 'a-educacao-fisica-na-idade-media',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda como práticas corporais, jogos, treinamento, cultura e sociedade se relacionavam à Educação Física na Idade Média.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Educação Física na Idade Média: contexto e práticas',
+        'seo_description' => 'Guia sobre Educação Física na Idade Média, corpo, jogos, treinamento, cultura medieval e formação humana.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A Educação Física na Idade Média',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'A Educação Física na Idade Média deve ser compreendida dentro de seu contexto histórico, em que práticas corporais apareciam em jogos, treinamento, trabalho, rituais, cavalaria e vida comunitária.',
+            'intent' => 'A busca por Educação Física na Idade Média geralmente procura entender como o corpo era visto em uma sociedade marcada por religião, hierarquia, trabalho manual, guerras, festas populares e práticas de preparação física.',
+            'audience' => 'estudantes de Educação Física e pessoas interessadas em história do movimento humano',
+            'cards' => ['Jogos' => 'Brincadeiras e competições populares faziam parte da cultura.', 'Treinamento' => 'A preparação física aparecia em contextos militares e de trabalho.', 'Cultura' => 'O corpo refletia valores sociais e religiosos do período.'],
+            'cta_title' => 'Estude movimento, corpo e sociedade',
+            'cta_text' => 'Fale com o IBETP sobre formações relacionadas à Educação Física.',
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'O que é velocidade na Educação Física',
+        'slug' => 'o-que-e-velocidade-na-educacao-fisica',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda o conceito de velocidade na Educação Física, exemplos, atividades, cuidados e aplicação em aulas e treinamento.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Velocidade na Educação Física: conceito e exemplos',
+        'seo_description' => 'Saiba o que é velocidade na Educação Física, tipos, exemplos práticos, atividades, cuidados e aplicação pedagógica.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'O que é velocidade na Educação Física',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'Velocidade na Educação Física é a capacidade de realizar movimentos no menor tempo possível, considerando deslocamento, reação, coordenação e execução motora.',
+            'intent' => 'Quem pesquisa velocidade na Educação Física normalmente busca uma definição clara para trabalhos, aulas, planos de ensino ou atividades práticas. O conceito envolve corpo, tempo, movimento, percepção, estímulo e resposta.',
+            'audience' => 'estudantes, professores e interessados em práticas corporais',
+            'cards' => ['Reação' => 'Responder rapidamente a um estímulo.', 'Deslocamento' => 'Mover-se de um ponto a outro com rapidez.', 'Execução' => 'Realizar gestos motores com agilidade e controle.'],
+            'rows' => [['Velocidade de reação', 'Responder a um sinal.', 'Largada, jogos e estímulos sonoros.'], ['Velocidade de deslocamento', 'Correr ou mover-se rapidamente.', 'Corridas curtas e circuitos.'], ['Velocidade gestual', 'Executar um movimento rápido.', 'Arremesso, passe ou mudança de direção.']],
+            'cta_title' => 'Quer estudar Educação Física?',
+            'cta_text' => 'Fale com o IBETP e receba orientação sobre formações na área.',
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como era a educação nos anos 70',
+        'slug' => 'como-era-a-educacao-nos-anos-70',
+        'type' => 'glossary',
+        'excerpt' => 'Panorama sobre a educação nos anos 70, escola, disciplina, acesso, desigualdades, currículo e contexto social brasileiro.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como era a educação nos anos 70 | IBETP',
+        'seo_description' => 'Entenda como era a educação nos anos 70, contexto escolar, disciplina, acesso, currículo e desafios sociais.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como era a educação nos anos 70',
+            'eyebrow' => 'História da Educação',
+            'lead' => 'A educação nos anos 70 foi marcada por disciplina, desigualdade de acesso, mudanças curriculares e forte influência do contexto político, econômico e social do período.',
+            'intent' => 'Entender a educação nos anos 70 ajuda a comparar a escola de outras gerações com os desafios atuais. O período revela tensões entre expansão escolar, controle, formação para o trabalho e desigualdades regionais.',
+            'audience' => 'estudantes, educadores e interessados em história da escola',
+            'cards' => ['Disciplina' => 'A escola era frequentemente associada a regras rígidas.', 'Expansão' => 'Havia esforços de ampliação do acesso.', 'Desigualdade' => 'A permanência e a qualidade variavam muito.'],
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'A importância da higiene na Educação Física',
+        'slug' => 'a-importancia-da-higiene-na-educacao-fisica',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a importância da higiene na Educação Física, saúde, prevenção, cuidado corporal e hábitos em atividades físicas.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Higiene na Educação Física: importância e cuidados',
+        'seo_description' => 'Veja por que a higiene é importante na Educação Física, cuidados antes e depois das atividades e relação com saúde.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A importância da higiene na Educação Física',
+            'eyebrow' => 'Saúde e movimento',
+            'lead' => 'A higiene na Educação Física envolve cuidado com o corpo, roupas, equipamentos, hidratação, ambiente e hábitos que protegem a saúde durante e após atividades físicas.',
+            'intent' => 'O tema higiene na Educação Física aparece em aulas, projetos de saúde e orientação de estudantes porque o movimento corporal exige cuidado com suor, contato, materiais compartilhados e recuperação após o exercício.',
+            'audience' => 'estudantes, professores e profissionais ligados ao cuidado corporal',
+            'cards' => ['Prevenção' => 'Reduz desconfortos, odores, irritações e riscos evitáveis.', 'Autocuidado' => 'Ensina responsabilidade com o próprio corpo.', 'Coletividade' => 'Protege colegas quando materiais e espaços são compartilhados.'],
+            'cta_title' => 'Educação Física com cuidado e saúde',
+            'cta_text' => 'Fale com o IBETP para conhecer formações ligadas à área.',
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como responder uma cantada educadamente: assédio, limites e proteção no ambiente escolar',
+        'slug' => 'como-responder-uma-cantada-educadamente',
+        'type' => 'glossary',
+        'excerpt' => 'Guia educativo sobre cantadas, limites, assédio, proteção, respeito e caminhos seguros de denúncia em ambientes escolares.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como responder cantada e reconhecer assédio escolar | IBETP',
+        'seo_description' => 'Entenda como responder cantadas com segurança, reconhecer assédio, proteger estudantes e buscar ajuda no ambiente escolar.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como responder uma cantada educadamente: assédio, limites e proteção no ambiente escolar',
+            'eyebrow' => 'Respeito e proteção',
+            'lead' => 'Responder uma cantada não deve significar aceitar constrangimento. Em ambientes escolares e profissionais, é essencial reconhecer limites, identificar assédio e buscar ajuda segura quando houver insistência, medo, abuso de poder ou exposição.',
+            'intent' => 'Muitas pessoas pesquisam como responder uma cantada educadamente porque querem evitar conflito. Porém, quando há invasão, insistência, sexualização, ameaça, exposição ou relação de poder, o tema deixa de ser etiqueta e passa a envolver proteção, denúncia e responsabilidade institucional.',
+            'audience' => 'mulheres, crianças, adolescentes, homens, famílias, educadores e gestores escolares',
+            'cards' => ['Limite' => 'A pessoa pode dizer não sem justificar ou suavizar o desconforto.', 'Proteção' => 'Crianças e adolescentes precisam de adultos e instituições responsáveis.', 'Registro' => 'Guardar mensagens, datas e testemunhas pode ajudar na denúncia.'],
+            'rows' => [['Cantada incômoda', 'Responder com limite claro.', '“Não gostei. Não faça isso novamente.”'], ['Insistência', 'Buscar apoio e registrar.', 'Avisar responsável, coordenação ou canal oficial.'], ['Ameaça ou abuso', 'Priorizar segurança.', 'Procurar autoridade competente e rede de proteção.']],
+            'cta_title' => 'Educação também é proteção',
+            'cta_text' => 'Conheça formações do IBETP ligadas à educação, cuidado, convivência e responsabilidade profissional.',
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'Como trabalhar o livro Amoras na Educação Infantil',
+        'slug' => 'como-trabalhar-o-livro-amoras-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Ideias para trabalhar o livro Amoras na Educação Infantil com identidade, diversidade, afeto, linguagem e representatividade.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Livro Amoras na Educação Infantil: como trabalhar',
+        'seo_description' => 'Veja como trabalhar o livro Amoras na Educação Infantil com atividades sobre identidade, diversidade, afeto e representatividade.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como trabalhar o livro Amoras na Educação Infantil',
+            'eyebrow' => 'Literatura infantil',
+            'lead' => 'Trabalhar o livro Amoras na Educação Infantil permite abordar identidade, afeto, diversidade, autoestima, linguagem e representatividade de forma sensível e adequada à infância.',
+            'intent' => 'Quem busca atividades com o livro Amoras geralmente quer transformar a leitura em experiência pedagógica, sem reduzir a obra a uma ficha mecânica ou a uma atividade pronta sem escuta das crianças.',
+            'audience' => 'professores, famílias e profissionais da Educação Infantil',
+            'cards' => ['Identidade' => 'Valoriza quem a criança é e como ela se percebe.', 'Representatividade' => 'Amplia imagens positivas de diversidade.', 'Linguagem' => 'Estimula conversa, desenho, escuta e expressão.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'Como era a educação nos anos 50',
+        'slug' => 'como-era-a-educacao-nos-anos-50',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a educação nos anos 50, escola, disciplina, acesso, formação, desigualdades e contexto social brasileiro.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como era a educação nos anos 50 | IBETP',
+        'seo_description' => 'Panorama da educação nos anos 50: disciplina escolar, acesso, desigualdades, currículo e transformações sociais.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como era a educação nos anos 50',
+            'eyebrow' => 'História da Educação',
+            'lead' => 'A educação nos anos 50 refletia uma sociedade em transformação, com forte valorização da disciplina, acesso desigual à escola e modelos de ensino muito diferentes dos debates pedagógicos atuais.',
+            'intent' => 'A busca por educação nos anos 50 geralmente procura comparar gerações e compreender como escola, família, autoridade, acesso e currículo se organizavam em outro momento histórico.',
+            'audience' => 'educadores, estudantes e leitores interessados em história social',
+            'cards' => ['Disciplina' => 'Regras e autoridade tinham presença marcante.', 'Acesso' => 'Nem todos tinham permanência escolar garantida.', 'Mudança' => 'O país passava por urbanização e novas demandas sociais.'],
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'A história da Educação Física na Idade Média',
+        'slug' => 'a-historia-da-educacao-fisica-na-idade-media',
+        'type' => 'glossary',
+        'excerpt' => 'Conheça a história da Educação Física na Idade Média, práticas corporais, jogos, treinamento, cultura e sociedade.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'História da Educação Física na Idade Média | IBETP',
+        'seo_description' => 'Entenda a história da Educação Física na Idade Média, corpo, práticas corporais, jogos, treinamento e cultura.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A história da Educação Física na Idade Média',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'A história da Educação Física na Idade Média envolve práticas corporais presentes em jogos, treinamento, trabalho, festas, cavalaria e modos de vida do período.',
+            'intent' => 'Estudar esse tema ajuda a entender que práticas corporais sempre existiram, ainda que nem sempre fossem chamadas de Educação Física como conhecemos hoje.',
+            'audience' => 'estudantes de Educação Física e história da educação',
+            'cards' => ['Práticas' => 'Jogos, lutas e atividades físicas faziam parte da cultura.', 'Treinamento' => 'Preparação corporal aparecia em contextos militares.', 'Sociedade' => 'O corpo refletia valores da época.'],
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como fazer o diagnóstico inicial da turma de Educação Infantil',
+        'slug' => 'como-fazer-o-diagnostico-inicial-da-turma-de-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Guia para realizar diagnóstico inicial na Educação Infantil com observação, escuta, registro pedagógico e planejamento respeitoso.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Diagnóstico inicial na Educação Infantil: como fazer',
+        'seo_description' => 'Veja como fazer diagnóstico inicial da turma de Educação Infantil com observação, registros, escuta e planejamento pedagógico.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como fazer o diagnóstico inicial da turma de Educação Infantil',
+            'eyebrow' => 'Planejamento pedagógico',
+            'lead' => 'O diagnóstico inicial na Educação Infantil é um processo de observação e escuta que ajuda o professor a conhecer a turma, planejar propostas e acolher diferentes ritmos de desenvolvimento.',
+            'intent' => 'A busca por diagnóstico inicial não deve levar a testes rígidos ou comparações entre crianças. Na Educação Infantil, diagnosticar é observar interações, linguagem, autonomia, brincadeiras, interesses e necessidades de apoio.',
+            'audience' => 'professores, coordenadores e profissionais da Educação Infantil',
+            'cards' => ['Observação' => 'Acompanhar brincadeiras, fala, movimento e vínculos.', 'Registro' => 'Anotar evidências sem rotular crianças.', 'Planejamento' => 'Usar dados para criar propostas adequadas.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'O que é ritmo na Educação Física',
+        'slug' => 'o-que-e-ritmo-na-educacao-fisica',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda o conceito de ritmo na Educação Física, exemplos, movimento, coordenação, música, jogos e atividades corporais.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Ritmo na Educação Física: conceito e exemplos',
+        'seo_description' => 'Saiba o que é ritmo na Educação Física, como trabalhar em aulas, jogos, dança, movimento e coordenação motora.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'O que é ritmo na Educação Física',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'Ritmo na Educação Física é a organização temporal do movimento, envolvendo cadência, repetição, pausa, velocidade, coordenação e expressão corporal.',
+            'intent' => 'O ritmo aparece em danças, jogos, esportes, caminhadas, corridas, brincadeiras cantadas e atividades de coordenação. Ele ajuda o corpo a organizar movimentos no tempo.',
+            'audience' => 'estudantes, professores e profissionais de práticas corporais',
+            'cards' => ['Cadência' => 'Organiza o tempo do movimento.', 'Coordenação' => 'Integra corpo, percepção e ação.', 'Expressão' => 'Permite comunicar emoções e cultura pelo corpo.'],
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como trabalhar a cultura nordestina na Educação Infantil',
+        'slug' => 'como-trabalhar-a-cultura-nordestina-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Ideias para trabalhar cultura nordestina na Educação Infantil com música, histórias, culinária, brincadeiras, arte e respeito cultural.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Cultura nordestina na Educação Infantil: como trabalhar',
+        'seo_description' => 'Veja como trabalhar cultura nordestina na Educação Infantil com atividades respeitosas, música, literatura, brincadeiras e identidade.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como trabalhar a cultura nordestina na Educação Infantil',
+            'eyebrow' => 'Cultura e infância',
+            'lead' => 'Trabalhar a cultura nordestina na Educação Infantil exige respeito, diversidade e cuidado para valorizar músicas, histórias, festas, culinária, brincadeiras, palavras, arte e modos de vida sem estereótipos.',
+            'intent' => 'O tema costuma ser buscado por professores que desejam planejar atividades culturais. O cuidado principal é não reduzir o Nordeste a caricaturas, seca ou festa junina, mas apresentar riqueza cultural e pluralidade.',
+            'audience' => 'professores, famílias e profissionais da Educação Infantil',
+            'cards' => ['Diversidade' => 'O Nordeste é plural e possui muitas culturas.', 'Respeito' => 'Evite caricaturas e estereótipos.', 'Experiência' => 'Use música, histórias, brincadeiras e arte.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'A educação difusa observada entre as sociedades tribais',
+        'slug' => 'a-educacao-difusa-observada-entre-as-sociedades-tribais',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda o conceito de educação difusa em sociedades tribais, aprendizagem comunitária, cultura, oralidade e vida social.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Educação difusa em sociedades tribais | IBETP',
+        'seo_description' => 'Saiba o que é educação difusa em sociedades tribais, aprendizagem comunitária, tradição oral, cultura e socialização.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A educação difusa observada entre as sociedades tribais',
+            'eyebrow' => 'História da Educação',
+            'lead' => 'A educação difusa em sociedades tribais ocorre no cotidiano, pela convivência, observação, oralidade, trabalho, rituais, brincadeiras e participação na vida comunitária.',
+            'intent' => 'O conceito ajuda a entender que educação não acontece apenas na escola formal. Muitas sociedades transmitem conhecimentos por práticas coletivas, memória, tradição, exemplo e participação social.',
+            'audience' => 'estudantes, educadores e interessados em história da educação',
+            'cards' => ['Oralidade' => 'Histórias e ensinamentos circulam pela fala.', 'Convivência' => 'A aprendizagem acontece no cotidiano.', 'Cultura' => 'Conhecimentos preservam identidade e pertencimento.'],
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'O que seria alternativo na Educação Física',
+        'slug' => 'o-que-seria-alternativo-na-educacao-fisica',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda práticas alternativas na Educação Física, diversidade de movimentos, jogos, inclusão, expressão corporal e novas experiências.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Alternativo na Educação Física: significado e exemplos',
+        'seo_description' => 'Veja o que pode ser considerado alternativo na Educação Física, práticas corporais, inclusão, jogos, movimento e criatividade.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'O que seria alternativo na Educação Física',
+            'eyebrow' => 'Educação Física',
+            'lead' => 'Na Educação Física, o termo alternativo pode se referir a práticas corporais menos tradicionais, propostas inclusivas, jogos cooperativos, experiências expressivas e formas criativas de movimento.',
+            'intent' => 'A busca por alternativo na Educação Física costuma surgir quando o professor ou estudante quer ir além dos esportes tradicionais, valorizando diversidade corporal, participação e repertório cultural.',
+            'audience' => 'professores, estudantes e profissionais de práticas corporais',
+            'cards' => ['Inclusão' => 'Permite adaptar práticas a diferentes corpos.', 'Criatividade' => 'Amplia possibilidades de movimento.', 'Cooperação' => 'Valoriza participação e convivência.'],
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'Como trabalhar o Hino Nacional na Educação Infantil',
+        'slug' => 'como-trabalhar-o-hino-nacional-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Ideias para trabalhar o Hino Nacional na Educação Infantil com respeito, linguagem adequada, símbolos, escuta e cidadania.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Hino Nacional na Educação Infantil: como trabalhar',
+        'seo_description' => 'Veja como trabalhar o Hino Nacional na Educação Infantil com linguagem adequada, símbolos, escuta, respeito e cidadania.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como trabalhar o Hino Nacional na Educação Infantil',
+            'eyebrow' => 'Cidadania e infância',
+            'lead' => 'Trabalhar o Hino Nacional na Educação Infantil exige linguagem adequada, respeito à infância e foco em símbolos, pertencimento, escuta, música, convivência e cidadania.',
+            'intent' => 'O tema deve ser apresentado sem exigir memorização mecânica de palavras difíceis. Crianças pequenas podem explorar sons, símbolos, respeito coletivo e identidade nacional de forma sensível.',
+            'audience' => 'professores e profissionais da Educação Infantil',
+            'cards' => ['Símbolos' => 'Apresentar bandeira, hino e identidade com cuidado.', 'Música' => 'Trabalhar escuta, ritmo e respeito.', 'Cidadania' => 'Conversar sobre convivência e pertencimento.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'A importância do calendário na Educação Infantil',
+        'slug' => 'a-importancia-do-calendario-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a importância do calendário na Educação Infantil para rotina, tempo, organização, linguagem, números e participação.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Calendário na Educação Infantil: importância e uso',
+        'seo_description' => 'Veja como usar calendário na Educação Infantil para trabalhar rotina, tempo, linguagem, números e organização.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A importância do calendário na Educação Infantil',
+            'eyebrow' => 'Rotina e aprendizagem',
+            'lead' => 'O calendário na Educação Infantil ajuda as crianças a compreenderem tempo, rotina, sequência, datas significativas, números, linguagem e organização do cotidiano.',
+            'intent' => 'O calendário não deve ser apenas um cartaz decorativo. Ele pode ser usado como recurso vivo para conversar sobre hoje, ontem, amanhã, clima, eventos, aniversários, combinados e projetos.',
+            'audience' => 'professores e profissionais da Educação Infantil',
+            'cards' => ['Tempo' => 'Ajuda a perceber sequência e rotina.', 'Linguagem' => 'Estimula conversa sobre dias e acontecimentos.', 'Participação' => 'Envolve crianças em registros coletivos.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'Como era a Educação Física na década de 80',
+        'slug' => 'como-era-a-educacao-fisica-na-decada-de-80',
+        'type' => 'glossary',
+        'excerpt' => 'Panorama sobre a Educação Física nos anos 80, escola, esportes, corpo, saúde, cultura e mudanças pedagógicas.',
+        'featured_image' => '/assets/artigo-educacao-fisica-inclusiva-premium.png',
+        'seo_title' => 'Educação Física nos anos 80: como era',
+        'seo_description' => 'Entenda como era a Educação Física na década de 80, práticas escolares, esporte, corpo, saúde e mudanças educacionais.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como era a Educação Física na década de 80',
+            'eyebrow' => 'História da Educação Física',
+            'lead' => 'A Educação Física nos anos 80 refletia uma escola em mudança, com forte presença do esporte, debates sobre corpo, saúde, disciplina e novas perspectivas pedagógicas.',
+            'intent' => 'Pesquisar a Educação Física nos anos 80 ajuda a compreender mudanças entre uma prática mais centrada em desempenho e debates posteriores sobre inclusão, cultura corporal e formação integral.',
+            'audience' => 'estudantes e profissionais de Educação Física',
+            'cards' => ['Esporte' => 'Modalidades esportivas tinham forte presença escolar.', 'Corpo' => 'Havia debates sobre saúde, disciplina e desempenho.', 'Mudança' => 'Novas abordagens pedagógicas ganhavam espaço.'],
+            'cta_url' => 'https://wa.me/5521983177702?text=Ol%C3%A1%2C%20IBETP%21%20Tenho%20interesse%20em%20forma%C3%A7%C3%B5es%20na%20%C3%A1rea%20de%20Educa%C3%A7%C3%A3o%20F%C3%ADsica.'
+        ]),
+    ],
+    [
+        'title' => 'O que é habilitação em Educação Infantil',
+        'slug' => 'o-que-e-habilitacao-em-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda o que é habilitação em Educação Infantil, formação, atuação, cuidado pedagógico e caminhos profissionais.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Habilitação em Educação Infantil: o que é',
+        'seo_description' => 'Saiba o que significa habilitação em Educação Infantil, relação com formação, atuação pedagógica e trabalho com crianças.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'O que é habilitação em Educação Infantil',
+            'eyebrow' => 'Formação educacional',
+            'lead' => 'Habilitação em Educação Infantil se relaciona à formação necessária para atuar com crianças pequenas, considerando desenvolvimento, cuidado, aprendizagem, brincadeira e responsabilidade pedagógica.',
+            'intent' => 'A busca por habilitação geralmente aparece quando alguém quer entender requisitos de atuação, formação adequada e possibilidades de trabalho com crianças na primeira infância.',
+            'audience' => 'estudantes, educadores e profissionais que desejam atuar com crianças',
+            'cards' => ['Formação' => 'Prepara para compreender infância e desenvolvimento.', 'Atuação' => 'Relaciona cuidado, brincadeira e aprendizagem.', 'Responsabilidade' => 'Exige ética, observação e planejamento.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'A importância e os benefícios da educação superior',
+        'slug' => 'a-importancia-e-os-beneficios-da-educacao-superior-redacao',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a importância da educação superior, benefícios para carreira, pensamento crítico, empregabilidade e desenvolvimento social.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Importância da educação superior: benefícios e carreira',
+        'seo_description' => 'Veja a importância da educação superior para carreira, conhecimento, pensamento crítico, oportunidades e desenvolvimento profissional.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'A importância e os benefícios da educação superior',
+            'eyebrow' => 'Educação e carreira',
+            'lead' => 'A educação superior pode ampliar repertório, qualificação profissional, pensamento crítico, empregabilidade e capacidade de atuação em áreas mais complexas do mercado.',
+            'intent' => 'Quem busca esse tema geralmente precisa produzir uma redação ou entender por que continuar estudando pode influenciar carreira, renda, autonomia, participação social e desenvolvimento pessoal.',
+            'audience' => 'estudantes, trabalhadores e profissionais em transição',
+            'cards' => ['Carreira' => 'Amplia possibilidades profissionais.', 'Conhecimento' => 'Aprofunda análise e repertório.', 'Sociedade' => 'Contribui para participação crítica e cidadã.'],
+            'cta_url' => '/cursos?busca=superior'
+        ]),
+    ],
+    [
+        'title' => 'Como fazer a sondagem na Educação Infantil',
+        'slug' => 'como-fazer-a-sondagem-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Guia para fazer sondagem na Educação Infantil com observação, brincadeira, escuta, registros e planejamento respeitoso.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Sondagem na Educação Infantil: como fazer',
+        'seo_description' => 'Veja como fazer sondagem na Educação Infantil por meio de observação, escuta, brincadeiras, registros e planejamento.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como fazer a sondagem na Educação Infantil',
+            'eyebrow' => 'Avaliação pedagógica',
+            'lead' => 'A sondagem na Educação Infantil deve acontecer por observação, escuta, brincadeira, interação e registro, sem transformar crianças pequenas em objetos de teste rígido.',
+            'intent' => 'A sondagem ajuda o professor a conhecer interesses, linguagem, vínculos, autonomia, movimento, hipóteses e necessidades de apoio para planejar melhor.',
+            'audience' => 'professores e profissionais da Educação Infantil',
+            'cards' => ['Observação' => 'Ver como a criança age em situações reais.', 'Escuta' => 'Considerar falas, interesses e sentimentos.', 'Registro' => 'Anotar evidências para planejar.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'Como cobrar retorno de e-mail educadamente',
+        'slug' => 'como-cobrar-retorno-de-email-educadamente',
+        'type' => 'glossary',
+        'excerpt' => 'Veja como cobrar retorno de e-mail com educação, clareza, profissionalismo e objetividade, sem parecer agressivo.',
+        'featured_image' => '/assets/curso-gestao-administracao-premium.png',
+        'seo_title' => 'Como cobrar retorno de e-mail educadamente',
+        'seo_description' => 'Aprenda como pedir retorno de e-mail de forma educada, profissional, objetiva e respeitosa em situações de trabalho.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como cobrar retorno de e-mail educadamente',
+            'eyebrow' => 'Comunicação profissional',
+            'lead' => 'Cobrar retorno de e-mail educadamente exige objetividade, respeito, contexto e uma chamada clara para a próxima ação, sem soar agressivo ou ansioso demais.',
+            'intent' => 'A busca por esse tema aparece em situações profissionais em que a pessoa precisa de resposta, mas quer preservar relacionamento, imagem e tom institucional.',
+            'audience' => 'profissionais administrativos, estudantes e pessoas em ambiente corporativo',
+            'cards' => ['Clareza' => 'Diga qual retorno precisa.', 'Contexto' => 'Relembre assunto, prazo e motivo.', 'Respeito' => 'Mantenha tom cordial e objetivo.'],
+            'cta_url' => '/cursos?busca=administracao'
+        ]),
+    ],
+    [
+        'title' => 'Como trabalhar a história do Patinho Feio na Educação Infantil',
+        'slug' => 'como-trabalhar-a-historia-do-patinho-feio-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Ideias para trabalhar Patinho Feio na Educação Infantil com acolhimento, identidade, diferenças, respeito e linguagem.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Patinho Feio na Educação Infantil: como trabalhar',
+        'seo_description' => 'Veja como trabalhar a história do Patinho Feio na Educação Infantil com atividades sobre respeito, identidade e diferenças.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como trabalhar a história do Patinho Feio na Educação Infantil',
+            'eyebrow' => 'Literatura e infância',
+            'lead' => 'A história do Patinho Feio pode ser trabalhada na Educação Infantil com foco em acolhimento, identidade, diferenças, respeito, emoções e convivência.',
+            'intent' => 'O cuidado pedagógico é não reforçar rejeição ou padrões de beleza, mas usar a narrativa para conversar sobre sentimentos, pertencimento e respeito às diferenças.',
+            'audience' => 'professores e profissionais da Educação Infantil',
+            'cards' => ['Emoções' => 'Conversar sobre tristeza, rejeição e acolhimento.', 'Diferenças' => 'Valorizar diversidade sem estereótipos.', 'Convivência' => 'Trabalhar respeito e cuidado com o outro.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'Como finalizar relatório de aluno na Educação Infantil',
+        'slug' => 'como-finalizar-relatorio-de-aluno-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Guia para finalizar relatório de aluno na Educação Infantil com linguagem profissional, exemplos, observações e continuidade.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como finalizar relatório de aluno na Educação Infantil',
+        'seo_description' => 'Veja como concluir relatório de aluno na Educação Infantil com clareza, respeito, exemplos e foco pedagógico.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como finalizar relatório de aluno na Educação Infantil',
+            'eyebrow' => 'Relatório pedagógico',
+            'lead' => 'Finalizar relatório de aluno na Educação Infantil exige observar avanços, registrar desafios com cuidado e indicar continuidade sem rotular a criança.',
+            'intent' => 'Essa busca é parecida com relatório individual, mas costuma pedir frases e estrutura para fechamento. O ideal é fugir de modelos vazios e escrever com base no percurso real da criança.',
+            'audience' => 'professores, auxiliares e coordenadores pedagógicos',
+            'cards' => ['Avanços' => 'Mostre conquistas observadas.', 'Cuidado' => 'Descreva desafios sem rótulos.', 'Continuidade' => 'Indique próximos apoios pedagógicos.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
+    ],
+    [
+        'title' => 'Matemática Financeira e Educação Financeira: qual é a diferença?',
+        'slug' => 'qual-a-diferenca-entre-matematica-financeira-e-educacao-financeira',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a diferença entre Matemática Financeira e Educação Financeira, com conceitos, exemplos e aplicações práticas.',
+        'featured_image' => '/assets/curso-gestao-administracao-premium.png',
+        'seo_title' => 'Matemática Financeira e Educação Financeira: diferença',
+        'seo_description' => 'Saiba a diferença entre Matemática Financeira e Educação Financeira, cálculos, decisões, orçamento, juros e planejamento.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Matemática Financeira e Educação Financeira: qual é a diferença?',
+            'eyebrow' => 'Finanças e carreira',
+            'lead' => 'Matemática Financeira trata dos cálculos do dinheiro no tempo; Educação Financeira trata das decisões, hábitos, planejamento e comportamento diante do dinheiro.',
+            'intent' => 'A diferença é importante porque uma pessoa pode saber calcular juros e ainda tomar decisões ruins, ou querer se organizar financeiramente sem entender taxas, parcelas e prazos.',
+            'audience' => 'estudantes, profissionais administrativos e pessoas que desejam melhorar decisões financeiras',
+            'cards' => ['Cálculo' => 'Matemática Financeira mede juros, descontos e parcelas.', 'Decisão' => 'Educação Financeira orienta escolhas e hábitos.', 'Planejamento' => 'As duas juntas melhoram controle e análise.'],
+            'cta_url' => '/cursos?busca=administracao'
+        ]),
+    ],
+    [
+        'title' => 'Como era a educação no Brasil nos anos 80 e 90',
+        'slug' => 'como-era-a-educacao-nos-anos-80-e-90',
+        'type' => 'glossary',
+        'excerpt' => 'Entenda a educação brasileira nos anos 80 e 90, redemocratização, direitos, expansão escolar, LDB e desigualdades.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Educação no Brasil nos anos 80 e 90 | IBETP',
+        'seo_description' => 'Panorama da educação brasileira nos anos 80 e 90: redemocratização, Constituição, LDB, acesso e desafios.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como era a educação no Brasil nos anos 80 e 90',
+            'eyebrow' => 'História da Educação',
+            'lead' => 'As décadas de 1980 e 1990 foram decisivas para a educação brasileira, com redemocratização, reconhecimento de direitos, reorganização legal e debates sobre acesso, permanência e qualidade.',
+            'intent' => 'Quem pesquisa esse tema geralmente quer entender como o Brasil passou de um cenário de transição democrática para novas bases legais e políticas educacionais.',
+            'audience' => 'estudantes, professores e interessados em história da educação brasileira',
+            'cards' => ['Redemocratização' => 'A educação se fortalece como direito social.', 'Expansão' => 'Mais pessoas passam a reivindicar acesso escolar.', 'Desafios' => 'Qualidade e desigualdade seguem como temas centrais.'],
+            'cta_url' => '/cursos?busca=educacao'
+        ]),
+    ],
+    [
+        'title' => 'Como trabalhar o tema paz na Educação Infantil',
+        'slug' => 'como-trabalhar-o-tema-paz-na-educacao-infantil',
+        'type' => 'glossary',
+        'excerpt' => 'Guia completo para trabalhar cultura de paz na Educação Infantil com escuta, convivência, respeito, mediação e atividades.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Tema paz na Educação Infantil: como trabalhar',
+        'seo_description' => 'Veja como trabalhar paz na Educação Infantil com cultura de paz, convivência, escuta, atividades e mediação de conflitos.',
+        'content' => ibetp_recovered_premium_article([
+            'title' => 'Como trabalhar o tema paz na Educação Infantil',
+            'eyebrow' => 'Convivência e infância',
+            'lead' => 'Trabalhar paz na Educação Infantil significa ensinar convivência, escuta, respeito, reparação, cuidado e resolução de conflitos de forma adequada à idade.',
+            'intent' => 'Cultura de paz não é exigir silêncio nem negar conflitos. É ensinar crianças a reconhecer sentimentos, pedir ajuda, reparar danos e conviver com diferenças.',
+            'audience' => 'professores, famílias e profissionais da Educação Infantil',
+            'cards' => ['Escuta' => 'Ajudar crianças a nomear sentimentos.', 'Mediação' => 'Orientar conflitos sem humilhação.', 'Reparação' => 'Ensinar cuidado, desculpa e reconstrução de vínculos.'],
+            'cta_url' => '/cursos?busca=pedagogia'
+        ]),
     ],
 ];

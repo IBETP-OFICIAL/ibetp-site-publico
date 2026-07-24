@@ -329,4 +329,165 @@ HTML,
 </section>
 HTML,
     ],
+    [
+        'title' => 'Técnico em Enfermagem: mercado de trabalho, rotina e oportunidades',
+        'slug' => 'tecnico-enfermagem-vitoria-mercado-trabalho-2026',
+        'type' => 'post',
+        'excerpt' => 'Guia completo sobre mercado de trabalho para Técnico em Enfermagem, rotina profissional, competências, áreas de atuação e caminhos de formação.',
+        'featured_image' => '/assets/setor-saude-hospital-profissionais-premium.png',
+        'seo_title' => 'Técnico em Enfermagem: mercado de trabalho e carreira | IBETP',
+        'seo_description' => 'Entenda onde atua o Técnico em Enfermagem, quais competências são valorizadas, como é a rotina e como se preparar para a área da saúde.',
+        'content' => <<<'HTML'
+<section class="article-hero-card">
+  <p class="eyebrow">Saúde e carreira</p>
+  <h1>Técnico em Enfermagem: mercado de trabalho, rotina e oportunidades</h1>
+  <p class="lead">O Técnico em Enfermagem é um profissional essencial para o cuidado em saúde. Ele atua no apoio à equipe, no acompanhamento de pacientes, na organização da rotina assistencial e na execução de procedimentos dentro dos limites da formação e das orientações profissionais aplicáveis.</p>
+</section>
+
+<nav class="toc-card" aria-label="Índice do artigo">
+  <strong>Neste artigo você verá:</strong>
+  <ol>
+    <li><a href="#papel-enfermagem">O papel do Técnico em Enfermagem</a></li>
+    <li><a href="#ambientes-enfermagem">Onde esse profissional atua</a></li>
+    <li><a href="#competencias-enfermagem">Competências valorizadas</a></li>
+    <li><a href="#mercado-enfermagem">Mercado e oportunidades</a></li>
+    <li><a href="#formacao-enfermagem">Como se preparar</a></li>
+  </ol>
+</nav>
+
+<section class="content-section" id="papel-enfermagem">
+  <h2>Qual é o papel do Técnico em Enfermagem?</h2>
+  <p>O Técnico em Enfermagem participa diretamente da rotina de cuidado. Sua atuação pode envolver acolhimento, preparo de pacientes, acompanhamento de sinais, apoio a procedimentos, organização de materiais, registro de informações, orientação básica e suporte à equipe de saúde. É uma profissão que exige preparo técnico, responsabilidade, postura ética e capacidade de lidar com pessoas em momentos de fragilidade.</p>
+  <p>O trabalho em enfermagem não se resume a executar tarefas. O profissional precisa observar, comunicar alterações, seguir protocolos, manter atenção ao ambiente e colaborar com a segurança do paciente. Pequenas falhas de comunicação ou registro podem prejudicar o cuidado. Por isso, disciplina e atenção são tão importantes quanto habilidade prática.</p>
+  <p>Também é uma área que exige maturidade emocional. O técnico pode lidar com dor, ansiedade, medo, familiares preocupados, equipes sob pressão e rotinas intensas. Saber acolher sem perder a técnica é uma competência central.</p>
+</section>
+
+<section class="content-section" id="ambientes-enfermagem">
+  <h2>Onde o Técnico em Enfermagem pode atuar?</h2>
+  <p>As possibilidades de atuação dependem da formação, documentação profissional, exigências do empregador e regulamentação aplicável. O profissional pode encontrar oportunidades em hospitais, clínicas, laboratórios, unidades de saúde, atendimento domiciliar, instituições de longa permanência, empresas de saúde ocupacional e serviços especializados.</p>
+  <p>Em hospitais, a rotina tende a ser mais dinâmica, com troca de plantões, registros, acompanhamento de pacientes e interação constante com a equipe. Em clínicas, o atendimento pode envolver preparação para consultas e procedimentos. Em saúde pública, o trabalho pode estar ligado à prevenção, orientação, acompanhamento e organização de atendimentos.</p>
+  <div class="premium-grid three">
+    <article class="info-card"><strong>Hospitais</strong><p>Rotina assistencial, apoio à equipe, registros e acompanhamento de pacientes.</p></article>
+    <article class="info-card"><strong>Clínicas</strong><p>Preparo, acolhimento, organização de materiais e suporte a procedimentos.</p></article>
+    <article class="info-card"><strong>Saúde pública</strong><p>Ações preventivas, orientação, acompanhamento e atendimento à comunidade.</p></article>
+  </div>
+</section>
+
+<section class="content-section" id="competencias-enfermagem">
+  <h2>Competências valorizadas na enfermagem</h2>
+  <p>A área valoriza profissionais responsáveis, pontuais, atentos, comunicativos e capazes de trabalhar em equipe. A enfermagem é coletiva: o cuidado depende de troca de informações, respeito à hierarquia técnica, registro correto e colaboração entre profissionais.</p>
+  <p>Humanização é outro ponto importante. Um atendimento tecnicamente correto, mas frio e desatento, pode aumentar a insegurança do paciente. Por outro lado, acolhimento sem técnica também não basta. O equilíbrio entre cuidado humano e procedimento seguro é o que diferencia bons profissionais.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Competência</th><th>Aplicação prática</th><th>Por que importa</th></tr></thead>
+      <tbody>
+        <tr><td>Atenção</td><td>Observar sinais, queixas e mudanças.</td><td>Ajuda a comunicar riscos e necessidades.</td></tr>
+        <tr><td>Organização</td><td>Registrar informações e manter materiais.</td><td>Evita falhas na rotina assistencial.</td></tr>
+        <tr><td>Comunicação</td><td>Falar com pacientes, familiares e equipe.</td><td>Melhora segurança e confiança.</td></tr>
+        <tr><td>Ética</td><td>Respeitar sigilo e limites profissionais.</td><td>Protege o paciente e o profissional.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="content-section" id="mercado-enfermagem">
+  <h2>Mercado de trabalho e oportunidades</h2>
+  <p>A área da saúde mantém demanda constante por profissionais preparados, especialmente em cidades com hospitais, clínicas, unidades públicas, laboratórios e serviços de assistência. A empregabilidade pode variar por região, experiência, documentação, disponibilidade de horários e especialização.</p>
+  <p>O profissional que deseja crescer precisa buscar atualização, desenvolver postura cuidadosa, compreender a importância dos registros e manter compromisso com boas práticas. Em muitos ambientes, a diferença está na confiabilidade: equipes valorizam quem chega preparado, pergunta quando necessário, registra corretamente e trata pacientes com respeito.</p>
+  <p>Também existem caminhos de continuidade, como formações complementares, especializações técnicas e atuação em áreas específicas. A escolha deve ser feita com clareza, considerando perfil, rotina desejada, disponibilidade e objetivos profissionais.</p>
+</section>
+
+<section class="content-section" id="formacao-enfermagem">
+  <h2>Como se preparar para atuar na área</h2>
+  <p>A formação em saúde exige atenção especial a documentos, estágio quando aplicável, carga horária, orientação acadêmica e requisitos profissionais. Antes de se matricular, o aluno precisa entender valores, etapas, documentação e responsabilidades.</p>
+  <p>O IBETP orienta o interessado para que ele compreenda as condições antes de avançar. A decisão de estudar na área da saúde precisa ser séria, porque envolve cuidado com pessoas e responsabilidade profissional.</p>
+  <div class="cta-panel">
+    <div>
+      <strong>Quer conhecer cursos na área da saúde?</strong>
+      <p>Veja o catálogo IBETP e fale com a equipe para confirmar matrícula, requisitos e próximos passos.</p>
+    </div>
+    <p><a class="btn primary" href="/cursos?busca=enfermagem">Ver cursos de saúde</a></p>
+  </div>
+</section>
+HTML,
+    ],
+    [
+        'title' => 'Blog IBETP: profissões, cursos, mercado de trabalho e escolhas profissionais',
+        'slug' => 'bem-vindo-ao-blog-do-ibetp',
+        'type' => 'post',
+        'excerpt' => 'Conheça a proposta editorial do Blog IBETP: conteúdos sobre profissões, cursos técnicos, formação, documentação, mercado de trabalho e carreira.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Blog IBETP: profissões, cursos e mercado de trabalho',
+        'seo_description' => 'O Blog IBETP reúne guias sobre cursos, profissões, carreira, mercado de trabalho, documentação, educação profissional e escolhas de formação.',
+        'content' => <<<'HTML'
+<section class="article-hero-card">
+  <p class="eyebrow">Blog IBETP</p>
+  <h1>Blog IBETP: profissões, cursos, mercado de trabalho e escolhas profissionais</h1>
+  <p class="lead">O Blog IBETP foi criado para orientar estudantes, trabalhadores e profissionais em transição sobre cursos, carreira, documentação, mercado de trabalho, áreas técnicas e decisões educacionais com mais clareza.</p>
+</section>
+
+<nav class="toc-card" aria-label="Índice do artigo">
+  <strong>Nesta página você verá:</strong>
+  <ol>
+    <li><a href="#proposta-blog">A proposta do Blog IBETP</a></li>
+    <li><a href="#temas-blog">Temas que serão abordados</a></li>
+    <li><a href="#como-ler">Como usar os conteúdos para decidir melhor</a></li>
+    <li><a href="#seo-util">Por que conteúdo útil importa</a></li>
+    <li><a href="#catalogo">Como avançar para o catálogo</a></li>
+  </ol>
+</nav>
+
+<section class="content-section" id="proposta-blog">
+  <h2>A proposta do Blog IBETP</h2>
+  <p>Escolher um curso, mudar de carreira ou buscar reconhecimento profissional não deveria ser um processo confuso. Muitas pessoas chegam ao IBETP com dúvidas sobre modalidade, documentação, mercado, área de atuação, tempo de formação, estágio, diploma, valores e próximos passos. O blog existe para organizar essas perguntas em conteúdos claros, úteis e conectados à realidade profissional.</p>
+  <p>A proposta editorial é simples: explicar temas importantes em linguagem acessível, sem promessas exageradas e sem transformar educação em propaganda vazia. Um bom conteúdo precisa ajudar o leitor a entender melhor uma profissão, reconhecer oportunidades, evitar decisões precipitadas e saber quando vale conversar com a equipe antes de se matricular.</p>
+  <p>Também buscamos recuperar temas que muitas pessoas já procuravam no site. Alguns links antigos geravam impressões e cliques, mas se perderam em mudanças anteriores. Agora, esses conteúdos passam a ser reconstruídos com mais qualidade, estrutura e intenção de busca.</p>
+</section>
+
+<section class="content-section" id="temas-blog">
+  <h2>Quais temas você encontrará aqui?</h2>
+  <p>O blog abordará profissões técnicas, mercado de trabalho, tendências, empregabilidade, documentação, formação profissional, carreira, estudos, educação, segurança, saúde, tecnologia, indústria, gestão e áreas com demanda real. O foco não é publicar por publicar. Cada artigo precisa responder a uma dúvida concreta e direcionar o leitor para uma decisão mais consciente.</p>
+  <div class="premium-grid three">
+    <article class="info-card"><strong>Profissões</strong><p>O que faz cada profissional, onde atua, rotina, competências e possibilidades de crescimento.</p></article>
+    <article class="info-card"><strong>Mercado</strong><p>Setores que contratam, tendências, habilidades valorizadas e caminhos de entrada.</p></article>
+    <article class="info-card"><strong>Formação</strong><p>Orientações sobre cursos, documentos, modalidade, matrícula e planejamento profissional.</p></article>
+  </div>
+</section>
+
+<section class="content-section" id="como-ler">
+  <h2>Como usar os conteúdos para decidir melhor</h2>
+  <p>Um artigo não substitui atendimento, análise documental ou orientação individual, mas pode ajudar muito na primeira etapa. Antes de escolher um curso, leia sobre a profissão, veja se a rotina combina com seu perfil, entenda o tipo de ambiente de trabalho, observe requisitos e avalie se você tem disponibilidade para cumprir as etapas necessárias.</p>
+  <p>Também é importante comparar expectativa e realidade. Algumas áreas parecem atraentes pelo nome, mas exigem rotina intensa, atenção técnica ou habilidades específicas. Outras podem não parecer tão conhecidas, mas oferecem boas possibilidades para quem busca inserção no mercado. Conteúdo bem feito ajuda a enxergar esses detalhes.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Antes de escolher</th><th>O que observar</th><th>Como o blog ajuda</th></tr></thead>
+      <tbody>
+        <tr><td>Profissão</td><td>Rotina, ambiente e responsabilidades.</td><td>Explica o trabalho de forma prática.</td></tr>
+        <tr><td>Curso</td><td>Modalidade, duração, valores e documentos.</td><td>Direciona para páginas do catálogo.</td></tr>
+        <tr><td>Mercado</td><td>Setores, oportunidades e habilidades.</td><td>Mostra tendências e caminhos possíveis.</td></tr>
+        <tr><td>Decisão</td><td>Perfil, disponibilidade e objetivo.</td><td>Ajuda a evitar escolhas apressadas.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="content-section" id="seo-util">
+  <h2>Por que conteúdo útil também fortalece o site</h2>
+  <p>Conteúdo de qualidade ajuda pessoas e também fortalece a presença digital do IBETP. Quando um artigo responde bem a uma dúvida, organiza a informação, apresenta exemplos, usa títulos claros e direciona para páginas relevantes, ele tem mais chance de ser encontrado, lido, compartilhado e transformado em atendimento real.</p>
+  <p>Isso não significa escrever textos artificiais para buscadores. O objetivo é criar páginas que pessoas realmente queiram ler. SEO bom começa com utilidade: responder à pergunta, organizar a leitura, entregar contexto e facilitar a próxima ação. Por isso, os artigos do blog serão estruturados com índice, cards, tabelas, chamadas para ação e links internos para cursos relacionados.</p>
+</section>
+
+<section class="content-section" id="catalogo">
+  <h2>Como avançar para o catálogo do IBETP</h2>
+  <p>Depois de ler um conteúdo, o próximo passo pode ser conhecer cursos relacionados ou falar com a equipe. O catálogo reúne formações por categoria e ajuda o interessado a encontrar opções de acordo com sua área de interesse. Quando houver dúvida sobre requisitos, documentos, valores ou matrícula, o ideal é pedir orientação antes de pagar.</p>
+  <div class="cta-panel">
+    <div>
+      <strong>Explore cursos por área profissional</strong>
+      <p>Acesse o catálogo IBETP e encontre formações ligadas ao seu objetivo de carreira.</p>
+    </div>
+    <p><a class="btn primary" href="/cursos">Ver catálogo de cursos</a></p>
+  </div>
+</section>
+HTML,
+    ],
 ];

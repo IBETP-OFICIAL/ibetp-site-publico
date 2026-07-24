@@ -165,4 +165,168 @@ HTML,
 </section>
 HTML,
     ],
+    [
+        'title' => 'Manutenção de ar-condicionado: carreira, segurança, rotina e formação técnica',
+        'slug' => 'artigos/manutencao-de-ar-condicionado',
+        'type' => 'page',
+        'excerpt' => 'Guia completo sobre manutenção de ar-condicionado, climatização, segurança técnica, rotina profissional, mercado e caminhos de formação.',
+        'featured_image' => '/assets/setor-metalurgica-caldeiraria-premium.png',
+        'seo_title' => 'Manutenção de ar-condicionado: carreira e formação | IBETP',
+        'seo_description' => 'Entenda a área de manutenção de ar-condicionado, climatização, segurança, atuação profissional e cursos relacionados para crescer na área.',
+        'content' => <<<'HTML'
+<section class="article-hero-card">
+  <p class="eyebrow">Refrigeração e climatização</p>
+  <h1>Manutenção de ar-condicionado: carreira, segurança, rotina e formação técnica</h1>
+  <p class="lead">A manutenção de ar-condicionado é uma área técnica ligada ao conforto, à saúde, à conservação de ambientes e ao bom funcionamento de sistemas de climatização. O profissional atua com diagnóstico, limpeza, instalação, correção de falhas e orientação ao cliente.</p>
+</section>
+
+<nav class="toc-card" aria-label="Índice do artigo">
+  <strong>Neste guia você verá:</strong>
+  <ol>
+    <li><a href="#area">O que envolve a manutenção de ar-condicionado</a></li>
+    <li><a href="#rotina-clima">Como é a rotina profissional</a></li>
+    <li><a href="#seguranca-clima">Cuidados de segurança</a></li>
+    <li><a href="#mercado-clima">Mercado de trabalho</a></li>
+    <li><a href="#curso-clima">Cursos relacionados no IBETP</a></li>
+  </ol>
+</nav>
+
+<section class="content-section" id="area">
+  <h2>O que envolve a manutenção de ar-condicionado?</h2>
+  <p>Manutenção de ar-condicionado não é apenas “limpar o aparelho”. A atividade pode envolver avaliação do funcionamento, verificação de filtros, serpentinas, ventilação, drenos, componentes elétricos, ruídos, vazamentos, rendimento térmico, consumo de energia, instalação adequada e condições gerais do equipamento.</p>
+  <p>Em residências, o profissional costuma lidar com aparelhos split, janela, cassete e sistemas de menor porte. Em comércios, clínicas, escritórios, escolas, restaurantes e indústrias, a complexidade pode aumentar. Alguns ambientes exigem maior controle de temperatura, circulação de ar, higiene, periodicidade de manutenção e cuidado com paradas inesperadas.</p>
+  <p>O bom profissional não se limita a trocar peças. Ele observa sinais, conversa com o cliente, identifica histórico do equipamento, verifica se a instalação está correta e orienta sobre uso adequado. Isso evita retorno desnecessário, reduz desperdício e melhora a confiança no serviço.</p>
+</section>
+
+<section class="content-section" id="rotina-clima">
+  <h2>Como é a rotina profissional?</h2>
+  <p>A rotina pode começar com uma solicitação de atendimento: aparelho não gela, pinga água, desliga sozinho, apresenta ruído, cheira mal, consome muita energia ou precisa de limpeza preventiva. O técnico avalia o cenário, separa ferramentas, confere acesso ao equipamento, verifica segurança do local e inicia o diagnóstico.</p>
+  <p>Em uma manutenção preventiva, o foco é evitar problemas futuros. O profissional pode limpar filtros, higienizar componentes, verificar drenagem, conferir conexões, observar sinais de desgaste e orientar o cliente sobre periodicidade. Em uma manutenção corretiva, o objetivo é encontrar a causa da falha e restabelecer o funcionamento com segurança.</p>
+  <div class="premium-grid three">
+    <article class="info-card"><strong>Diagnóstico</strong><p>Identificar baixa refrigeração, ruídos, vazamentos, falhas elétricas e problemas de drenagem.</p></article>
+    <article class="info-card"><strong>Execução</strong><p>Realizar limpeza, ajustes, troca de componentes, testes e verificação do funcionamento.</p></article>
+    <article class="info-card"><strong>Orientação</strong><p>Explicar ao cliente cuidados de uso, periodicidade e sinais de alerta.</p></article>
+  </div>
+</section>
+
+<section class="content-section" id="seguranca-clima">
+  <h2>Cuidados de segurança na área</h2>
+  <p>A manutenção de ar-condicionado exige atenção a eletricidade, altura, ferramentas, peso de equipamentos, acesso a áreas externas, escadas, suporte de condensadoras e manipulação de componentes. O profissional precisa trabalhar com planejamento, equipamentos adequados e postura preventiva.</p>
+  <p>Também é importante respeitar limites técnicos. Quando o serviço envolve instalação complexa, infraestrutura elétrica inadequada, acesso difícil ou riscos elevados, o profissional deve avaliar se possui condições, equipe, ferramentas e autorização para executar. Segurança vem antes da pressa.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Risco</th><th>Cuidado recomendado</th><th>Impacto</th></tr></thead>
+      <tbody>
+        <tr><td>Eletricidade</td><td>Verificar alimentação, desligamento e conexões.</td><td>Reduz risco de choque e dano ao equipamento.</td></tr>
+        <tr><td>Altura</td><td>Usar acesso adequado e avaliar fixação.</td><td>Evita quedas e acidentes durante o serviço.</td></tr>
+        <tr><td>Drenagem</td><td>Conferir escoamento e pontos de obstrução.</td><td>Evita vazamentos e infiltrações.</td></tr>
+        <tr><td>Higiene</td><td>Realizar limpeza correta e orientar periodicidade.</td><td>Melhora qualidade do ar e desempenho.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="content-section" id="mercado-clima">
+  <h2>Mercado de trabalho e oportunidades</h2>
+  <p>A demanda por climatização aparece em casas, condomínios, lojas, academias, escolas, clínicas, hospitais, restaurantes, indústrias e escritórios. Em regiões quentes, a procura pode ser constante. Em períodos de maior temperatura, aumenta a necessidade de instalação, manutenção preventiva e reparo rápido.</p>
+  <p>Além do atendimento autônomo, há oportunidades em empresas de refrigeração, manutenção predial, facilities, assistência técnica, comércios especializados e setores industriais. Quem se organiza, atende bem, cumpre horários, explica o serviço com clareza e entrega segurança tende a construir reputação.</p>
+  <p>A área também conversa com eletricidade, mecânica, automação, manutenção e segurança do trabalho. Por isso, formações técnicas relacionadas podem ampliar a visão profissional e abrir portas em empresas que exigem atuação mais completa.</p>
+</section>
+
+<section class="content-section" id="curso-clima">
+  <h2>Como buscar formação para atuar melhor</h2>
+  <p>Antes de escolher uma formação, verifique se o curso ajuda a desenvolver base técnica, leitura de procedimentos, segurança, raciocínio de diagnóstico e organização profissional. O objetivo não é apenas aprender uma tarefa isolada, mas construir uma atuação mais segura e confiável.</p>
+  <p>O IBETP reúne cursos técnicos e formações relacionadas que podem apoiar quem deseja entrar ou crescer em áreas de manutenção, eletrotécnica, refrigeração, mecânica e indústria. A equipe pode orientar sobre a melhor opção conforme seu objetivo.</p>
+  <div class="cta-panel">
+    <div>
+      <strong>Quer atuar com manutenção e áreas técnicas?</strong>
+      <p>Veja cursos relacionados no catálogo do IBETP e fale com a equipe antes da matrícula.</p>
+    </div>
+    <p><a class="btn primary" href="/cursos?busca=refrigeracao">Ver cursos relacionados</a></p>
+  </div>
+</section>
+HTML,
+    ],
+    [
+        'title' => 'Como educar seus filhos com afeto, limites e responsabilidade',
+        'slug' => 'artigos/como-educar-seus-filhos',
+        'type' => 'page',
+        'excerpt' => 'Guia educativo sobre criação de filhos com afeto, limites, rotina, diálogo, escola, responsabilidade e cuidado emocional.',
+        'featured_image' => '/assets/artigo-educacao-brasil-diversidade-premium.png',
+        'seo_title' => 'Como educar seus filhos com afeto e limites | IBETP',
+        'seo_description' => 'Veja como educar filhos com diálogo, limites, rotina, responsabilidade, parceria com a escola e atenção ao desenvolvimento emocional.',
+        'content' => <<<'HTML'
+<section class="article-hero-card">
+  <p class="eyebrow">Família e educação</p>
+  <h1>Como educar seus filhos com afeto, limites e responsabilidade</h1>
+  <p class="lead">Educar filhos não é escolher entre amor e autoridade. Crianças e adolescentes precisam de vínculo, escuta, proteção, rotina, limites claros, exemplo adulto e oportunidades reais de aprender responsabilidade.</p>
+</section>
+
+<nav class="toc-card" aria-label="Índice do artigo">
+  <strong>Neste artigo você verá:</strong>
+  <ol>
+    <li><a href="#afeto-limite">Por que afeto e limite precisam caminhar juntos</a></li>
+    <li><a href="#rotina-familia">A importância da rotina</a></li>
+    <li><a href="#dialogo">Como conversar sem perder autoridade</a></li>
+    <li><a href="#escola">Família e escola</a></li>
+    <li><a href="#apoio">Quando buscar apoio</a></li>
+  </ol>
+</nav>
+
+<section class="content-section" id="afeto-limite">
+  <h2>Afeto e limite não são opostos</h2>
+  <p>Muitas famílias carregam a dúvida: ser firme pode machucar? Demonstrar carinho pode deixar a criança sem limites? Na prática, uma educação saudável precisa dos dois elementos. Afeto sem limite pode deixar a criança insegura sobre regras, responsabilidades e consequências. Limite sem afeto pode gerar medo, afastamento e dificuldade de diálogo.</p>
+  <p>Educar com afeto significa reconhecer sentimentos, escutar, acolher e demonstrar presença. Educar com limite significa estabelecer regras claras, explicar combinados, acompanhar comportamentos e agir com coerência. A criança aprende melhor quando entende o que se espera dela e percebe que o adulto está presente para orientar, não apenas punir.</p>
+  <p>Limites também protegem. Horário de dormir, cuidado com telas, respeito ao outro, responsabilidade com tarefas, convivência familiar e compromisso escolar ajudam no desenvolvimento. Quando o limite é explicado com calma e mantido com coerência, ele deixa de ser uma ameaça e passa a ser uma referência.</p>
+</section>
+
+<section class="content-section" id="rotina-familia">
+  <h2>A importância da rotina na educação dos filhos</h2>
+  <p>Rotina não precisa ser rígida como um quartel, mas precisa existir. Crianças e adolescentes se beneficiam quando sabem que há horários, prioridades e responsabilidades. Sono, alimentação, estudo, lazer, higiene, uso de telas e momentos de conversa formam uma base para o desenvolvimento.</p>
+  <p>Uma rotina previsível reduz conflitos porque diminui a sensação de improviso. Em vez de discutir todos os dias sobre horário de estudo, a família pode criar um combinado. Em vez de negociar sem fim o uso do celular, pode estabelecer tempo, local e condição. O mais importante é que o adulto seja coerente: regras que mudam a cada dia perdem força.</p>
+  <div class="premium-grid three">
+    <article class="info-card"><strong>Previsibilidade</strong><p>A criança entende o que vem depois e se sente mais segura.</p></article>
+    <article class="info-card"><strong>Responsabilidade</strong><p>Pequenas tarefas ajudam a desenvolver autonomia.</p></article>
+    <article class="info-card"><strong>Equilíbrio</strong><p>Estudo, descanso, brincadeira e convivência precisam ter espaço.</p></article>
+  </div>
+</section>
+
+<section class="content-section" id="dialogo">
+  <h2>Como conversar sem perder autoridade</h2>
+  <p>Diálogo não significa deixar a criança decidir tudo. Também não significa transformar cada regra em uma negociação interminável. Conversar é explicar, ouvir, orientar e ajudar a criança a compreender consequências. A autoridade adulta continua existindo, mas aparece com clareza, respeito e consistência.</p>
+  <p>Frases como “porque eu mandei” podem encerrar uma conversa, mas nem sempre educam. Em muitos casos, vale explicar: “você precisa dormir agora porque amanhã tem aula e seu corpo precisa descansar”; “não vamos comprar isso hoje porque temos prioridades”; “você pode sentir raiva, mas não pode bater”. Esse tipo de linguagem separa sentimento de comportamento e ensina autocontrole.</p>
+  <p>Outra prática importante é nomear emoções. Crianças pequenas ainda estão aprendendo a dizer que estão frustradas, com ciúme, medo, vergonha ou cansaço. Quando o adulto ajuda a nomear, a criança ganha repertório para falar em vez de apenas gritar, se isolar ou agredir.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situação</th><th>Resposta educativa</th><th>Objetivo</th></tr></thead>
+      <tbody>
+        <tr><td>Birra</td><td>Acolher emoção e manter limite.</td><td>Ensinar frustração com segurança.</td></tr>
+        <tr><td>Mentira</td><td>Investigar medo, consequência e reparação.</td><td>Construir responsabilidade.</td></tr>
+        <tr><td>Conflito escolar</td><td>Ouvir, buscar fatos e dialogar com a escola.</td><td>Evitar julgamento apressado.</td></tr>
+        <tr><td>Excesso de telas</td><td>Definir rotina e oferecer alternativas.</td><td>Organizar hábitos saudáveis.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="content-section" id="escola">
+  <h2>Família e escola precisam caminhar juntas</h2>
+  <p>A educação dos filhos não acontece apenas em casa nem apenas na escola. A família conhece a história, os vínculos e a rotina da criança. A escola observa aprendizagem, convivência, desenvolvimento, regras coletivas e participação. Quando essas duas partes se comunicam com respeito, a criança tende a receber apoio mais consistente.</p>
+  <p>É importante participar de reuniões, acompanhar recados, conferir atividades, observar mudanças de comportamento e manter diálogo com professores e coordenação. Quando surge um problema, o ideal é buscar informação antes de concluir. Crianças podem omitir, exagerar ou interpretar situações de acordo com sua idade. A escola também pode não perceber tudo. O diálogo cuidadoso ajuda a construir soluções.</p>
+</section>
+
+<section class="content-section" id="apoio">
+  <h2>Quando buscar apoio profissional ou institucional</h2>
+  <p>Algumas situações pedem atenção maior: tristeza persistente, medo intenso, isolamento, queda brusca no rendimento, agressividade frequente, automutilação, violência, bullying, abuso, uso problemático de telas, conflitos familiares graves ou sinais de sofrimento emocional. Nesses casos, buscar orientação especializada não é sinal de fracasso; é cuidado.</p>
+  <p>A família também pode se beneficiar de formação, leitura, apoio pedagógico e orientação educacional. Educar é um processo contínuo. Ninguém nasce pronto para lidar com todas as fases da infância e adolescência. Aprender novas formas de conversar, estabelecer limites e acompanhar a vida escolar pode melhorar a relação familiar e o desenvolvimento da criança.</p>
+  <div class="cta-panel">
+    <div>
+      <strong>Educação com responsabilidade e futuro</strong>
+      <p>Conheça cursos do IBETP ligados à educação, aprendizagem, desenvolvimento e atuação profissional em contextos educacionais.</p>
+    </div>
+    <p><a class="btn primary" href="/cursos?busca=educacao">Ver cursos relacionados</a></p>
+  </div>
+</section>
+HTML,
+    ],
 ];

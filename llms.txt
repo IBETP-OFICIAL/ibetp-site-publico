@@ -1,19 +1,19 @@
-# IBETP
+﻿# IBETP
 
-Site oficial do Instituto Brasileiro de Educação Técnica e Profissional.
+Site oficial do Instituto Brasileiro de EducaÃ§Ã£o TÃ©cnica e Profissional.
 
-Conteúdos principais:
+ConteÃºdos principais:
 
-- /cursos — cursos, produtos educacionais e formações.
-- /blog — artigos sobre profissões, mercado de trabalho, carreira, estudos e tendências.
-- /glossario — glossário educacional e profissional organizado para consulta.
-- /quem-somos — informações institucionais.
+- /cursos â€” cursos, produtos educacionais e formaÃ§Ãµes.
+- /blog â€” artigos sobre profissÃµes, mercado de trabalho, carreira, estudos e tendÃªncias.
+- /glossario â€” glossÃ¡rio educacional e profissional organizado para consulta.
+- /quem-somos â€” informaÃ§Ãµes institucionais.
 
-Política editorial:
+PolÃ­tica editorial:
 
-O conteúdo deve priorizar fontes oficiais, legislação vigente, dados públicos, orientação educacional responsável e linguagem clara para estudantes, famílias e profissionais.
+O conteÃºdo deve priorizar fontes oficiais, legislaÃ§Ã£o vigente, dados pÃºblicos, orientaÃ§Ã£o educacional responsÃ¡vel e linguagem clara para estudantes, famÃ­lias e profissionais.
 
 Contato:
 
-- WhatsApp: +55 21 98317-7702
+- WhatsApp: +55 61 8247-2383
 - E-mail: contato@ibetp.com.br

@@ -209,7 +209,7 @@ if (in_array($path, ['pagamento/sucesso', 'pagamento/pendente', 'pagamento/erro'
     $message = $kind === 'success'
         ? 'Recebemos o retorno do Mercado Pago. A matrícula será efetivada em até 24 horas úteis após a confirmação do pagamento.'
         : ($kind === 'pending' ? 'O pagamento ainda está em análise. Assim que houver confirmação, o IBETP dará sequência ao atendimento.' : 'O pagamento não foi concluído. Você pode tentar novamente ou falar com o IBETP pelo WhatsApp.');
-    ob_start(); ?><main class="checkout-page"><section class="checkout-result"><p class="eyebrow">IBETP</p><h1><?= e($title) ?></h1><p><?= e($message) ?></p><a class="btn primary" href="<?= e(site_url('/cursos')) ?>">Voltar aos cursos</a><a class="btn outline" href="https://wa.me/5521983177702">Falar com o IBETP</a></section></main><?php
+    ob_start(); ?><main class="checkout-page"><section class="checkout-result"><p class="eyebrow">IBETP</p><h1><?= e($title) ?></h1><p><?= e($message) ?></p><a class="btn primary" href="<?= e(site_url('/cursos')) ?>">Voltar aos cursos</a><a class="btn outline" href="https://wa.me/556182472383">Falar com o IBETP</a></section></main><?php
     layout($title . ' | IBETP', $message, ob_get_clean(), null, $kind === 'error');
     exit;
 }
@@ -885,7 +885,7 @@ function render_checkout_form(array $product, array $values = [], array $errors 
             <section class="checkout-step-card">
               <div class="checkout-section-title"><span>02</span><strong>Contato para matrícula</strong></div>
               <div class="checkout-grid">
-                <label class="checkout-field">Telefone celular<input name="phone" value="<?= e($value('phone')) ?>" inputmode="tel" autocomplete="tel" placeholder="(21) 99999-9999" required></label>
+                <label class="checkout-field">Telefone celular<input name="phone" value="<?= e($value('phone')) ?>" inputmode="tel" autocomplete="tel" placeholder="(61) 8247-2383" required></label>
                 <label class="checkout-field">E-mail<input name="email" type="email" value="<?= e($value('email')) ?>" autocomplete="email" placeholder="seuemail@exemplo.com" required></label>
               </div>
             </section>
@@ -2250,7 +2250,7 @@ function whatsapp_course_url(array $product): string {
         $context .= ' da área/modalidade ' . $category;
     }
     $message = 'Olá, IBETP! Tenho interesse em ' . $context . '. Pode me passar detalhes sobre matrícula, valores, requisitos, documentação e próximas turmas?';
-    return 'https://wa.me/5521983177702?text=' . rawurlencode($message);
+    return 'https://wa.me/556182472383?text=' . rawurlencode($message);
 }
 
 
@@ -3419,10 +3419,10 @@ function layout(string $title, string $description, string $body, ?string $image
 <body>
 <header class="topbar">
   <a class="brand brand-original" href="<?= e(site_url('/')) ?>"><img src="<?= e(site_url('/assets/logo-ibetp-original.png')) ?>" alt="IBETP - Instituto Brasileiro de Educação Técnica e Profissional"><span>Instituto Brasileiro de Educação Técnica e Profissional</span></a>
-  <nav><a href="<?= e(site_url('/cursos')) ?>">Cursos</a><a href="<?= e(site_url('/quem-somos')) ?>">Quem somos</a><a href="<?= e(site_url('/glossario')) ?>">Glossário</a><a href="<?= e(site_url('/blog')) ?>">Blog</a><a class="btn" href="https://wa.me/5521983177702">Fale conosco</a></nav>
+  <nav><a href="<?= e(site_url('/cursos')) ?>">Cursos</a><a href="<?= e(site_url('/quem-somos')) ?>">Quem somos</a><a href="<?= e(site_url('/glossario')) ?>">Glossário</a><a href="<?= e(site_url('/blog')) ?>">Blog</a><a class="btn" href="https://wa.me/556182472383">Fale conosco</a></nav>
 </header>
 <?= $body ?>
-<a class="whatsapp" href="https://wa.me/5521983177702">WhatsApp</a>
+<a class="whatsapp" href="https://wa.me/556182472383">WhatsApp</a>
 <section class="instagram-sitewide" aria-label="Convite para seguir o IBETP no Instagram">
   <div>
     <h2>Acompanhe oportunidades, carreira e educação profissional no Instagram</h2>
@@ -3547,7 +3547,7 @@ if ($path === '' || $path === 'index.php') {
             <h2>Seu próximo passo profissional começa com uma escolha segura.</h2>
             <p>Converse com a equipe do IBETP e encontre uma formação compatível com sua experiência, seus objetivos e o mercado de trabalho.</p>
           </div>
-          <a class="btn primary" href="https://wa.me/5521983177702">Conversar no WhatsApp</a>
+          <a class="btn primary" href="https://wa.me/556182472383">Conversar no WhatsApp</a>
         </div>
       </section>
     </main>

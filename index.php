@@ -4,6 +4,20 @@ require __DIR__ . '/../app/core/Database.php';
 require __DIR__ . '/../app/core/Auth.php';
 require __DIR__ . '/../app/core/MercadoPago.php';
 
+function ibetp_normalize_contact_output(string $html): string {
+    return strtr($html, [
+        'https://wa.me/5521983177702' => 'https://wa.me/556182472383',
+        'wa.me/5521983177702' => 'wa.me/556182472383',
+        '5521983177702' => '556182472383',
+        '21983177702' => '6182472383',
+        '+55 21 98317-7702' => '+55 61 8247-2383',
+        '(21) 98317-7702' => '(61) 8247-2383',
+        '21 98317-7702' => '61 8247-2383',
+        '21 983177702' => '61 82472383',
+    ]);
+}
+ob_start('ibetp_normalize_contact_output');
+
 $rawPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 if ($rawPath !== '/' && strlen($rawPath) > 1 && str_ends_with($rawPath, '/')) {
     $cleanPath = rtrim($rawPath, '/');
